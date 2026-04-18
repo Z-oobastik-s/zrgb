@@ -19,7 +19,7 @@ export function ColorPalette({ onColorSelect }: ColorPaletteProps) {
 
   return (
     <div className="p-4 bg-dark-100 rounded-lg border border-dark-200">
-      <p className="text-sm text-dark-500 mb-4">Color Palette:</p>
+      <p className="text-sm text-dark-500 mb-4">{t('paletteTitle')}</p>
       <div className="grid grid-cols-4 sm:grid-cols-8 gap-3">
         {colorEntries.map(([name, color]) => (
           <motion.button
@@ -47,7 +47,7 @@ export function ColorPalette({ onColorSelect }: ColorPaletteProps) {
 
       {/* Custom RGB Picker */}
       <div className="mt-6 pt-6 border-t border-dark-200">
-        <p className="text-sm text-dark-500 mb-3">Custom RGB:</p>
+        <p className="text-sm text-dark-500 mb-3">{t('customRgb')}</p>
         <CustomColorPicker onColorSelect={onColorSelect} />
       </div>
     </div>
@@ -59,6 +59,7 @@ function CustomColorPicker({
 }: {
   onColorSelect: (color: RGBColor) => void
 }) {
+  const t = useTranslations('colors')
   const [r, setR] = useState(255)
   const [g, setG] = useState(255)
   const [b, setB] = useState(255)
@@ -143,7 +144,7 @@ function CustomColorPicker({
         onClick={() => onColorSelect(color)}
         className="w-full px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg transition-all"
       >
-        Apply Color
+        {t('applyColor')}
       </button>
     </div>
   )

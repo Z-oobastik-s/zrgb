@@ -49,18 +49,6 @@ function rgbToHex(r: number, g: number, b: number): string {
   return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
 }
 
-// Convert hex to RGB
-function hexToRgb(hex: string): RGBColor | null {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null
-}
-
 // Generate color code based on format
 function generateColorCode(color: RGBColor, format: CodeFormat): string {
   const hex = rgbToHex(color.r, color.g, color.b)
@@ -68,11 +56,10 @@ function generateColorCode(color: RGBColor, format: CodeFormat): string {
 
   switch (format) {
     case 'ampersand':
+    case 'hex':
       return `&x&${hexDigits[0]}&${hexDigits[1]}&${hexDigits[2]}&${hexDigits[3]}&${hexDigits[4]}&${hexDigits[5]}`
     case 'section':
       return `§x§${hexDigits[0]}§${hexDigits[1]}§${hexDigits[2]}§${hexDigits[3]}§${hexDigits[4]}§${hexDigits[5]}`
-    case 'hex':
-      return `&x&${hexDigits[0]}&${hexDigits[1]}&${hexDigits[2]}&${hexDigits[3]}&${hexDigits[4]}&${hexDigits[5]}`
     case 'minimessage':
       return `<color:#${hex}>`
     default:

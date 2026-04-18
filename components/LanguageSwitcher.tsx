@@ -1,6 +1,5 @@
 'use client'
 
-import { useLocale } from 'next-intl'
 import { Globe } from 'lucide-react'
 import { motion } from 'framer-motion'
 

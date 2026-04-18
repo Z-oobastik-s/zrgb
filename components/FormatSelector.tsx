@@ -22,7 +22,7 @@ export function FormatSelector({ format, onFormatChange }: FormatSelectorProps) 
   return (
     <div>
       <label className="block text-sm font-medium text-dark-400 mb-3">
-        Format:
+        {t('label')}
       </label>
       <div className="flex flex-wrap gap-2">
         {formats.map((fmt) => (

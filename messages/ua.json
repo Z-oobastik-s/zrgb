@@ -6,15 +6,20 @@
     "year": "2026"
   },
   "generator": {
+    "inputLabel": "Ввід",
     "inputPlaceholder": "Введіть текст...",
+    "outputLabel": "Результат",
     "outputPlaceholder": "Результат з'явиться тут...",
     "copy": "Скопіювати",
     "copied": "Скопійовано!",
     "random": "Випадковий колір",
     "format": "Формат коду",
-    "colorPalette": "Палітра кольорів"
+    "colorPalette": "Палітра кольорів",
+    "preview": "Перегляд:",
+    "rainbow": "Веселка"
   },
   "formats": {
+    "label": "Формат:",
     "ampersand": "& (Ampersand)",
     "section": "§ (Section)",
     "hex": "&x&r&r&g&g&b&b (Hex)",
@@ -28,6 +33,9 @@
     "obfuscated": "Зашифрований"
   },
   "colors": {
+    "paletteTitle": "Палітра кольорів:",
+    "customRgb": "Власний RGB:",
+    "applyColor": "Застосувати колір",
     "black": "Чорний",
     "darkBlue": "Темно-синій",
     "darkGreen": "Темно-зелений",

@@ -6,15 +6,20 @@
     "year": "2026"
   },
   "generator": {
+    "inputLabel": "Input",
     "inputPlaceholder": "Enter text...",
+    "outputLabel": "Output",
     "outputPlaceholder": "Result will appear here...",
     "copy": "Copy",
     "copied": "Copied!",
     "random": "Random Color",
     "format": "Code Format",
-    "colorPalette": "Color Palette"
+    "colorPalette": "Color Palette",
+    "preview": "Preview:",
+    "rainbow": "Rainbow"
   },
   "formats": {
+    "label": "Format:",
     "ampersand": "& (Ampersand)",
     "section": "§ (Section)",
     "hex": "&x&r&r&g&g&b&b (Hex)",
@@ -28,6 +33,9 @@
     "obfuscated": "Obfuscated"
   },
   "colors": {
+    "paletteTitle": "Color Palette:",
+    "customRgb": "Custom RGB:",
+    "applyColor": "Apply Color",
     "black": "Black",
     "darkBlue": "Dark Blue",
     "darkGreen": "Dark Green",

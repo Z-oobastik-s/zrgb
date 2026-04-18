@@ -1,14 +1,13 @@
 /** @type {import('next').NextConfig} */
-const isProd = process.env.NODE_ENV === 'production'
-const basePath = isProd ? '/zrgbminecraft' : ''
+// Для GitHub Pages в CI задайте BASE_PATH=/имя-репозитория (workflow делает это автоматически).
+const basePath = process.env.BASE_PATH ?? ''
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compress: true,
   poweredByHeader: false,
   output: 'export',
-  basePath: basePath,
+  basePath,
   assetPrefix: basePath,
   images: {
     unoptimized: true,
@@ -20,4 +19,3 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
-

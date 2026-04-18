@@ -1,19 +1,9 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Copy,
-  Check,
-  Shuffle,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Eye,
-  Palette,
-} from 'lucide-react'
+import { Copy, Check, Shuffle, Palette } from 'lucide-react'
 import {
   CodeFormat,
   FormattingOptions,
@@ -47,6 +37,14 @@ export function Generator() {
   const [useRainbow, setUseRainbow] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
+  const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(
+    () => () => {
+      if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
+    },
+    []
+  )
 
   // Generate output text
   const outputText = useMemo(() => {
@@ -74,7 +72,11 @@ export function Generator() {
     try {
       await navigator.clipboard.writeText(outputText)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
+      copyResetTimeoutRef.current = setTimeout(() => {
+        setCopied(false)
+        copyResetTimeoutRef.current = null
+      }, 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
     }
@@ -147,7 +149,7 @@ export function Generator() {
         {/* Input Field */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-dark-400 mb-2">
-            {t('inputPlaceholder')}
+            {t('inputLabel')}
           </label>
           <textarea
             value={inputText}
@@ -176,7 +178,7 @@ export function Generator() {
             }`}
           >
             <span>🌈</span>
-            <span>Rainbow</span>
+            <span>{t('rainbow')}</span>
           </button>
 
           <button
@@ -244,7 +246,7 @@ export function Generator() {
         {/* Output Field */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-dark-400 mb-2">
-            {t('outputPlaceholder')}
+            {t('outputLabel')}
           </label>
           <div className="relative">
             <textarea
@@ -281,7 +283,7 @@ export function Generator() {
             transition={{ duration: 0.3 }}
             className="p-4 bg-dark-100 rounded-lg border border-dark-200"
           >
-            <p className="text-sm text-dark-500 mb-2">Preview:</p>
+            <p className="text-sm text-dark-500 mb-2">{t('preview')}</p>
             <div className="p-3 bg-dark-50 rounded min-h-[60px] flex items-center">
               <pre className="text-lg font-mono whitespace-pre-wrap break-words text-white">
                 {outputText}
