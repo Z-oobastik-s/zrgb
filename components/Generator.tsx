@@ -154,9 +154,19 @@ export function Generator() {
     window.history.replaceState(null, '', window.location.pathname + window.location.search)
   }, [])
 
+  const FORMAT_LIST: CodeFormat[] = [
+    'minimessage',
+    'ampersand',
+    'section',
+    'hex',
+    'bracket_hex',
+    'json',
+    'bbcode',
+  ]
+
   const applyPayload = (p: PresetPayload & { selectedColor?: RGBColor | null; useGradient?: boolean }) => {
     setInputText(p.inputText)
-    setFormat(p.format)
+    setFormat(FORMAT_LIST.includes(p.format) ? p.format : 'ampersand')
     setFormatting(p.formatting)
     const gc =
       p.gradientColors?.length ? p.gradientColors : defaultPayload().gradientColors
@@ -471,11 +481,23 @@ export function Generator() {
   const mirrorObfuscation =
     formatting.obfuscated ? 'mc-obfuscated ' : ''
 
+  const previewVisualFmt = [
+    formatting.bold ? 'font-bold' : '',
+    formatting.italic ? 'italic' : '',
+    formatting.underline ? 'underline' : '',
+    formatting.strikethrough ? 'line-through' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   const fmtOptions: { value: CodeFormat; label: string }[] = [
+    { value: 'minimessage', label: tFmt('minimessage') },
     { value: 'ampersand', label: tFmt('ampersand') },
     { value: 'section', label: tFmt('section') },
     { value: 'hex', label: tFmt('hex') },
-    { value: 'minimessage', label: tFmt('minimessage') },
+    { value: 'bracket_hex', label: tFmt('bracketHex') },
+    { value: 'json', label: tFmt('json') },
+    { value: 'bbcode', label: tFmt('bbcode') },
   ]
 
   return (
@@ -496,7 +518,7 @@ export function Generator() {
               <button
                 key={key}
                 type="button"
-                title={`${tForm(key)} (${t('formattingAppliesToOutput')})`}
+                title={tForm(key)}
                 onClick={() => toggleFormatting(key)}
                 className={`rounded p-1.5 transition-colors ${
                   formatting[key]
@@ -522,11 +544,11 @@ export function Generator() {
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            className="rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35"
+            className={`rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35 ${previewVisualFmt}`}
           />
 
           <div
-            className="rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14"
+            className={`rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 ${previewVisualFmt}`}
             aria-hidden
           >
             <div

@@ -37,15 +37,17 @@
     "decodeImport": "Застосувати JSON",
     "reverseColors": "Розвернути кольори",
     "shuffleColors": "Перемішати",
-    "copyColors": "Копіювати кольори (JSON)",
-    "formattingAppliesToOutput": "у коді Minecraft, не у шрифті поля"
+    "copyColors": "Копіювати кольори (JSON)"
   },
   "formats": {
     "label": "Формат:",
-    "ampersand": "& (Ampersand)",
-    "section": "§ (Section)",
+    "minimessage": "MiniMessage (gradient / color)",
+    "ampersand": "&x&r&r&g&g&b&b (&)",
+    "section": "§x§r§r§g§g§b§b (§)",
     "hex": "&x&r&r&g&g&b&b (Hex)",
-    "minimessage": "MiniMessage"
+    "bracketHex": "<#rrggbb>",
+    "json": "JSON (extra[])",
+    "bbcode": "[COLOR] BBCode"
   },
   "formatting": {
     "sectionTitle": "Оформлення",

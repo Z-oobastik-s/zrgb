@@ -1,4 +1,11 @@
-export type CodeFormat = 'ampersand' | 'section' | 'hex' | 'minimessage'
+export type CodeFormat =
+  | 'ampersand'
+  | 'section'
+  | 'hex'
+  | 'minimessage'
+  | 'bracket_hex'
+  | 'json'
+  | 'bbcode'
 
 export interface FormattingOptions {
   bold: boolean
@@ -34,23 +41,20 @@ export const MINECRAFT_COLORS = {
   white: { r: 255, g: 255, b: 255 },
 }
 
-// Format codes
 const FORMAT_CODES = {
-  bold: { ampersand: '&l', section: '§l', hex: '&l', minimessage: '<bold>' },
-  italic: { ampersand: '&o', section: '§o', hex: '&o', minimessage: '<italic>' },
-  underline: { ampersand: '&n', section: '§n', hex: '&n', minimessage: '<underlined>' },
-  strikethrough: { ampersand: '&m', section: '§m', hex: '&m', minimessage: '<strikethrough>' },
-  obfuscated: { ampersand: '&k', section: '§k', hex: '&k', minimessage: '<obfuscated>' },
-  reset: { ampersand: '&r', section: '§r', hex: '&r', minimessage: '<reset>' },
+  bold: { ampersand: '&l', section: '§l', hex: '&l', bracket_hex: '&l', bbcode: '', json: '' },
+  italic: { ampersand: '&o', section: '§o', hex: '&o', bracket_hex: '&o', bbcode: '', json: '' },
+  underline: { ampersand: '&n', section: '§n', hex: '&n', bracket_hex: '&n', bbcode: '', json: '' },
+  strikethrough: { ampersand: '&m', section: '§m', hex: '&m', bracket_hex: '&m', bbcode: '', json: '' },
+  obfuscated: { ampersand: '&k', section: '§k', hex: '&k', bracket_hex: '&k', bbcode: '', json: '' },
+  reset: { ampersand: '&r', section: '§r', hex: '&r', bracket_hex: '&r', bbcode: '', json: '' },
 }
 
-// Convert RGB to hex (6 chars, uppercase by default)
 function rgbToHex(r: number, g: number, b: number, lowercase = false): string {
   const h = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
   return lowercase ? h.toLowerCase() : h
 }
 
-/** Hex string without `#` prefix */
 export function rgbToHexString(color: RGBColor, lowercase = false): string {
   return rgbToHex(color.r, color.g, color.b, lowercase)
 }
@@ -62,7 +66,6 @@ export function hexToRgb(hex: string): RGBColor | null {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
 }
 
-// Generate color code based on format
 function generateColorCode(
   color: RGBColor,
   format: CodeFormat,
@@ -79,38 +82,57 @@ function generateColorCode(
       return `§x§${hexDigits[0]}§${hexDigits[1]}§${hexDigits[2]}§${hexDigits[3]}§${hexDigits[4]}§${hexDigits[5]}`
     case 'minimessage':
       return `<color:#${hex}>`
+    case 'bracket_hex':
+      return `<#${hex}>`
+    case 'json':
+    case 'bbcode':
+      return ''
     default:
       return ''
   }
 }
 
-// Generate formatting codes
-function generateFormatCodes(options: FormattingOptions, format: CodeFormat): string {
+function generateLegacyFormatCodes(options: FormattingOptions, format: CodeFormat): string {
+  if (format === 'json' || format === 'bbcode' || format === 'minimessage') return ''
   const codes: string[] = []
-  
-  if (options.bold) codes.push(FORMAT_CODES.bold[format])
-  if (options.italic) codes.push(FORMAT_CODES.italic[format])
-  if (options.underline) codes.push(FORMAT_CODES.underline[format])
-  if (options.strikethrough) codes.push(FORMAT_CODES.strikethrough[format])
-  if (options.obfuscated) codes.push(FORMAT_CODES.obfuscated[format])
-  
+  const f = format === 'hex' ? 'ampersand' : format
+  type LegacyKey = 'ampersand' | 'section' | 'bracket_hex'
+  const key = (f === 'section' ? 'section' : f === 'bracket_hex' ? 'bracket_hex' : 'ampersand') as LegacyKey
+  if (options.bold) codes.push(FORMAT_CODES.bold[key])
+  if (options.italic) codes.push(FORMAT_CODES.italic[key])
+  if (options.underline) codes.push(FORMAT_CODES.underline[key])
+  if (options.strikethrough) codes.push(FORMAT_CODES.strikethrough[key])
+  if (options.obfuscated) codes.push(FORMAT_CODES.obfuscated[key])
   return codes.join('')
 }
 
-// Generate closing tags for MiniMessage
-function generateClosingTags(options: FormattingOptions): string {
-  const tags: string[] = []
-  
-  if (options.obfuscated) tags.push('</obfuscated>')
-  if (options.strikethrough) tags.push('</strikethrough>')
-  if (options.underline) tags.push('</underlined>')
-  if (options.italic) tags.push('</italic>')
-  if (options.bold) tags.push('</bold>')
-  
-  return tags.join('')
+function minimessageWrapInner(text: string, options: FormattingOptions): string {
+  if (!text) return ''
+  let s = text
+  if (options.obfuscated) s = `<obfuscated>${s}</obfuscated>`
+  if (options.strikethrough) s = `<strikethrough>${s}</strikethrough>`
+  if (options.underline) s = `<underlined>${s}</underlined>`
+  if (options.italic) s = `<italic>${s}</italic>`
+  if (options.bold) s = `<bold>${s}</bold>`
+  return s
 }
 
-// Generate rainbow gradient effect
+function minimessageGradientTag(colors: RGBColor[], lowercaseHex: boolean): string {
+  return colors.map((c) => `#${rgbToHexString(c, lowercaseHex)}`).join(':')
+}
+
+export function generateMinimessageGradientOutput(
+  text: string,
+  colors: RGBColor[],
+  options: FormattingOptions,
+  lowercaseHex: boolean
+): string {
+  if (!text || colors.length < 2) return ''
+  const stops = minimessageGradientTag(colors, lowercaseHex)
+  const inner = minimessageWrapInner(text, options)
+  return `<gradient:${stops}>${inner}</gradient>`
+}
+
 export function generateRainbowGradient(
   text: string,
   format: CodeFormat,
@@ -118,39 +140,69 @@ export function generateRainbowGradient(
   lowercaseHex = false
 ): string {
   if (!text) return ''
-  
+
+  if (format === 'minimessage') {
+    const chars = text.split('')
+    const result: string[] = []
+    chars.forEach((char, index) => {
+      if (char === ' ') {
+        result.push(char)
+        return
+      }
+      const hue = (index * 360) / chars.length
+      const color = hslToRgb(hue, 100, 50)
+      const hex = rgbToHex(color.r, color.g, color.b, lowercaseHex)
+      const inner = minimessageWrapInner(char, options)
+      result.push(`<color:#${hex}>${inner}</color>`)
+    })
+    return result.join('')
+  }
+
+  if (format === 'json') {
+    return generateJsonColored(
+      text,
+      (_, index, len) => {
+        const hue = (index * 360) / Math.max(len, 1)
+        return hslToRgb(hue, 100, 50)
+      },
+      options,
+      lowercaseHex
+    )
+  }
+
+  if (format === 'bbcode') {
+    const chars = text.split('')
+    const parts = chars.map((char, index) => {
+      if (char === ' ') return ' '
+      const hue = (index * 360) / chars.length
+      const c = hslToRgb(hue, 100, 50)
+      const h = rgbToHexString(c, lowercaseHex)
+      return `[COLOR=#${h}]${char}[/COLOR]`
+    })
+    return wrapBbcodeFormatting(parts.join(''), options)
+  }
+
   const chars = text.split('')
   const result: string[] = []
-  
   chars.forEach((char, index) => {
     if (char === ' ') {
       result.push(char)
       return
     }
-    
     const hue = (index * 360) / chars.length
     const color = hslToRgb(hue, 100, 50)
     const colorCode = generateColorCode(color, format, lowercaseHex)
-    const formatCodes = generateFormatCodes(options, format)
-    
-    if (format === 'minimessage') {
-      result.push(`${colorCode}${formatCodes}${char}${generateClosingTags(options)}`)
-    } else {
-      result.push(`${colorCode}${formatCodes}${char}`)
-    }
+    const formatCodes = generateLegacyFormatCodes(options, format)
+    result.push(`${colorCode}${formatCodes}${char}`)
   })
-  
   return result.join('')
 }
 
-// HSL to RGB conversion (exported for preview)
 export function hslToRgb(h: number, s: number, l: number): RGBColor {
   h /= 360
   s /= 100
   l /= 100
-  
-  let r, g, b
-  
+  let r: number, g: number, b: number
   if (s === 0) {
     r = g = b = l
   } else {
@@ -162,15 +214,12 @@ export function hslToRgb(h: number, s: number, l: number): RGBColor {
       if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
       return p
     }
-    
     const q = l < 0.5 ? l * (1 + s) : l + s - l * s
     const p = 2 * l - q
-    
     r = hue2rgb(p, q, h + 1 / 3)
     g = hue2rgb(p, q, h)
     b = hue2rgb(p, q, h - 1 / 3)
   }
-  
   return {
     r: Math.round(r * 255),
     g: Math.round(g * 255),
@@ -178,7 +227,6 @@ export function hslToRgb(h: number, s: number, l: number): RGBColor {
   }
 }
 
-// Generate single color text
 export function generateSingleColor(
   text: string,
   color: RGBColor,
@@ -187,18 +235,33 @@ export function generateSingleColor(
   lowercaseHex = false
 ): string {
   if (!text) return ''
-  
-  const colorCode = generateColorCode(color, format, lowercaseHex)
-  const formatCodes = generateFormatCodes(options, format)
-  
+
   if (format === 'minimessage') {
-    return `${colorCode}${formatCodes}${text}${generateClosingTags(options)}`
+    const hex = rgbToHexString(color, lowercaseHex)
+    const inner = minimessageWrapInner(text, options)
+    return `<color:#${hex}>${inner}</color>`
   }
-  
+
+  if (format === 'json') {
+    return generateJsonColored(
+      text,
+      () => color,
+      options,
+      lowercaseHex
+    )
+  }
+
+  if (format === 'bbcode') {
+    const h = rgbToHexString(color, lowercaseHex)
+    const inner = wrapBbcodeFormatting(`[COLOR=#${h}]${text}[/COLOR]`, options)
+    return inner
+  }
+
+  const colorCode = generateColorCode(color, format, lowercaseHex)
+  const formatCodes = generateLegacyFormatCodes(options, format)
   return `${colorCode}${formatCodes}${text}`
 }
 
-// Generate random color
 export function generateRandomColor(): RGBColor {
   return {
     r: Math.floor(Math.random() * 256),
@@ -216,7 +279,6 @@ export function lerpRgb(a: RGBColor, b: RGBColor, t: number): RGBColor {
   }
 }
 
-/** Position in [0,1] along the list of color stops (like Birdflop rgb mode). */
 export function sampleRgbGradientStops(position01: number, colors: RGBColor[]): RGBColor {
   if (colors.length === 0) return { r: 200, g: 200, b: 210 }
   if (colors.length === 1) return colors[0]
@@ -229,7 +291,6 @@ export function sampleRgbGradientStops(position01: number, colors: RGBColor[]): 
   return lerpRgb(c0, c1, t)
 }
 
-/** Smooth color at character index along full string length (spaces included in length). */
 export function smoothGradientColorAtIndex(
   index: number,
   textLength: number,
@@ -239,19 +300,47 @@ export function smoothGradientColorAtIndex(
   return sampleRgbGradientStops(index / (textLength - 1), colors)
 }
 
-// Generate random gradient colors (1000+ variants)
 export function generateRandomGradientColors(): RGBColor[] {
-  const count = Math.floor(Math.random() * 5) + 2 // 2-6 colors
+  const count = Math.floor(Math.random() * 5) + 2
   const colors: RGBColor[] = []
-  
   for (let i = 0; i < count; i++) {
     colors.push(generateRandomColor())
   }
-  
   return colors
 }
 
-// Gradient: smooth rgb along the string when charsPerColor === 1; else banded stripes
+function generateJsonColored(
+  text: string,
+  colorAt: (char: string, index: number, len: number) => RGBColor | null,
+  options: FormattingOptions,
+  lowercaseHex: boolean
+): string {
+  const chars = text.split('')
+  const extra = chars.map((char, index) => {
+    const o: Record<string, unknown> = { text: char === '\n' ? '\n' : char }
+    const col = colorAt(char, index, chars.length)
+    if (col && char !== ' ' && char !== '\n') {
+      o.color = `#${rgbToHexString(col, lowercaseHex)}`
+    }
+    if (options.bold) o.bold = true
+    if (options.italic) o.italic = true
+    if (options.underline) o.underlined = true
+    if (options.strikethrough) o.strikethrough = true
+    if (options.obfuscated) o.obfuscated = true
+    return o
+  })
+  return JSON.stringify({ extra })
+}
+
+function wrapBbcodeFormatting(coloredInner: string, options: FormattingOptions): string {
+  let s = coloredInner
+  if (options.strikethrough) s = `[S]${s}[/S]`
+  if (options.underline) s = `[U]${s}[/U]`
+  if (options.italic) s = `[I]${s}[/I]`
+  if (options.bold) s = `[B]${s}[/B]`
+  return s
+}
+
 export function generateGradientText(
   text: string,
   colors: RGBColor[],
@@ -261,35 +350,63 @@ export function generateGradientText(
   lowercaseHex = false
 ): string {
   if (!text || colors.length === 0) return ''
-  
+
   const chars = text.split('')
-  const result: string[] = []
   const cpc = Math.max(1, charsPerColor)
   const banded = cpc > 1
-  
+
+  if (format === 'minimessage' && !banded && colors.length >= 2) {
+    return generateMinimessageGradientOutput(text, colors, options, lowercaseHex)
+  }
+
+  if (format === 'json') {
+    return generateJsonColored(
+      text,
+      (char, index) => {
+        if (char === ' ' || char === '\n') return null
+        return banded
+          ? colors[Math.floor(index / cpc) % colors.length]!
+          : smoothGradientColorAtIndex(index, chars.length, colors)
+      },
+      options,
+      lowercaseHex
+    )
+  }
+
+  if (format === 'bbcode') {
+    const parts = chars.map((char, index) => {
+      if (char === ' ' || char === '\n') return char
+      const color = banded
+        ? colors[Math.floor(index / cpc) % colors.length]!
+        : smoothGradientColorAtIndex(index, chars.length, colors)
+      const h = rgbToHexString(color, lowercaseHex)
+      return `[COLOR=#${h}]${char}[/COLOR]`
+    })
+    return wrapBbcodeFormatting(parts.join(''), options)
+  }
+
+  const result: string[] = []
   chars.forEach((char, index) => {
     if (char === ' ') {
       result.push(char)
       return
     }
-    
     const color = banded
       ? colors[Math.floor(index / cpc) % colors.length]!
       : smoothGradientColorAtIndex(index, chars.length, colors)
     const colorCode = generateColorCode(color, format, lowercaseHex)
-    const formatCodes = generateFormatCodes(options, format)
-    
+    const formatCodes = generateLegacyFormatCodes(options, format)
+
     if (format === 'minimessage') {
-      result.push(`${colorCode}${formatCodes}${char}${generateClosingTags(options)}`)
+      const inner = minimessageWrapInner(char, options)
+      result.push(`${colorCode}${inner}</color>`)
     } else {
       result.push(`${colorCode}${formatCodes}${char}`)
     }
   })
-  
   return result.join('')
 }
 
-/** In-game style preview: per-character RGB (not the code string). */
 export interface PreviewSegment {
   char: string
   color: RGBColor
@@ -352,4 +469,3 @@ export function buildPreviewSegments(
     color: char === ' ' ? spaceColor : plainColor,
   }))
 }
-
