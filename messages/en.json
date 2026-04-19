@@ -18,8 +18,7 @@
     "colItems": "Items",
     "colMax": "Max",
     "copied": "OK",
-    "maxLevelTitle": "Maximum level",
-    "manyItemTypes": "{count} item types (hover for list)"
+    "maxLevelTitle": "Maximum level"
   },
   "effectsPage": {
     "title": "Minecraft effects",

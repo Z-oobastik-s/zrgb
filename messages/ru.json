@@ -18,8 +18,7 @@
     "colItems": "Предметы",
     "colMax": "Макс.",
     "copied": "OK",
-    "maxLevelTitle": "Максимальный уровень",
-    "manyItemTypes": "{count} типов предметов (наведите для списка)"
+    "maxLevelTitle": "Максимальный уровень"
   },
   "effectsPage": {
     "title": "Эффекты Minecraft",

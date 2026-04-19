@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { MINECRAFT_ENCHANTMENTS } from '@/lib/minecraft-enchantments'
-import { EnchantmentItemIcons } from '@/components/EnchantmentItemIcons'
 import { MinecraftEnchantmentIcon } from '@/components/MinecraftEnchantmentIcon'
 import { useCopyFeedback } from '@/hooks/useCopyFeedback'
 
@@ -21,9 +20,6 @@ function splitInTwo<T>(arr: T[]): [T[], T[]] {
   return [arr.slice(0, mid), arr.slice(mid)]
 }
 
-/** At or above this count, show a text summary instead of the icon strip. */
-const ITEM_ICON_THRESHOLD = 10
-
 export function EnchantmentsView() {
   const t = useTranslations('enchantPage')
   const locale = useLocale()
@@ -37,50 +33,35 @@ export function EnchantmentsView() {
   const renderRow = (row: (typeof MINECRAFT_ENCHANTMENTS)[0]) => {
     const active = copiedId === row.id
     const label = nameForLocale(row, locale)
-    const manyItems = row.items.length >= ITEM_ICON_THRESHOLD
 
     return (
       <li key={row.id}>
         <button
           type="button"
           onClick={() => void copy(row.id)}
-          className="flex w-full flex-col gap-1 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-white/[0.05] sm:gap-1.5 sm:px-2.5 sm:py-2"
+          className="flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left transition-colors hover:bg-white/[0.05] sm:gap-2.5 sm:px-2.5 sm:py-1.5"
         >
-          <span className="flex w-full min-w-0 items-center gap-2 sm:gap-2.5">
-            <span className="shrink-0 opacity-95">
-              <MinecraftEnchantmentIcon items={row.items} />
-            </span>
-            <span className="min-w-0 flex-1 truncate text-xs leading-snug text-sky-200/95 sm:text-[13px]">
-              {label}
-            </span>
-            <span
-              className="shrink-0 rounded-md border border-zinc-600/40 bg-zinc-900/60 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-zinc-400 sm:text-[11px]"
-              title={t('maxLevelTitle')}
-            >
-              {row.max}
-            </span>
-            <span
-              className={`shrink-0 rounded-md border px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] ${
-                active
-                  ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
-                  : 'border-amber-500/25 bg-amber-500/[0.07] text-amber-200/90'
-              }`}
-            >
-              {active ? t('copied') : row.id}
-            </span>
+          <span className="shrink-0 opacity-95">
+            <MinecraftEnchantmentIcon items={row.items} />
           </span>
-          <div className="min-w-0 pl-[30px] sm:pl-[34px]">
-            {manyItems ? (
-              <p
-                className="text-[10px] leading-snug text-zinc-500 sm:text-[11px]"
-                title={row.items.join(', ')}
-              >
-                {t('manyItemTypes', { count: row.items.length })}
-              </p>
-            ) : (
-              <EnchantmentItemIcons items={row.items} />
-            )}
-          </div>
+          <span className="min-w-0 flex-1 truncate text-xs leading-snug text-sky-200/95 sm:text-[13px]">
+            {label}
+          </span>
+          <span
+            className="shrink-0 tabular-nums text-[10px] text-zinc-500 sm:text-[11px]"
+            title={t('maxLevelTitle')}
+          >
+            {row.max}
+          </span>
+          <span
+            className={`max-w-[min(100%,11rem)] shrink-0 truncate rounded-md border px-1.5 py-0.5 font-mono text-[10px] sm:max-w-[13rem] sm:text-[11px] ${
+              active
+                ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+                : 'border-amber-500/25 bg-amber-500/[0.07] text-amber-200/90'
+            }`}
+          >
+            {active ? t('copied') : row.id}
+          </span>
         </button>
       </li>
     )
@@ -97,7 +78,7 @@ export function EnchantmentsView() {
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#141722] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-2 py-2 sm:px-3 sm:py-2.5">
-          <div className="grid grid-cols-1 gap-x-3 gap-y-0 sm:grid-cols-2 sm:gap-x-4">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-0 sm:grid-cols-2">
             <ul className="min-w-0 space-y-1">{colA.map((row) => renderRow(row))}</ul>
             <ul className="min-w-0 space-y-1">{colB.map((row) => renderRow(row))}</ul>
           </div>
