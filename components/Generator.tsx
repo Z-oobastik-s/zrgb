@@ -648,6 +648,55 @@ export function Generator() {
         ) : null}
       </section>
 
+      {/* Full-width generated output: compact strip under input, above settings */}
+      <section className="panel shrink-0 rounded-xl border border-white/[0.06] bg-[#161922] p-2 shadow-lg">
+        <div className="relative h-[4.75rem] sm:h-[5.25rem]">
+          <textarea
+            value={outputText}
+            readOnly
+            placeholder={t('outputPlaceholder')}
+            className="box-border h-full w-full resize-none overflow-y-auto rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 pb-9 font-mono text-[10px] leading-relaxed text-zinc-300 outline-none"
+            aria-label={t('outputPlaceholder')}
+          />
+          <div className="pointer-events-auto absolute bottom-1.5 right-1.5 z-20 flex items-center gap-1">
+            <button
+              type="button"
+              onClick={copyUrl}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-black/90 px-2 py-1 text-[11px] text-zinc-200 shadow-md hover:bg-zinc-800"
+            >
+              {urlCopied ? (
+                <>
+                  <Check className="h-3 w-3" />
+                  {t('copied')}
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-3 w-3" />
+                  {t('copyUrl')}
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className="inline-flex cursor-pointer items-center gap-1 rounded-md bg-sky-600 px-2 py-1 text-[11px] text-white shadow-md hover:bg-sky-500"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-3 w-3" />
+                  {t('copied')}
+                </>
+              ) : (
+                <>
+                  <Copy className="h-3 w-3" />
+                  {t('copy')}
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* Three columns */}
       <section className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-2 overflow-hidden xl:grid-cols-3">
         {/* Colors */}
@@ -869,51 +918,6 @@ export function Generator() {
               />
               {t('lowercaseHex')}
             </label>
-          </div>
-
-          <div className="relative z-0 min-h-[6rem] flex-1">
-            <textarea
-              value={outputText}
-              readOnly
-              placeholder={t('outputPlaceholder')}
-              className="relative z-0 h-full min-h-[6rem] w-full resize-none rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-2 pb-10 font-mono text-[10px] leading-relaxed text-zinc-300 outline-none"
-            />
-            <div className="pointer-events-auto absolute bottom-2 right-2 z-20 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={copyUrl}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-black/90 px-2 py-1 text-[11px] text-zinc-200 shadow-md hover:bg-zinc-800"
-              >
-                {urlCopied ? (
-                  <>
-                    <Check className="h-3 w-3" />
-                    {t('copied')}
-                  </>
-                ) : (
-                  <>
-                    <Link2 className="h-3 w-3" />
-                    {t('copyUrl')}
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={copyToClipboard}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-md bg-sky-600 px-2 py-1 text-[11px] text-white shadow-md hover:bg-sky-500"
-              >
-                {copied ? (
-                  <>
-                    <Check className="h-3 w-3" />
-                    {t('copied')}
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3" />
-                    {t('copy')}
-                  </>
-                )}
-              </button>
-            </div>
           </div>
         </div>
 
