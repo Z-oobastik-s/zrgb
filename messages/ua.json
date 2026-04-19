@@ -12,12 +12,14 @@
   },
   "enchantPage": {
     "title": "Зачарування Minecraft",
-    "hint": "Натисніть ID, щоб скопіювати",
+    "hint": "Натисніть рядок або тег з ID, щоб скопіювати",
     "colName": "Назва",
     "colId": "ID",
     "colItems": "Предмети",
     "colMax": "Макс.",
-    "copied": "OK"
+    "copied": "OK",
+    "maxLevelTitle": "Максимальний рівень",
+    "manyItemTypes": "{count} типів предметів (наведіть для списку)"
   },
   "effectsPage": {
     "title": "Ефекти Minecraft",

@@ -12,12 +12,14 @@
   },
   "enchantPage": {
     "title": "Minecraft enchantments",
-    "hint": "Click an ID to copy",
+    "hint": "Click a row or the ID tag to copy",
     "colName": "Name",
     "colId": "ID",
     "colItems": "Items",
     "colMax": "Max",
-    "copied": "OK"
+    "copied": "OK",
+    "maxLevelTitle": "Maximum level",
+    "manyItemTypes": "{count} item types (hover for list)"
   },
   "effectsPage": {
     "title": "Minecraft effects",
