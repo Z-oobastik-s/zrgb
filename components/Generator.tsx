@@ -936,7 +936,7 @@ export function Generator() {
           className={
             yamlExpanded
               ? 'flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden'
-              : 'min-h-0 min-w-0'
+              : 'flex h-full min-h-0 min-w-0 flex-col'
           }
         >
           <YamlEditorPanel

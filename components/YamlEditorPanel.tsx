@@ -227,10 +227,10 @@ export function YamlEditorPanel({
 
   return (
     <div
-      className={`panel flex min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 ${
+      className={`panel flex h-full min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 ${
         expanded
           ? 'min-h-0 flex-1 basis-0 overflow-hidden'
-          : 'overflow-y-auto'
+          : 'overflow-y-auto overflow-x-hidden'
       }`}
     >
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
@@ -315,7 +315,7 @@ export function YamlEditorPanel({
 
       {raw && !parseError && fields.length > 0 ? (
         expanded ? (
-          <div className="flex min-h-0 flex-1 basis-0 flex-col gap-2 overflow-hidden">
+          <div className="flex min-h-0 flex-1 basis-0 flex-col justify-start gap-2 overflow-hidden">
             <input
               type="search"
               value={search}
@@ -354,38 +354,41 @@ export function YamlEditorPanel({
               </p>
             ) : null}
 
-            <div className="flex min-h-0 flex-1 basis-0 flex-col gap-2 overflow-y-auto pr-0.5">
-              {pageSlice.map((f) => (
-                <label
-                  key={f.id}
-                  className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
-                    linkedFieldId === f.id
-                      ? 'border-sky-500/55 ring-1 ring-sky-500/35'
-                      : 'border-white/[0.06]'
-                  }`}
-                >
-                  <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
-                    {f.path}
-                  </span>
-                  <textarea
-                    value={valuesById[f.id] ?? f.value}
-                    onFocus={() => {
-                      const rawVal = valuesById[f.id] ?? f.value
-                      onLinkField?.(f.id, rawVal, f.path)
-                    }}
-                    onChange={(e) => {
-                      const v = e.target.value
-                      updateValue(f.id, v)
-                      if (linkedFieldId === f.id) {
-                        onLinkedFieldRawEdit?.(v)
-                      }
-                    }}
-                    spellCheck={false}
-                    rows={4}
-                    className="min-h-[4rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50 sm:min-h-[4.5rem] sm:text-xs"
-                  />
-                </label>
-              ))}
+            {/* Block scroll area (not flex-col on items) so rows stay top-aligned */}
+            <div className="min-h-0 flex-1 basis-0 overflow-y-auto overscroll-contain pr-0.5">
+              <div className="space-y-2 pb-1">
+                {pageSlice.map((f) => (
+                  <label
+                    key={f.id}
+                    className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                      linkedFieldId === f.id
+                        ? 'border-sky-500/55 ring-1 ring-sky-500/35'
+                        : 'border-white/[0.06]'
+                    }`}
+                  >
+                    <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
+                      {f.path}
+                    </span>
+                    <textarea
+                      value={valuesById[f.id] ?? f.value}
+                      onFocus={() => {
+                        const rawVal = valuesById[f.id] ?? f.value
+                        onLinkField?.(f.id, rawVal, f.path)
+                      }}
+                      onChange={(e) => {
+                        const v = e.target.value
+                        updateValue(f.id, v)
+                        if (linkedFieldId === f.id) {
+                          onLinkedFieldRawEdit?.(v)
+                        }
+                      }}
+                      spellCheck={false}
+                      rows={4}
+                      className="min-h-[4rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50 sm:min-h-[4.5rem] sm:text-xs"
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
@@ -395,10 +398,10 @@ export function YamlEditorPanel({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('yamlSearch')}
-              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
+              className="shrink-0 rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
             />
 
-            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
               <span>
                 {t('yamlPage', { n: page + 1, total: pageCount })}
               </span>
@@ -423,10 +426,12 @@ export function YamlEditorPanel({
             </div>
 
             {filtered.length === 0 ? (
-              <p className="text-[11px] text-zinc-500">{t('yamlNoMatches')}</p>
+              <p className="shrink-0 text-[11px] text-zinc-500">
+                {t('yamlNoMatches')}
+              </p>
             ) : null}
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2">
+            <div className="space-y-2">
               {pageSlice.map((f) => (
                 <label
                   key={f.id}
