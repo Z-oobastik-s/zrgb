@@ -44,14 +44,31 @@ const FORMAT_CODES = {
   reset: { ampersand: '&r', section: '§r', hex: '&r', minimessage: '<reset>' },
 }
 
-// Convert RGB to hex
-function rgbToHex(r: number, g: number, b: number): string {
-  return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+// Convert RGB to hex (6 chars, uppercase by default)
+function rgbToHex(r: number, g: number, b: number, lowercase = false): string {
+  const h = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)
+  return lowercase ? h.toLowerCase() : h
+}
+
+/** Hex string without `#` prefix */
+export function rgbToHexString(color: RGBColor, lowercase = false): string {
+  return rgbToHex(color.r, color.g, color.b, lowercase)
+}
+
+export function hexToRgb(hex: string): RGBColor | null {
+  const h = hex.trim().replace(/^#/, '')
+  if (!/^[0-9a-fA-F]{6}$/.test(h)) return null
+  const n = parseInt(h, 16)
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
 }
 
 // Generate color code based on format
-function generateColorCode(color: RGBColor, format: CodeFormat): string {
-  const hex = rgbToHex(color.r, color.g, color.b)
+function generateColorCode(
+  color: RGBColor,
+  format: CodeFormat,
+  lowercaseHex = false
+): string {
+  const hex = rgbToHex(color.r, color.g, color.b, lowercaseHex)
   const hexDigits = hex.split('')
 
   switch (format) {
@@ -97,7 +114,8 @@ function generateClosingTags(options: FormattingOptions): string {
 export function generateRainbowGradient(
   text: string,
   format: CodeFormat,
-  options: FormattingOptions
+  options: FormattingOptions,
+  lowercaseHex = false
 ): string {
   if (!text) return ''
   
@@ -112,7 +130,7 @@ export function generateRainbowGradient(
     
     const hue = (index * 360) / chars.length
     const color = hslToRgb(hue, 100, 50)
-    const colorCode = generateColorCode(color, format)
+    const colorCode = generateColorCode(color, format, lowercaseHex)
     const formatCodes = generateFormatCodes(options, format)
     
     if (format === 'minimessage') {
@@ -165,11 +183,12 @@ export function generateSingleColor(
   text: string,
   color: RGBColor,
   format: CodeFormat,
-  options: FormattingOptions
+  options: FormattingOptions,
+  lowercaseHex = false
 ): string {
   if (!text) return ''
   
-  const colorCode = generateColorCode(color, format)
+  const colorCode = generateColorCode(color, format, lowercaseHex)
   const formatCodes = generateFormatCodes(options, format)
   
   if (format === 'minimessage') {
@@ -200,17 +219,20 @@ export function generateRandomGradientColors(): RGBColor[] {
   return colors
 }
 
-// Generate gradient text
+// Generate gradient text (banded: charsPerColor chars per color, then cycle)
 export function generateGradientText(
   text: string,
   colors: RGBColor[],
   format: CodeFormat,
-  options: FormattingOptions
+  options: FormattingOptions,
+  charsPerColor = 1,
+  lowercaseHex = false
 ): string {
   if (!text || colors.length === 0) return ''
   
   const chars = text.split('')
   const result: string[] = []
+  const cpc = Math.max(1, charsPerColor)
   
   chars.forEach((char, index) => {
     if (char === ' ') {
@@ -218,9 +240,9 @@ export function generateGradientText(
       return
     }
     
-    const colorIndex = Math.floor((index / chars.length) * colors.length)
-    const color = colors[colorIndex] || colors[colors.length - 1]
-    const colorCode = generateColorCode(color, format)
+    const colorIndex = Math.floor(index / cpc) % colors.length
+    const color = colors[colorIndex] ?? colors[colors.length - 1]
+    const colorCode = generateColorCode(color, format, lowercaseHex)
     const formatCodes = generateFormatCodes(options, format)
     
     if (format === 'minimessage') {
@@ -244,7 +266,8 @@ export function buildPreviewSegments(
   selectedColor: RGBColor | null,
   gradientColors: RGBColor[],
   useGradient: boolean,
-  useRainbow: boolean
+  useRainbow: boolean,
+  charsPerColor = 1
 ): PreviewSegment[] {
   if (!text) return []
 
@@ -269,9 +292,10 @@ export function buildPreviewSegments(
 
   if (useGradient && gradientColors.length > 0) {
     const chars = text.split('')
+    const cpc = Math.max(1, charsPerColor)
     return chars.map((char, index) => {
       if (char === ' ') return { char: ' ', color: spaceColor }
-      const colorIndex = Math.floor((index / chars.length) * gradientColors.length)
+      const colorIndex = Math.floor(index / cpc) % gradientColors.length
       const color = gradientColors[colorIndex] ?? gradientColors[gradientColors.length - 1]
       return { char, color }
     })

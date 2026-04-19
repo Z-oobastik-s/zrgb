@@ -72,6 +72,12 @@ body {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.85);
 }
 
+.minecraft-pixel-preview {
+  font-family: var(--font-pixel), ui-monospace, 'Courier New', monospace;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.75);
+  -webkit-font-smoothing: none;
+}
+
 .mc-obfuscated {
   filter: blur(2px);
   user-select: none;

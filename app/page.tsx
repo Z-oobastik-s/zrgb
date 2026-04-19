@@ -39,7 +39,7 @@ export default function HomePage() {
             if (isLocale(next)) setLocale(next)
           }}
         />
-        <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col px-2 py-1 sm:px-3 sm:py-2">
+        <div className="mx-auto flex min-h-0 w-full max-w-[min(92rem,calc(100vw-0.75rem))] flex-1 flex-col px-2 py-1 sm:px-3 sm:py-2">
           <Generator />
         </div>
       </main>

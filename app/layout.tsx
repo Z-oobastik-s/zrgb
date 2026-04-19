@@ -1,5 +1,17 @@
 import type { Metadata } from 'next'
+import { Inter, Press_Start_2P } from 'next/font/google'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-ui',
+})
+
+const mcPixel = Press_Start_2P({
+  weight: '400',
+  subsets: ['latin'],
+  variable: '--font-pixel',
+})
 
 export const metadata: Metadata = {
   title: 'RGB Minecraft - Text Generator',
@@ -20,8 +32,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ru" className="dark">
-      <body className="h-[100dvh] overflow-hidden bg-gradient-to-br from-dark-50 via-dark-50 to-dark-100">
+    <html lang="ru" className={`dark ${inter.variable} ${mcPixel.variable}`}>
+      <body
+        className={`${inter.className} h-[100dvh] overflow-hidden bg-[#12141d] text-zinc-100 antialiased`}
+      >
         {children}
       </body>
     </html>
