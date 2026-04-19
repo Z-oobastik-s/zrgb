@@ -120,6 +120,7 @@ export function Generator() {
   const [copied, setCopied] = useState(false)
   const [showPalette, setShowPalette] = useState(false)
   const [scrollTop, setScrollTop] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
   const [importText, setImportText] = useState('')
   const [presetName, setPresetName] = useState('')
   const [presetList, setPresetList] = useState<string[]>([])
@@ -478,13 +479,16 @@ export function Generator() {
     }
   }, [importText])
 
-  const previewClass =
-    `minecraft-pixel-preview whitespace-pre-wrap break-words text-left text-[clamp(13px,2.2vmin,18px)] leading-relaxed ` +
+  // Same metrics on textarea and mirror, or the caret drifts. No blur on textarea.
+  const inputTypography =
+    `font-sans text-sm leading-relaxed whitespace-pre-wrap break-words text-left ` +
     `${formatting.bold ? 'font-bold ' : ''}` +
     `${formatting.italic ? 'italic ' : ''}` +
     `${formatting.underline ? 'underline ' : ''}` +
-    `${formatting.strikethrough ? 'line-through ' : ''}` +
-    `${formatting.obfuscated ? 'mc-obfuscated ' : ''}`
+    `${formatting.strikethrough ? 'line-through ' : ''}`
+
+  const mirrorObfuscation =
+    formatting.obfuscated ? 'mc-obfuscated ' : ''
 
   const fmtOptions: { value: CodeFormat; label: string }[] = [
     { value: 'ampersand', label: tFmt('ampersand') },
@@ -535,24 +539,29 @@ export function Generator() {
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+            onScroll={(e) => {
+              setScrollTop(e.currentTarget.scrollTop)
+              setScrollLeft(e.currentTarget.scrollLeft)
+            }}
             spellCheck={false}
             placeholder=""
             aria-label={t('inputPlaceholder')}
-            className="absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 font-sans text-sm leading-relaxed text-transparent caret-sky-400 outline-none ring-0"
+            className={`absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 ${inputTypography}`}
           />
 
           <div
-            className="pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 font-sans text-sm leading-relaxed"
+            className={`pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 ${inputTypography}`}
             aria-hidden
           >
-            <div style={{ transform: `translateY(-${scrollTop}px)` }}>
+            <div
+              style={{
+                transform: `translate(${-scrollLeft}px, ${-scrollTop}px)`,
+              }}
+            >
               {!inputText ? (
-                <span className="text-sm leading-relaxed text-zinc-500">
-                  {t('inputPlaceholder')}
-                </span>
+                <span className="text-zinc-500">{t('inputPlaceholder')}</span>
               ) : (
-                <div className={previewClass}>
+                <div className={`text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (
                     <span
                       key={`${i}-${seg.char}`}
