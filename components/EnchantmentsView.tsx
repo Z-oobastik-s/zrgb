@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { MINECRAFT_ENCHANTMENTS } from '@/lib/minecraft-enchantments'
 import { EnchantmentItemIcons } from '@/components/EnchantmentItemIcons'
+import { MinecraftEnchantmentIcon } from '@/components/MinecraftEnchantmentIcon'
 import { useCopyFeedback } from '@/hooks/useCopyFeedback'
 
 function nameForLocale(
@@ -48,7 +49,10 @@ export function EnchantmentsView() {
               key={row.id}
               className={`${grid} items-center px-2 py-[0.28rem] transition-colors hover:bg-white/[0.04] sm:px-2.5 sm:py-1`}
             >
-              <span className="min-w-0 truncate text-zinc-200">{label}</span>
+              <span className="flex min-w-0 items-center gap-2 text-zinc-200">
+                <MinecraftEnchantmentIcon items={row.items} />
+                <span className="min-w-0 truncate">{label}</span>
+              </span>
               <div className="min-w-0">
                 <button
                   type="button"
