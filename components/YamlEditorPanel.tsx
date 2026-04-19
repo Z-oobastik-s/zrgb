@@ -87,10 +87,16 @@ export function YamlEditorPanel({
       reader.onload = () => {
         loadFromText(String(reader.result), file.name)
       }
+      reader.onerror = () => {
+        setParseError(t('yamlReadError'))
+        setFields([])
+        setValuesById({})
+        onYamlEnvironmentReset?.()
+      }
       reader.readAsText(file, 'utf-8')
       e.target.value = ''
     },
-    [loadFromText]
+    [loadFromText, t, onYamlEnvironmentReset]
   )
 
   const filtered = useMemo(() => {

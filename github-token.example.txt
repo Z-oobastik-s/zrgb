@@ -1,1 +1,2 @@
+# Intentional placeholder: copy this file to github-token.txt and put your PAT on one line (github-token.txt is gitignored).
 paste_your_github_pat_here_one_line

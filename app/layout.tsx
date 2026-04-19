@@ -40,14 +40,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className={`dark ${inter.variable} ${mcPixel.variable}`}>
-      <head>
-        <meta
-          httpEquiv="Cache-Control"
-          content="no-cache, no-store, must-revalidate"
-        />
-        <meta httpEquiv="Pragma" content="no-cache" />
-        <meta httpEquiv="Expires" content="0" />
-      </head>
       <body
         className={`${inter.className} h-[100dvh] overflow-hidden bg-[#12141d] text-zinc-100 antialiased`}
       >

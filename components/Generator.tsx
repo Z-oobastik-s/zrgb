@@ -78,21 +78,108 @@ function defaultPayload(): PresetPayload {
   }
 }
 
+function clampByte(n: unknown, fallback: number): number {
+  if (typeof n === 'number' && Number.isFinite(n)) {
+    return Math.max(0, Math.min(255, Math.round(n)))
+  }
+  return fallback
+}
+
+function defaultFormatting(): FormattingOptions {
+  return { ...defaultPayload().formatting }
+}
+
+function sanitizePresetPayload(raw: unknown): PresetPayload | null {
+  if (!raw || typeof raw !== 'object') return null
+  const p = raw as Record<string, unknown>
+  if (p.v !== 1) return null
+  const inputText = typeof p.inputText === 'string' ? p.inputText : ''
+  const format = normalizeCodeFormat(String(p.format ?? 'ampersand'))
+  const fo = p.formatting
+  const formatting: FormattingOptions =
+    fo && typeof fo === 'object'
+      ? {
+          bold: !!(fo as FormattingOptions).bold,
+          italic: !!(fo as FormattingOptions).italic,
+          underline: !!(fo as FormattingOptions).underline,
+          strikethrough: !!(fo as FormattingOptions).strikethrough,
+          obfuscated: !!(fo as FormattingOptions).obfuscated,
+        }
+      : defaultFormatting()
+  let gradientColors = defaultPayload().gradientColors
+  if (Array.isArray(p.gradientColors)) {
+    const mapped = p.gradientColors
+      .map((c) => {
+        if (!c || typeof c !== 'object') return null
+        const o = c as Record<string, unknown>
+        return {
+          r: clampByte(o.r, 128),
+          g: clampByte(o.g, 128),
+          b: clampByte(o.b, 128),
+        }
+      })
+      .filter((c): c is RGBColor => c !== null)
+    if (mapped.length > 0) gradientColors = mapped
+  }
+  const cpcRaw = p.charsPerColor
+  const charsPerColor = Math.max(
+    1,
+    Math.min(
+      24,
+      typeof cpcRaw === 'number' && Number.isFinite(cpcRaw) ? cpcRaw : 1
+    )
+  )
+  return {
+    v: 1,
+    inputText,
+    format,
+    formatting,
+    gradientColors,
+    useRainbow: !!p.useRainbow,
+    charsPerColor,
+    prefix: typeof p.prefix === 'string' ? p.prefix : '',
+    suffix: typeof p.suffix === 'string' ? p.suffix : '',
+    lowercaseHex: !!p.lowercaseHex,
+  }
+}
+
 function encodeHash(payload: PresetPayload): string {
-  return `${HASH_PREFIX}${btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}`
+  const bytes = new TextEncoder().encode(JSON.stringify(payload))
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]!)
+  }
+  return `${HASH_PREFIX}${btoa(binary)}`
 }
 
 function decodeHash(hash: string): PresetPayload | null {
   if (!hash.startsWith(HASH_PREFIX)) return null
   try {
     const raw = hash.slice(HASH_PREFIX.length)
-    const json = decodeURIComponent(escape(atob(raw)))
-    const p = JSON.parse(json) as PresetPayload
-    if (p.v !== 1) return null
-    return p
+    const bin = atob(raw)
+    const bytes = new Uint8Array(bin.length)
+    for (let i = 0; i < bin.length; i++) {
+      bytes[i] = bin.charCodeAt(i)
+    }
+    const candidates: string[] = [new TextDecoder('utf-8').decode(bytes)]
+    try {
+      candidates.push(decodeURIComponent(escape(bin)))
+    } catch {
+      /* ignore */
+    }
+    for (const json of candidates) {
+      try {
+        const parsed: unknown = JSON.parse(json)
+        const s = sanitizePresetPayload(parsed)
+        if (s) return s
+      } catch {
+        /* next candidate */
+      }
+    }
   } catch {
     return null
   }
+  return null
 }
 
 export function Generator() {
@@ -110,6 +197,9 @@ export function Generator() {
   )
   const [useRainbow, setUseRainbow] = useState(false)
   const [charsPerColor, setCharsPerColor] = useState(1)
+  const [prefix, setPrefix] = useState('')
+  const [suffix, setSuffix] = useState('')
+  const [lowercaseHex, setLowercaseHex] = useState(false)
 
   const [copied, setCopied] = useState(false)
   const [urlCopied, setUrlCopied] = useState(false)
@@ -136,6 +226,20 @@ export function Generator() {
     setHexDraftByIndex({})
   }, [gradientColors.length])
 
+  const applyPayload = useCallback((p: PresetPayload) => {
+    setInputText(p.inputText)
+    setFormat(normalizeCodeFormat(String(p.format)))
+    setFormatting(p.formatting)
+    const gc =
+      p.gradientColors?.length ? p.gradientColors : defaultPayload().gradientColors
+    setGradientColors(gc)
+    setUseRainbow(p.useRainbow)
+    setCharsPerColor(Math.max(1, Math.min(24, p.charsPerColor ?? 1)))
+    setPrefix(p.prefix)
+    setSuffix(p.suffix)
+    setLowercaseHex(p.lowercaseHex)
+  }, [])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     const h = window.location.hash.replace(/^#/, '')
@@ -143,7 +247,7 @@ export function Generator() {
     if (!p) return
     applyPayload(p)
     window.history.replaceState(null, '', window.location.pathname + window.location.search)
-  }, [])
+  }, [applyPayload])
 
   const clearYamlLink = useCallback(() => {
     setYamlLinkedFieldId(null)
@@ -174,17 +278,6 @@ export function Generator() {
     setInputText(text)
   }, [])
 
-  const applyPayload = (p: PresetPayload & { selectedColor?: RGBColor | null; useGradient?: boolean }) => {
-    setInputText(p.inputText)
-    setFormat(normalizeCodeFormat(String(p.format)))
-    setFormatting(p.formatting)
-    const gc =
-      p.gradientColors?.length ? p.gradientColors : defaultPayload().gradientColors
-    setGradientColors(gc)
-    setUseRainbow(p.useRainbow)
-    setCharsPerColor(Math.max(1, p.charsPerColor ?? 1))
-  }
-
   const solidColor = useMemo(() => {
     if (useRainbow) return null
     if (gradientColors.length === 1) return gradientColors[0]
@@ -202,7 +295,7 @@ export function Generator() {
         inputText,
         format,
         formatting,
-        false
+        lowercaseHex
       )
     }
 
@@ -213,7 +306,7 @@ export function Generator() {
         format,
         formatting,
         charsPerColor,
-        false
+        lowercaseHex
       )
     }
 
@@ -223,7 +316,7 @@ export function Generator() {
         solidColor,
         format,
         formatting,
-        false
+        lowercaseHex
       )
     }
 
@@ -237,9 +330,13 @@ export function Generator() {
     isGradientMode,
     useRainbow,
     charsPerColor,
+    lowercaseHex,
   ])
 
-  const outputText = useMemo(() => outputCore, [outputCore])
+  const outputText = useMemo(
+    () => `${prefix}${outputCore}${suffix}`,
+    [outputCore, prefix, suffix]
+  )
 
   const previewSegments = useMemo(
     () =>
@@ -311,9 +408,9 @@ export function Generator() {
       gradientColors,
       useRainbow,
       charsPerColor,
-      prefix: '',
-      suffix: '',
-      lowercaseHex: false,
+      prefix,
+      suffix,
+      lowercaseHex,
     }
     const base =
       typeof window !== 'undefined'
@@ -336,6 +433,7 @@ export function Generator() {
         ta.style.left = '-9999px'
         document.body.appendChild(ta)
         ta.select()
+        // Deprecated API: fallback when Clipboard API is unavailable (non-secure context).
         document.execCommand('copy')
         document.body.removeChild(ta)
         setUrlCopied(true)
@@ -355,6 +453,9 @@ export function Generator() {
     gradientColors,
     useRainbow,
     charsPerColor,
+    prefix,
+    suffix,
+    lowercaseHex,
   ])
 
   const handleRandom = useCallback(() => {
@@ -735,6 +836,40 @@ export function Generator() {
               </option>
             ))}
           </select>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+              {t('prefix')}
+            </label>
+            <input
+              type="text"
+              value={prefix}
+              onChange={(e) => setPrefix(e.target.value)}
+              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] text-zinc-200 outline-none focus:border-sky-500/50"
+              spellCheck={false}
+              autoComplete="off"
+            />
+            <label className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+              {t('suffix')}
+            </label>
+            <input
+              type="text"
+              value={suffix}
+              onChange={(e) => setSuffix(e.target.value)}
+              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] text-zinc-200 outline-none focus:border-sky-500/50"
+              spellCheck={false}
+              autoComplete="off"
+            />
+            <label className="flex cursor-pointer items-center gap-2 text-[11px] text-zinc-400">
+              <input
+                type="checkbox"
+                checked={lowercaseHex}
+                onChange={(e) => setLowercaseHex(e.target.checked)}
+                className="rounded border-white/20 bg-[#0d0f14] text-sky-500"
+              />
+              {t('lowercaseHex')}
+            </label>
+          </div>
 
           <div className="relative z-0 min-h-[6rem] flex-1">
             <textarea

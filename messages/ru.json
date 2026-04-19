@@ -6,18 +6,13 @@
     "year": "2026"
   },
   "generator": {
-    "inputLabel": "Ввод",
     "inputPlaceholder": "Введите текст...",
-    "outputLabel": "Результат",
     "outputPlaceholder": "Результат появится здесь...",
     "copy": "Скопировать",
     "copied": "Скопировано!",
     "random": "Случайный цвет",
     "format": "Формат кода",
-    "colorPalette": "Палитра цветов",
-    "preview": "Предпросмотр:",
     "rainbow": "Радуга",
-    "clearFormatting": "Сбросить оформление",
     "columnColors": "Цвета",
     "charsPerColor": "Символов на цвет",
     "colorCount": "Количество цветов",
@@ -32,16 +27,19 @@
     "yamlNext": "Вперед",
     "yamlNoFile": "Загрузите .yml файл, чтобы редактировать текстовые значения. Структура и форматирование сохраняются при скачивании.",
     "yamlParseError": "Ошибка YAML:",
+    "yamlReadError": "Не удалось прочитать файл.",
     "yamlNoMatches": "Нет совпадений по фильтру.",
     "yamlPreviewLinked": "Поле «{path}» связано с превью. Цвета и формат ниже обновляют эту строку в YAML.",
     "copyUrl": "Ссылка",
     "reverseColors": "Развернуть цвета",
     "shuffleColors": "Перемешать",
     "copyColors": "Копировать цвета (JSON)",
-    "hexInputAria": "HEX цвета #rrggbb"
+    "hexInputAria": "HEX цвета #rrggbb",
+    "prefix": "Префикс",
+    "suffix": "Суффикс",
+    "lowercaseHex": "Hex в нижнем регистре (#rrggbb)"
   },
   "formats": {
-    "label": "Формат:",
     "minimessage": "MiniMessage (gradient / color)",
     "entityHex": "&#rrggbb (на букву)",
     "ampersand": "&x&r&r&g&g&b&b (&)",
@@ -58,27 +56,5 @@
     "underline": "Подчеркивание",
     "strikethrough": "Зачеркивание",
     "obfuscated": "Зашифрованный"
-  },
-  "colors": {
-    "paletteTitle": "Палитра цветов:",
-    "customRgb": "Свой RGB:",
-    "applyColor": "Применить цвет",
-    "black": "Черный",
-    "darkBlue": "Темно-синий",
-    "darkGreen": "Темно-зеленый",
-    "darkAqua": "Темно-бирюзовый",
-    "darkRed": "Темно-красный",
-    "darkPurple": "Темно-фиолетовый",
-    "gold": "Золотой",
-    "gray": "Серый",
-    "darkGray": "Темно-серый",
-    "blue": "Синий",
-    "green": "Зеленый",
-    "aqua": "Бирюзовый",
-    "red": "Красный",
-    "lightPurple": "Светло-фиолетовый",
-    "yellow": "Желтый",
-    "white": "Белый"
   }
 }
-

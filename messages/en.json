@@ -6,18 +6,13 @@
     "year": "2026"
   },
   "generator": {
-    "inputLabel": "Input",
     "inputPlaceholder": "Enter text...",
-    "outputLabel": "Output",
     "outputPlaceholder": "Result will appear here...",
     "copy": "Copy",
     "copied": "Copied!",
     "random": "Random Color",
     "format": "Code Format",
-    "colorPalette": "Color Palette",
-    "preview": "Preview:",
     "rainbow": "Rainbow",
-    "clearFormatting": "Clear formatting",
     "columnColors": "Colors",
     "charsPerColor": "Chars per color",
     "colorCount": "Color count",
@@ -32,16 +27,19 @@
     "yamlNext": "Next",
     "yamlNoFile": "Load a .yml file to edit string values. Structure and formatting are preserved on download.",
     "yamlParseError": "YAML error:",
+    "yamlReadError": "Could not read the file.",
     "yamlNoMatches": "No matches for this filter.",
     "yamlPreviewLinked": "Field \"{path}\" is linked to the preview. Colors and format update this YAML value.",
     "copyUrl": "Copy link",
     "reverseColors": "Reverse colors",
     "shuffleColors": "Shuffle",
     "copyColors": "Copy colors (JSON)",
-    "hexInputAria": "HEX color #rrggbb"
+    "hexInputAria": "HEX color #rrggbb",
+    "prefix": "Prefix",
+    "suffix": "Suffix",
+    "lowercaseHex": "Lowercase hex (#rrggbb)"
   },
   "formats": {
-    "label": "Format:",
     "minimessage": "MiniMessage (gradient / color)",
     "entityHex": "&#rrggbb (per char)",
     "ampersand": "&x&r&r&g&g&b&b (&)",
@@ -58,27 +56,5 @@
     "underline": "Underline",
     "strikethrough": "Strikethrough",
     "obfuscated": "Obfuscated"
-  },
-  "colors": {
-    "paletteTitle": "Color Palette:",
-    "customRgb": "Custom RGB:",
-    "applyColor": "Apply Color",
-    "black": "Black",
-    "darkBlue": "Dark Blue",
-    "darkGreen": "Dark Green",
-    "darkAqua": "Dark Aqua",
-    "darkRed": "Dark Red",
-    "darkPurple": "Dark Purple",
-    "gold": "Gold",
-    "gray": "Gray",
-    "darkGray": "Dark Gray",
-    "blue": "Blue",
-    "green": "Green",
-    "aqua": "Aqua",
-    "red": "Red",
-    "lightPurple": "Light Purple",
-    "yellow": "Yellow",
-    "white": "White"
   }
 }
-

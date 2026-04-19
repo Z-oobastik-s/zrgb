@@ -21,8 +21,9 @@ export function LanguageSwitcher({ currentLocale, onLocaleChange }: LanguageSwit
       {languages.map((lang) => (
         <button
           key={lang.code}
+          type="button"
           onClick={() => onLocaleChange(lang.code)}
-            className={`relative rounded px-2 py-0.5 text-xs font-medium transition-all duration-200 ${
+          className={`relative rounded px-2 py-0.5 text-xs font-medium transition-all duration-200 ${
             currentLocale === lang.code
               ? 'bg-sky-500/20 text-sky-300'
               : 'text-zinc-500 hover:bg-white/10 hover:text-zinc-200'

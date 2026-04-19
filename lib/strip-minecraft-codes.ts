@@ -1,5 +1,6 @@
 /**
  * Strip common Minecraft legacy codes (&, §, simple &# hex).
+ * Coverage is best-effort: exotic MiniMessage or plugin-specific tags may remain.
  */
 export function stripMinecraftColorCodes(input: string): string {
   let s = input
@@ -61,6 +62,7 @@ function stripBbcodeColorLayers(input: string): string {
 export function stripToRgbPlainInput(input: string): string {
   let s = unwrapMiniMessagePairs(input)
   s = stripBbcodeColorLayers(s)
+  s = s.replace(/<\/?reset>/gi, '')
   s = stripMinecraftColorCodes(s)
   return s.trim()
 }

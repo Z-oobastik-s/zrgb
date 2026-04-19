@@ -6,18 +6,13 @@
     "year": "2026"
   },
   "generator": {
-    "inputLabel": "Ввід",
     "inputPlaceholder": "Введіть текст...",
-    "outputLabel": "Результат",
     "outputPlaceholder": "Результат з'явиться тут...",
     "copy": "Скопіювати",
     "copied": "Скопійовано!",
     "random": "Випадковий колір",
     "format": "Формат коду",
-    "colorPalette": "Палітра кольорів",
-    "preview": "Перегляд:",
     "rainbow": "Веселка",
-    "clearFormatting": "Скинути оформлення",
     "columnColors": "Кольори",
     "charsPerColor": "Символів на колір",
     "colorCount": "Кількість кольорів",
@@ -32,16 +27,19 @@
     "yamlNext": "Далі",
     "yamlNoFile": "Завантажте .yml файл, щоб редагувати текстові значення. Структура зберігається при завантаженні.",
     "yamlParseError": "Помилка YAML:",
+    "yamlReadError": "Не вдалося прочитати файл.",
     "yamlNoMatches": "Немає збігів за фільтром.",
     "yamlPreviewLinked": "Поле «{path}» пов'язане з прев'ю. Кольори та формат оновлюють цей рядок у YAML.",
     "copyUrl": "Посилання",
     "reverseColors": "Розвернути кольори",
     "shuffleColors": "Перемішати",
     "copyColors": "Копіювати кольори (JSON)",
-    "hexInputAria": "HEX колір #rrggbb"
+    "hexInputAria": "HEX колір #rrggbb",
+    "prefix": "Префікс",
+    "suffix": "Суфікс",
+    "lowercaseHex": "Hex у нижньому регістрі (#rrggbb)"
   },
   "formats": {
-    "label": "Формат:",
     "minimessage": "MiniMessage (gradient / color)",
     "entityHex": "&#rrggbb (на літеру)",
     "ampersand": "&x&r&r&g&g&b&b (&)",
@@ -58,27 +56,5 @@
     "underline": "Підкреслення",
     "strikethrough": "Закреслення",
     "obfuscated": "Зашифрований"
-  },
-  "colors": {
-    "paletteTitle": "Палітра кольорів:",
-    "customRgb": "Власний RGB:",
-    "applyColor": "Застосувати колір",
-    "black": "Чорний",
-    "darkBlue": "Темно-синій",
-    "darkGreen": "Темно-зелений",
-    "darkAqua": "Темно-бірюзовий",
-    "darkRed": "Темно-червоний",
-    "darkPurple": "Темно-фіолетовий",
-    "gold": "Золотий",
-    "gray": "Сірий",
-    "darkGray": "Темно-сірий",
-    "blue": "Синій",
-    "green": "Зелений",
-    "aqua": "Бірюзовий",
-    "red": "Червоний",
-    "lightPurple": "Світло-фіолетовий",
-    "yellow": "Жовтий",
-    "white": "Білий"
   }
 }
-

@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
 import { Generator } from '@/components/Generator'
 import { Header } from '@/components/Header'
+import type messagesRu from '../messages/ru.json'
 
 const locales = ['ru', 'ua', 'en'] as const
 type Locale = (typeof locales)[number]
+type Messages = typeof messagesRu
 
 function isLocale(value: string): value is Locale {
   return (locales as readonly string[]).includes(value)
@@ -14,7 +16,7 @@ function isLocale(value: string): value is Locale {
 
 export default function HomePage() {
   const [locale, setLocale] = useState<Locale>('ru')
-  const [messages, setMessages] = useState<any>(null)
+  const [messages, setMessages] = useState<Messages | null>(null)
 
   useEffect(() => {
     import(`../messages/${locale}.json`).then((mod) => {
