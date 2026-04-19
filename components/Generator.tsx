@@ -34,7 +34,6 @@ import {
   generateRainbowGradient,
   generateSingleColor,
   generateRandomColor,
-  generateRandomGradientColors,
   generateGradientText,
   buildPreviewSegments,
   rgbToHexString,
@@ -320,8 +319,7 @@ export function Generator() {
 
   const handleRandom = useCallback(() => {
     setUseRainbow(false)
-    const colors = generateRandomGradientColors()
-    setGradientColors(colors)
+    setGradientColors((prev) => prev.map(() => generateRandomColor()))
   }, [])
 
   const toggleFormatting = useCallback((key: keyof FormattingOptions) => {
@@ -539,31 +537,33 @@ export function Generator() {
             onChange={(e) => setInputText(e.target.value)}
             onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
             spellCheck={false}
-            placeholder={t('inputPlaceholder')}
-            className="absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 font-sans text-sm leading-relaxed text-transparent caret-sky-400 outline-none ring-0 placeholder:text-zinc-600"
+            placeholder=""
+            aria-label={t('inputPlaceholder')}
+            className="absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 font-sans text-sm leading-relaxed text-transparent caret-sky-400 outline-none ring-0"
           />
 
           <div
             className="pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 font-sans text-sm leading-relaxed"
             aria-hidden
           >
-            <div
-              className={previewClass}
-              style={{ transform: `translateY(-${scrollTop}px)` }}
-            >
+            <div style={{ transform: `translateY(-${scrollTop}px)` }}>
               {!inputText ? (
-                <span className="text-zinc-600">{t('inputPlaceholder')}</span>
+                <span className="text-sm leading-relaxed text-zinc-500">
+                  {t('inputPlaceholder')}
+                </span>
               ) : (
-                previewSegments.map((seg, i) => (
-                  <span
-                    key={`${i}-${seg.char}`}
-                    style={{
-                      color: `rgb(${seg.color.r},${seg.color.g},${seg.color.b})`,
-                    }}
-                  >
-                    {seg.char === ' ' ? '\u00A0' : seg.char}
-                  </span>
-                ))
+                <div className={previewClass}>
+                  {previewSegments.map((seg, i) => (
+                    <span
+                      key={`${i}-${seg.char}`}
+                      style={{
+                        color: `rgb(${seg.color.r},${seg.color.g},${seg.color.b})`,
+                      }}
+                    >
+                      {seg.char === ' ' ? '\u00A0' : seg.char}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </div>
