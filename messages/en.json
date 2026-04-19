@@ -37,7 +37,8 @@
     "decodeImport": "Apply JSON",
     "reverseColors": "Reverse colors",
     "shuffleColors": "Shuffle",
-    "copyColors": "Copy colors (JSON)"
+    "copyColors": "Copy colors (JSON)",
+    "formattingAppliesToOutput": "in Minecraft output, not in the editor font"
   },
   "formats": {
     "label": "Format:",

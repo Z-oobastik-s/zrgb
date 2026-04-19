@@ -207,6 +207,38 @@ export function generateRandomColor(): RGBColor {
   }
 }
 
+export function lerpRgb(a: RGBColor, b: RGBColor, t: number): RGBColor {
+  const u = Math.max(0, Math.min(1, t))
+  return {
+    r: Math.round(a.r + (b.r - a.r) * u),
+    g: Math.round(a.g + (b.g - a.g) * u),
+    b: Math.round(a.b + (b.b - a.b) * u),
+  }
+}
+
+/** Position in [0,1] along the list of color stops (like Birdflop rgb mode). */
+export function sampleRgbGradientStops(position01: number, colors: RGBColor[]): RGBColor {
+  if (colors.length === 0) return { r: 200, g: 200, b: 210 }
+  if (colors.length === 1) return colors[0]
+  const u = Math.max(0, Math.min(1, position01))
+  const f = u * (colors.length - 1)
+  const j = Math.floor(f)
+  const t = f - j
+  const c0 = colors[j]!
+  const c1 = colors[Math.min(j + 1, colors.length - 1)]!
+  return lerpRgb(c0, c1, t)
+}
+
+/** Smooth color at character index along full string length (spaces included in length). */
+export function smoothGradientColorAtIndex(
+  index: number,
+  textLength: number,
+  colors: RGBColor[]
+): RGBColor {
+  if (textLength <= 1) return sampleRgbGradientStops(0.5, colors)
+  return sampleRgbGradientStops(index / (textLength - 1), colors)
+}
+
 // Generate random gradient colors (1000+ variants)
 export function generateRandomGradientColors(): RGBColor[] {
   const count = Math.floor(Math.random() * 5) + 2 // 2-6 colors
@@ -219,7 +251,7 @@ export function generateRandomGradientColors(): RGBColor[] {
   return colors
 }
 
-// Generate gradient text (banded: charsPerColor chars per color, then cycle)
+// Gradient: smooth rgb along the string when charsPerColor === 1; else banded stripes
 export function generateGradientText(
   text: string,
   colors: RGBColor[],
@@ -233,6 +265,7 @@ export function generateGradientText(
   const chars = text.split('')
   const result: string[] = []
   const cpc = Math.max(1, charsPerColor)
+  const banded = cpc > 1
   
   chars.forEach((char, index) => {
     if (char === ' ') {
@@ -240,8 +273,9 @@ export function generateGradientText(
       return
     }
     
-    const colorIndex = Math.floor(index / cpc) % colors.length
-    const color = colors[colorIndex] ?? colors[colors.length - 1]
+    const color = banded
+      ? colors[Math.floor(index / cpc) % colors.length]!
+      : smoothGradientColorAtIndex(index, chars.length, colors)
     const colorCode = generateColorCode(color, format, lowercaseHex)
     const formatCodes = generateFormatCodes(options, format)
     
@@ -293,10 +327,15 @@ export function buildPreviewSegments(
   if (useGradient && gradientColors.length > 0) {
     const chars = text.split('')
     const cpc = Math.max(1, charsPerColor)
+    const banded = cpc > 1
     return chars.map((char, index) => {
-      if (char === ' ') return { char: ' ', color: spaceColor }
-      const colorIndex = Math.floor(index / cpc) % gradientColors.length
-      const color = gradientColors[colorIndex] ?? gradientColors[gradientColors.length - 1]
+      const color = banded
+        ? (() => {
+            if (char === ' ') return spaceColor
+            const colorIndex = Math.floor(index / cpc) % gradientColors.length
+            return gradientColors[colorIndex] ?? gradientColors[gradientColors.length - 1]
+          })()
+        : smoothGradientColorAtIndex(index, chars.length, gradientColors)
       return { char, color }
     })
   }

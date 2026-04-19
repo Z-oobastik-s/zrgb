@@ -37,7 +37,8 @@
     "decodeImport": "Застосувати JSON",
     "reverseColors": "Розвернути кольори",
     "shuffleColors": "Перемішати",
-    "copyColors": "Копіювати кольори (JSON)"
+    "copyColors": "Копіювати кольори (JSON)",
+    "formattingAppliesToOutput": "у коді Minecraft, не у шрифті поля"
   },
   "formats": {
     "label": "Формат:",

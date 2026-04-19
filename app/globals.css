@@ -83,3 +83,23 @@ body {
   user-select: none;
 }
 
+/* Must match between textarea and mirror layer (Birdflop-style stack). */
+.rgb-editor-stack {
+  font-family: var(--font-pixel), ui-monospace, 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.75;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-synthesis: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-align: left;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+}
+
+.rgb-editor-pixel-layer span {
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.82);
+}
+

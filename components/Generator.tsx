@@ -19,7 +19,6 @@ import {
   Underline,
   Strikethrough,
   Eye,
-  RotateCcw,
   Link2,
   FileJson,
   Trash2,
@@ -327,16 +326,6 @@ export function Generator() {
     setFormatting((prev) => ({ ...prev, [key]: !prev[key] }))
   }, [])
 
-  const clearFormatting = useCallback(() => {
-    setFormatting({
-      bold: false,
-      italic: false,
-      underline: false,
-      strikethrough: false,
-      obfuscated: false,
-    })
-  }, [])
-
   const handleColorSelect = useCallback((color: RGBColor) => {
     setGradientColors([color])
     setUseRainbow(false)
@@ -479,14 +468,6 @@ export function Generator() {
     }
   }, [importText])
 
-  // Same metrics on textarea and mirror, or the caret drifts. No blur on textarea.
-  const inputTypography =
-    `font-sans text-sm leading-relaxed whitespace-pre-wrap break-words text-left ` +
-    `${formatting.bold ? 'font-bold ' : ''}` +
-    `${formatting.italic ? 'italic ' : ''}` +
-    `${formatting.underline ? 'underline ' : ''}` +
-    `${formatting.strikethrough ? 'line-through ' : ''}`
-
   const mirrorObfuscation =
     formatting.obfuscated ? 'mc-obfuscated ' : ''
 
@@ -502,7 +483,7 @@ export function Generator() {
       {/* Hero: input + live preview + gradient strip */}
       <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 shadow-lg">
         <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0f14]">
-          <div className="pointer-events-none absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-black/45 p-0.5 backdrop-blur-sm">
+          <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-black/50 p-0.5">
             {(
               [
                 ['bold', Bold],
@@ -515,25 +496,17 @@ export function Generator() {
               <button
                 key={key}
                 type="button"
-                title={tForm(key)}
+                title={`${tForm(key)} (${t('formattingAppliesToOutput')})`}
                 onClick={() => toggleFormatting(key)}
                 className={`rounded p-1.5 transition-colors ${
                   formatting[key]
-                    ? 'bg-sky-500/25 text-sky-300'
-                    : 'text-zinc-500 hover:bg-white/10 hover:text-zinc-200'
+                    ? 'bg-sky-500/40 text-white ring-1 ring-sky-400/70'
+                    : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
               </button>
             ))}
-            <button
-              type="button"
-              title={t('clearFormatting')}
-              onClick={clearFormatting}
-              className="rounded p-1.5 text-zinc-500 transition-colors hover:bg-white/10 hover:text-zinc-200"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-            </button>
           </div>
 
           <textarea
@@ -546,11 +519,14 @@ export function Generator() {
             spellCheck={false}
             placeholder=""
             aria-label={t('inputPlaceholder')}
-            className={`absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 ${inputTypography}`}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            className="rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35"
           />
 
           <div
-            className={`pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 ${inputTypography}`}
+            className="rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14"
             aria-hidden
           >
             <div
@@ -561,7 +537,7 @@ export function Generator() {
               {!inputText ? (
                 <span className="text-zinc-500">{t('inputPlaceholder')}</span>
               ) : (
-                <div className={`text-[inherit] ${mirrorObfuscation}`}>
+                <div className={`rgb-editor-pixel-layer text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (
                     <span
                       key={`${i}-${seg.char}`}
