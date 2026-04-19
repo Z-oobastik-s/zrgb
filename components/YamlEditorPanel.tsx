@@ -16,10 +16,29 @@ import {
   parseYamlDiagnostics,
   type YamlStringField,
 } from '@/lib/yaml-editable'
+import { stripMinecraftColorCodes } from '@/lib/strip-minecraft-codes'
 
 const PAGE_SIZE = 20
 
-export function YamlEditorPanel() {
+export type YamlEditorPanelProps = {
+  linkedFieldId?: string | null
+  /** When set, this string is written into the linked YAML field (generator output). */
+  generatorSyncedOutput?: string | null
+  /** User focused a field: load plain text into the main RGB input. */
+  onLinkField?: (fieldId: string, rawValue: string, path: string) => void
+  /** User edited the linked field directly: sync plain text back to the preview. */
+  onLinkedFieldRawEdit?: (rawValue: string) => void
+  /** New file loaded or YAML reset: clear link in parent. */
+  onYamlEnvironmentReset?: () => void
+}
+
+export function YamlEditorPanel({
+  linkedFieldId = null,
+  generatorSyncedOutput = null,
+  onLinkField,
+  onLinkedFieldRawEdit,
+  onYamlEnvironmentReset,
+}: YamlEditorPanelProps) {
   const t = useTranslations('generator')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -39,6 +58,7 @@ export function YamlEditorPanel() {
       setParseError(diag.error ?? 'Invalid YAML')
       setFields([])
       setValuesById({})
+      onYamlEnvironmentReset?.()
       return
     }
     setParseError(null)
@@ -48,7 +68,8 @@ export function YamlEditorPanel() {
     setFields(nextFields)
     setValuesById(init)
     setPage(0)
-  }, [])
+    onYamlEnvironmentReset?.()
+  }, [onYamlEnvironmentReset])
 
   const onPickFile = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +114,14 @@ export function YamlEditorPanel() {
   const updateValue = useCallback((id: string, v: string) => {
     setValuesById((prev) => ({ ...prev, [id]: v }))
   }, [])
+
+  useEffect(() => {
+    if (!linkedFieldId || generatorSyncedOutput === null) return
+    setValuesById((prev) => {
+      if (prev[linkedFieldId] === generatorSyncedOutput) return prev
+      return { ...prev, [linkedFieldId]: generatorSyncedOutput }
+    })
+  }, [generatorSyncedOutput, linkedFieldId])
 
   const download = useCallback(() => {
     if (!raw || !fields.length) return
@@ -202,14 +231,28 @@ export function YamlEditorPanel() {
             {pageSlice.map((f) => (
               <label
                 key={f.id}
-                className="flex flex-col gap-0.5 rounded-lg border border-white/[0.06] bg-black/20 p-2"
+                className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                  linkedFieldId === f.id
+                    ? 'border-sky-500/55 ring-1 ring-sky-500/35'
+                    : 'border-white/[0.06]'
+                }`}
               >
                 <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
                   {f.path}
                 </span>
                 <textarea
                   value={valuesById[f.id] ?? f.value}
-                  onChange={(e) => updateValue(f.id, e.target.value)}
+                  onFocus={() => {
+                    const raw = valuesById[f.id] ?? f.value
+                    onLinkField?.(f.id, raw, f.path)
+                  }}
+                  onChange={(e) => {
+                    const v = e.target.value
+                    updateValue(f.id, v)
+                    if (linkedFieldId === f.id) {
+                      onLinkedFieldRawEdit?.(v)
+                    }
+                  }}
                   spellCheck={false}
                   rows={3}
                   className="min-h-[3.5rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"

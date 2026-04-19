@@ -38,6 +38,7 @@ import {
   hexToRgb,
   normalizeCodeFormat,
 } from '@/lib/rgb-generator'
+import { stripMinecraftColorCodes } from '@/lib/strip-minecraft-codes'
 import { ColorPalette } from './ColorPalette'
 import { YamlEditorPanel } from './YamlEditorPanel'
 
@@ -120,6 +121,10 @@ export function Generator() {
   const [showPalette, setShowPalette] = useState(false)
   const [scrollTop, setScrollTop] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
+  const [yamlLinkedFieldId, setYamlLinkedFieldId] = useState<string | null>(
+    null
+  )
+  const [yamlLinkedPath, setYamlLinkedPath] = useState('')
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
@@ -136,6 +141,26 @@ export function Generator() {
     if (!p) return
     applyPayload(p)
     window.history.replaceState(null, '', window.location.pathname + window.location.search)
+  }, [])
+
+  const clearYamlLink = useCallback(() => {
+    setYamlLinkedFieldId(null)
+    setYamlLinkedPath('')
+  }, [])
+
+  const handleYamlLinkField = useCallback(
+    (fieldId: string, rawValue: string, path: string) => {
+      setYamlLinkedFieldId(fieldId)
+      setYamlLinkedPath(path)
+      setPrefix('')
+      setSuffix('')
+      setInputText(stripMinecraftColorCodes(rawValue))
+    },
+    []
+  )
+
+  const handleYamlLinkedRawEdit = useCallback((rawValue: string) => {
+    setInputText(stripMinecraftColorCodes(rawValue))
   }, [])
 
   const applyPayload = (p: PresetPayload & { selectedColor?: RGBColor | null; useGradient?: boolean }) => {
@@ -483,6 +508,12 @@ export function Generator() {
           style={gradientBarStyle}
           aria-hidden
         />
+
+        {yamlLinkedFieldId ? (
+          <p className="shrink-0 text-[10px] leading-snug text-sky-400/90">
+            {t('yamlPreviewLinked', { path: yamlLinkedPath })}
+          </p>
+        ) : null}
       </section>
 
       {/* Three columns */}
@@ -716,7 +747,15 @@ export function Generator() {
           </div>
         </div>
 
-        <YamlEditorPanel />
+        <YamlEditorPanel
+          linkedFieldId={yamlLinkedFieldId}
+          generatorSyncedOutput={
+            yamlLinkedFieldId ? outputText : null
+          }
+          onLinkField={handleYamlLinkField}
+          onLinkedFieldRawEdit={handleYamlLinkedRawEdit}
+          onYamlEnvironmentReset={clearYamlLink}
+        />
       </section>
 
       {showPalette && (

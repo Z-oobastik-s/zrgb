@@ -33,6 +33,7 @@
     "yamlNoFile": "Load a .yml file to edit string values. Structure and formatting are preserved on download.",
     "yamlParseError": "YAML error:",
     "yamlNoMatches": "No matches for this filter.",
+    "yamlPreviewLinked": "Field \"{path}\" is linked to the preview. Colors, format, and prefix/suffix update this YAML value.",
     "prefix": "Prefix",
     "suffix": "Suffix",
     "lowercaseHex": "Lowercase hex",
