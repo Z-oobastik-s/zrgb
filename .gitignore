@@ -29,3 +29,4 @@ npm-debug.log*
 reset_repo.bat
 deploy.bat
 start.bat
+push.bat

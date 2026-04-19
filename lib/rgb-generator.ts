@@ -6,6 +6,8 @@ export type CodeFormat =
   | 'entity_hex'
   | 'json'
   | 'bbcode'
+  /** Pass-through: no generator formatting (prefix/suffix still apply). */
+  | 'custom'
 
 export interface FormattingOptions {
   bold: boolean
@@ -103,6 +105,7 @@ export function normalizeCodeFormat(value: string): CodeFormat {
     'bracket_hex',
     'json',
     'bbcode',
+    'custom',
   ]
   return allowed.includes(value as CodeFormat) ? (value as CodeFormat) : 'ampersand'
 }
@@ -144,6 +147,7 @@ function generateColorCode(
       return `&#${hex}`
     case 'json':
     case 'bbcode':
+    case 'custom':
       return ''
     default:
       return ''
@@ -151,7 +155,13 @@ function generateColorCode(
 }
 
 function generateLegacyFormatCodes(options: FormattingOptions, format: CodeFormat): string {
-  if (format === 'json' || format === 'bbcode' || format === 'minimessage') return ''
+  if (
+    format === 'json' ||
+    format === 'bbcode' ||
+    format === 'minimessage' ||
+    format === 'custom'
+  )
+    return ''
   const codes: string[] = []
   type LegacyKey = 'ampersand' | 'section' | 'bracket_hex' | 'entity_hex'
   const key = (
@@ -205,6 +215,7 @@ export function generateRainbowGradient(
   lowercaseHex = false
 ): string {
   if (!text) return ''
+  if (format === 'custom') return text
 
   if (format === 'minimessage') {
     const chars = text.split('')
@@ -300,6 +311,7 @@ export function generateSingleColor(
   lowercaseHex = false
 ): string {
   if (!text) return ''
+  if (format === 'custom') return text
 
   if (format === 'minimessage') {
     const hex = rgbToHexString(color, lowercaseHex)
@@ -424,6 +436,7 @@ export function generateGradientText(
   lowercaseHex = false
 ): string {
   if (!text || colors.length === 0) return ''
+  if (format === 'custom') return text
 
   const chars = text.split('')
   const cpc = Math.max(1, charsPerColor)
@@ -492,12 +505,20 @@ export function buildPreviewSegments(
   gradientColors: RGBColor[],
   useGradient: boolean,
   useRainbow: boolean,
-  charsPerColor = 1
+  charsPerColor = 1,
+  codeFormat?: CodeFormat
 ): PreviewSegment[] {
   if (!text) return []
 
   const spaceColor: RGBColor = { r: 120, g: 120, b: 130 }
   const plainColor: RGBColor = { r: 210, g: 215, b: 230 }
+
+  if (codeFormat === 'custom') {
+    return text.split('').map((char) => ({
+      char,
+      color: char === ' ' ? spaceColor : plainColor,
+    }))
+  }
 
   if (!useRainbow && !useGradient && !selectedColor) {
     return text.split('').map((char) => ({

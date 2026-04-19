@@ -50,7 +50,8 @@
     "section": "§x§r§r§g§g§b§b (§)",
     "bracketHex": "<#rrggbb>",
     "json": "JSON (extra[])",
-    "bbcode": "[COLOR] BBCode"
+    "bbcode": "[COLOR] BBCode",
+    "custom": "Свій (без форматування)"
   },
   "formatting": {
     "sectionTitle": "Оформлення",

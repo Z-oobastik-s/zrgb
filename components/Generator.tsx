@@ -38,7 +38,7 @@ import {
   hexToRgb,
   normalizeCodeFormat,
 } from '@/lib/rgb-generator'
-import { stripMinecraftColorCodes } from '@/lib/strip-minecraft-codes'
+import { stripToRgbPlainInput } from '@/lib/strip-minecraft-codes'
 import { ColorPalette } from './ColorPalette'
 import { YamlEditorPanel } from './YamlEditorPanel'
 
@@ -154,14 +154,21 @@ export function Generator() {
       setYamlLinkedPath(path)
       setPrefix('')
       setSuffix('')
-      setInputText(stripMinecraftColorCodes(rawValue))
+      setInputText(
+        format === 'custom' ? rawValue : stripToRgbPlainInput(rawValue)
+      )
     },
-    []
+    [format]
   )
 
-  const handleYamlLinkedRawEdit = useCallback((rawValue: string) => {
-    setInputText(stripMinecraftColorCodes(rawValue))
-  }, [])
+  const handleYamlLinkedRawEdit = useCallback(
+    (rawValue: string) => {
+      setInputText(
+        format === 'custom' ? rawValue : stripToRgbPlainInput(rawValue)
+      )
+    },
+    [format]
+  )
 
   const applyPayload = (p: PresetPayload & { selectedColor?: RGBColor | null; useGradient?: boolean }) => {
     setInputText(p.inputText)
@@ -187,6 +194,7 @@ export function Generator() {
 
   const outputCore = useMemo(() => {
     if (!inputText.trim()) return ''
+    if (format === 'custom') return inputText
 
     if (useRainbow) {
       return generateRainbowGradient(
@@ -244,7 +252,8 @@ export function Generator() {
         gradientColors,
         isGradientMode,
         useRainbow,
-        charsPerColor
+        charsPerColor,
+        format
       ),
     [
       inputText,
@@ -253,6 +262,7 @@ export function Generator() {
       isGradientMode,
       useRainbow,
       charsPerColor,
+      format,
     ]
   )
 
@@ -425,6 +435,7 @@ export function Generator() {
     { value: 'bracket_hex', label: tFmt('bracketHex') },
     { value: 'json', label: tFmt('json') },
     { value: 'bbcode', label: tFmt('bbcode') },
+    { value: 'custom', label: tFmt('custom') },
   ]
 
   return (

@@ -17,6 +17,7 @@ export function FormatSelector({ format, onFormatChange }: FormatSelectorProps) 
     { value: 'section', label: t('section'), icon: '§' },
     { value: 'bracket_hex', label: t('bracketHex'), icon: '#' },
     { value: 'minimessage', label: t('minimessage'), icon: '<>' },
+    { value: 'custom', label: t('custom'), icon: '*' },
   ]
 
   return (

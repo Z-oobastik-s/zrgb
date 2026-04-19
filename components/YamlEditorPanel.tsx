@@ -16,7 +16,6 @@ import {
   parseYamlDiagnostics,
   type YamlStringField,
 } from '@/lib/yaml-editable'
-import { stripMinecraftColorCodes } from '@/lib/strip-minecraft-codes'
 
 const PAGE_SIZE = 20
 
