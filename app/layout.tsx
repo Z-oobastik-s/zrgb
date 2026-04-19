@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   keywords: 'minecraft, rgb, text generator, color codes, minimessage',
   authors: [{ name: 'Zoobastiks' }],
   creator: 'Zoobastiks',
+  icons: {
+    icon: [{ url: '/icon.png', sizes: '64x64', type: 'image/png' }],
+  },
   openGraph: {
     title: 'RGB Minecraft - Text Generator',
     description: 'Powerful RGB text generator for Minecraft plugins and chat',
