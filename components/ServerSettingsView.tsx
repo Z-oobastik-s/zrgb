@@ -1,7 +1,8 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Copy, ShieldCheck } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
+import { Copy, Download, ShieldCheck, Upload } from 'lucide-react'
+import { parseDocument } from 'yaml'
 import { useCopyFeedback } from '@/hooks/useCopyFeedback'
 import {
   CONFIG_FILE_ORDER,
@@ -11,6 +12,8 @@ import {
 } from '@/lib/server-settings'
 
 type ValueMap = Record<string, string | number | boolean>
+type RawFileMap = Partial<Record<ServerConfigFile, string>>
+type ErrorMap = Partial<Record<ServerConfigFile, string>>
 
 function setAtPath(root: Record<string, unknown>, path: string, value: unknown) {
   const keys = path.split('.')
@@ -24,6 +27,73 @@ function setAtPath(root: Record<string, unknown>, path: string, value: unknown) 
     cur = cur[k] as Record<string, unknown>
   }
   cur[keys[keys.length - 1]!] = value
+}
+
+function pathSegments(path: string): string[] {
+  return path.split('.')
+}
+
+function castByType(
+  raw: unknown,
+  type: 'boolean' | 'number' | 'text' | 'select'
+): string | number | boolean {
+  if (type === 'boolean') {
+    if (typeof raw === 'boolean') return raw
+    if (typeof raw === 'string') return raw.trim().toLowerCase() === 'true'
+    if (typeof raw === 'number') return raw !== 0
+    return false
+  }
+  if (type === 'number') {
+    if (typeof raw === 'number' && Number.isFinite(raw)) return raw
+    if (typeof raw === 'string') {
+      const n = Number(raw.trim())
+      return Number.isFinite(n) ? n : 0
+    }
+    return 0
+  }
+  return raw === null || raw === undefined ? '' : String(raw)
+}
+
+function readProperties(raw: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  const lines = raw.split(/\r?\n/)
+  for (const line of lines) {
+    const t = line.trim()
+    if (!t || t.startsWith('#')) continue
+    const idx = t.indexOf('=')
+    if (idx < 0) continue
+    const key = t.slice(0, idx).trim()
+    const val = t.slice(idx + 1)
+    out[key] = val
+  }
+  return out
+}
+
+function applyPropertiesPatch(raw: string, patch: Record<string, string>): string {
+  const lines = raw.split(/\r?\n/)
+  const touched = new Set<string>()
+  const next = lines.map((line) => {
+    const idx = line.indexOf('=')
+    if (idx <= 0) return line
+    const key = line.slice(0, idx).trim()
+    if (!(key in patch)) return line
+    touched.add(key)
+    return `${key}=${patch[key]}`
+  })
+  for (const [k, v] of Object.entries(patch)) {
+    if (!touched.has(k)) next.push(`${k}=${v}`)
+  }
+  return next.join('\n')
+}
+
+function downloadText(filename: string, content: string) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 function toYaml(value: unknown, depth = 0): string[] {
@@ -62,7 +132,11 @@ export function ServerSettingsView() {
     return Object.fromEntries(entries)
   }, [])
   const [values, setValues] = useState<ValueMap>(initialValues)
+  const [rawFiles, setRawFiles] = useState<RawFileMap>({})
+  const [parseErrors, setParseErrors] = useState<ErrorMap>({})
   const [copiedFile, setCopiedFile] = useState<string | null>(null)
+  const uploadFileRef = useRef<ServerConfigFile | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { copiedId, copy } = useCopyFeedback(1800)
 
   const filtered = useMemo(() => {
@@ -89,18 +163,37 @@ export function ServerSettingsView() {
     }
     for (const file of CONFIG_FILE_ORDER) {
       const rows = SERVER_SETTINGS.filter((s) => s.file === file)
-      if (file === 'server.properties') {
-        out[file] = rows.map((r) => `${r.keyPath}=${String(values[r.id])}`).join('\n')
-        continue
+      try {
+        if (file === 'server.properties') {
+          const patch = Object.fromEntries(rows.map((r) => [r.keyPath, String(values[r.id])]))
+          out[file] = rawFiles[file]
+            ? applyPropertiesPatch(rawFiles[file]!, patch)
+            : rows.map((r) => `${r.keyPath}=${String(values[r.id])}`).join('\n')
+          continue
+        }
+        if (rawFiles[file]) {
+          const doc = parseDocument(rawFiles[file]!)
+          for (const row of rows) {
+            doc.setIn(pathSegments(row.keyPath), values[row.id])
+          }
+          out[file] = String(doc).trimEnd()
+          continue
+        }
+        const tree: Record<string, unknown> = {}
+        for (const row of rows) {
+          setAtPath(tree, row.keyPath, values[row.id])
+        }
+        out[file] = toYaml(tree).join('\n')
+      } catch {
+        const tree: Record<string, unknown> = {}
+        for (const row of rows) {
+          setAtPath(tree, row.keyPath, values[row.id])
+        }
+        out[file] = toYaml(tree).join('\n')
       }
-      const tree: Record<string, unknown> = {}
-      for (const row of rows) {
-        setAtPath(tree, row.keyPath, values[row.id])
-      }
-      out[file] = toYaml(tree).join('\n')
     }
     return out
-  }, [values])
+  }, [rawFiles, values])
 
   const byFile = useMemo(() => {
     const grouped = new Map<ServerConfigFile, typeof filtered>()
@@ -111,6 +204,41 @@ export function ServerSettingsView() {
     }
     return grouped
   }, [filtered])
+
+  const handlePickFileFor = (file: ServerConfigFile) => {
+    uploadFileRef.current = file
+    fileInputRef.current?.click()
+  }
+
+  const handleFileLoaded = async (f: File) => {
+    const target = uploadFileRef.current
+    if (!target) return
+    const text = await f.text()
+    const fileRows = SERVER_SETTINGS.filter((s) => s.file === target)
+    try {
+      const patchValues: ValueMap = {}
+      if (target === 'server.properties') {
+        const map = readProperties(text)
+        for (const row of fileRows) {
+          if (row.keyPath in map) patchValues[row.id] = castByType(map[row.keyPath], row.type)
+        }
+      } else {
+        const doc = parseDocument(text)
+        for (const row of fileRows) {
+          const raw = doc.getIn(pathSegments(row.keyPath), true)
+          if (raw !== undefined) patchValues[row.id] = castByType(raw, row.type)
+        }
+      }
+      setRawFiles((prev) => ({ ...prev, [target]: text }))
+      setValues((prev) => ({ ...prev, ...patchValues }))
+      setParseErrors((prev) => ({ ...prev, [target]: undefined }))
+    } catch (e) {
+      setParseErrors((prev) => ({
+        ...prev,
+        [target]: e instanceof Error ? e.message : String(e),
+      }))
+    }
+  }
 
   return (
     <section className="mx-auto flex min-h-0 w-full max-w-[min(92rem,calc(100vw-0.75rem))] flex-1 flex-col gap-2 overflow-hidden px-2 pb-1 pt-0.5 sm:px-3 sm:pb-2 sm:pt-1">
@@ -143,6 +271,17 @@ export function ServerSettingsView() {
                 </option>
               ))}
             </select>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".properties,.yml,.yaml,text/plain,text/yaml"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) void handleFileLoaded(f)
+                e.currentTarget.value = ''
+              }}
+            />
           </header>
 
           <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
@@ -151,9 +290,33 @@ export function ServerSettingsView() {
               if (rows.length === 0) return null
               return (
                 <div key={file} className="rounded-lg border border-white/[0.07] bg-black/20 p-2.5">
-                  <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
-                    {fileDisplayName(file)}
-                  </h3>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <h3 className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
+                      {fileDisplayName(file)}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => handlePickFileFor(file)}
+                      className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                    >
+                      <Upload className="h-3 w-3" />
+                      Загрузить файл
+                    </button>
+                  </div>
+                  {rawFiles[file] ? (
+                    <p className="mb-2 text-[10px] text-emerald-300/90">
+                      Файл загружен - изменения применяются к реальному содержимому.
+                    </p>
+                  ) : (
+                    <p className="mb-2 text-[10px] text-zinc-500">
+                      Можно работать как с шаблоном или загрузить ваш файл для точного редактирования.
+                    </p>
+                  )}
+                  {parseErrors[file] ? (
+                    <p className="mb-2 rounded border border-red-500/30 bg-red-900/30 px-2 py-1 text-[10px] text-red-200">
+                      Ошибка чтения: {parseErrors[file]}
+                    </p>
+                  ) : null}
                   <div className="space-y-2">
                     {rows.map((row) => {
                       const current = values[row.id]
@@ -240,6 +403,14 @@ export function ServerSettingsView() {
                     >
                       <Copy className="h-3 w-3" />
                       {active ? 'Скопировано' : 'Копировать'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadText(file, text)}
+                      className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                    >
+                      <Download className="h-3 w-3" />
+                      Скачать
                     </button>
                   </div>
                   <textarea
