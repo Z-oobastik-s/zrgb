@@ -1,0 +1,16 @@
+{
+    "item.minecraft.lingering_potion.effect.dnt_blindness": "Туманное зелье слепоты",
+    "item.minecraft.lingering_potion.effect.dnt_mining_fatigue": "Туманное зелье утомления",
+    "item.minecraft.lingering_potion.effect.dnt_levitation": "Туманное зелье левитации",
+    "item.minecraft.lingering_potion.effect.dnt_nausea": "Туманное зелье головокружения",
+    "item.minecraft.lingering_potion.effect.dnt_wither": "Туманное зелье иссушения",
+    "item.minecraft.potion.effect.dnt_levitation": "Зелье левитации",
+    "item.minecraft.potion.effect.dnt_wither": "Зелье иссушения",
+    "item.minecraft.splash_potion.effect.dnt_dolphins_grace": "Взрывное зелье грации дельфина",
+    "item.minecraft.splash_potion.effect.dnt_levitation": "Взрывное зелье левитации",
+    "item.minecraft.splash_potion.effect.dnt_water_breathing": "Взрывное зелье подводного дыхания",
+    "item.minecraft.splash_potion.effect.dnt_wither": "Взрывное зелье иссушения",
+    "item.minecraft.tipped_arrow.effect.dnt_levitation": "Стрела левитации",
+    "item.minecraft.tipped_arrow.effect.dnt_nausea": "Стрела головокружения",
+    "item.minecraft.tipped_arrow.effect.dnt_wither": "Стрела иссушения"
+}

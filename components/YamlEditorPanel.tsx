@@ -9,7 +9,7 @@ import {
   type ChangeEvent,
 } from 'react'
 import { useTranslations } from 'next-intl'
-import { Upload, Download } from 'lucide-react'
+import { Upload, Download, Maximize2, Minimize2 } from 'lucide-react'
 import {
   extractYamlStringFields,
   applyYamlStringEdits,
@@ -35,6 +35,10 @@ export type YamlEditorPanelProps = {
   onApplyLinkedPreviewInput?: (text: string) => void
   /** New file loaded or YAML reset: clear link in parent. */
   onYamlEnvironmentReset?: () => void
+  /** Full-width layout below the preview (parent hides other columns). */
+  expanded?: boolean
+  onExpand?: () => void
+  onCollapse?: () => void
 }
 
 export function YamlEditorPanel({
@@ -45,6 +49,9 @@ export function YamlEditorPanel({
   onLinkedFieldRawEdit,
   onApplyLinkedPreviewInput,
   onYamlEnvironmentReset,
+  expanded = false,
+  onExpand,
+  onCollapse,
 }: YamlEditorPanelProps) {
   const t = useTranslations('generator')
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -174,11 +181,42 @@ export function YamlEditorPanel({
     URL.revokeObjectURL(url)
   }, [raw, fields, valuesById, fileName])
 
+  const canExpand = !!raw && !parseError && fields.length > 0
+
   return (
-    <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-white/[0.06] bg-[#161922] p-3">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
-        {t('columnYaml')}
-      </h2>
+    <div
+      className={`panel flex min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 ${
+        expanded
+          ? 'flex-1 overflow-hidden'
+          : 'overflow-y-auto'
+      }`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          {t('columnYaml')}
+        </h2>
+        {expanded ? (
+          <button
+            type="button"
+            onClick={onCollapse}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+          >
+            <Minimize2 className="h-3.5 w-3.5" aria-hidden />
+            {t('yamlCollapse')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onExpand}
+            disabled={!canExpand}
+            title={!canExpand ? t('yamlExpandDisabled') : undefined}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-sky-500/35 bg-sky-600/20 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-600/35 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Maximize2 className="h-3.5 w-3.5" aria-hidden />
+            {t('yamlExpand')}
+          </button>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-center gap-2">
         <input
@@ -228,77 +266,153 @@ export function YamlEditorPanel({
       ) : null}
 
       {raw && !parseError && fields.length > 0 ? (
-        <>
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('yamlSearch')}
-            className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
-          />
+        expanded ? (
+          <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('yamlSearch')}
+              className="shrink-0 rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
+            />
 
-          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
-            <span>
-              {t('yamlPage', { n: page + 1, total: pageCount })}
-            </span>
-            <div className="flex gap-1">
-              <button
-                type="button"
-                disabled={page <= 0}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
-              >
-                {t('yamlPrev')}
-              </button>
-              <button
-                type="button"
-                disabled={page >= pageCount - 1}
-                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-                className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
-              >
-                {t('yamlNext')}
-              </button>
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
+              <span>
+                {t('yamlPage', { n: page + 1, total: pageCount })}
+              </span>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  disabled={page <= 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                >
+                  {t('yamlPrev')}
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= pageCount - 1}
+                  onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                >
+                  {t('yamlNext')}
+                </button>
+              </div>
+            </div>
+
+            {filtered.length === 0 ? (
+              <p className="shrink-0 text-[11px] text-zinc-500">
+                {t('yamlNoMatches')}
+              </p>
+            ) : null}
+
+            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-0.5">
+              {pageSlice.map((f) => (
+                <label
+                  key={f.id}
+                  className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                    linkedFieldId === f.id
+                      ? 'border-sky-500/55 ring-1 ring-sky-500/35'
+                      : 'border-white/[0.06]'
+                  }`}
+                >
+                  <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
+                    {f.path}
+                  </span>
+                  <textarea
+                    value={valuesById[f.id] ?? f.value}
+                    onFocus={() => {
+                      const rawVal = valuesById[f.id] ?? f.value
+                      onLinkField?.(f.id, rawVal, f.path)
+                    }}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      updateValue(f.id, v)
+                      if (linkedFieldId === f.id) {
+                        onLinkedFieldRawEdit?.(v)
+                      }
+                    }}
+                    spellCheck={false}
+                    rows={4}
+                    className="min-h-[4rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50 sm:min-h-[4.5rem] sm:text-xs"
+                  />
+                </label>
+              ))}
             </div>
           </div>
+        ) : (
+          <>
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('yamlSearch')}
+              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
+            />
 
-          {filtered.length === 0 ? (
-            <p className="text-[11px] text-zinc-500">{t('yamlNoMatches')}</p>
-          ) : null}
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
+              <span>
+                {t('yamlPage', { n: page + 1, total: pageCount })}
+              </span>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  disabled={page <= 0}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                >
+                  {t('yamlPrev')}
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= pageCount - 1}
+                  onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                >
+                  {t('yamlNext')}
+                </button>
+              </div>
+            </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-2">
-            {pageSlice.map((f) => (
-              <label
-                key={f.id}
-                className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
-                  linkedFieldId === f.id
-                    ? 'border-sky-500/55 ring-1 ring-sky-500/35'
-                    : 'border-white/[0.06]'
-                }`}
-              >
-                <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
-                  {f.path}
-                </span>
-                <textarea
-                  value={valuesById[f.id] ?? f.value}
-                  onFocus={() => {
-                    const raw = valuesById[f.id] ?? f.value
-                    onLinkField?.(f.id, raw, f.path)
-                  }}
-                  onChange={(e) => {
-                    const v = e.target.value
-                    updateValue(f.id, v)
-                    if (linkedFieldId === f.id) {
-                      onLinkedFieldRawEdit?.(v)
-                    }
-                  }}
-                  spellCheck={false}
-                  rows={3}
-                  className="min-h-[3.5rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
-                />
-              </label>
-            ))}
-          </div>
-        </>
+            {filtered.length === 0 ? (
+              <p className="text-[11px] text-zinc-500">{t('yamlNoMatches')}</p>
+            ) : null}
+
+            <div className="flex min-h-0 flex-1 flex-col gap-2">
+              {pageSlice.map((f) => (
+                <label
+                  key={f.id}
+                  className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                    linkedFieldId === f.id
+                      ? 'border-sky-500/55 ring-1 ring-sky-500/35'
+                      : 'border-white/[0.06]'
+                  }`}
+                >
+                  <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
+                    {f.path}
+                  </span>
+                  <textarea
+                    value={valuesById[f.id] ?? f.value}
+                    onFocus={() => {
+                      const rawVal = valuesById[f.id] ?? f.value
+                      onLinkField?.(f.id, rawVal, f.path)
+                    }}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      updateValue(f.id, v)
+                      if (linkedFieldId === f.id) {
+                        onLinkedFieldRawEdit?.(v)
+                      }
+                    }}
+                    spellCheck={false}
+                    rows={3}
+                    className="min-h-[3.5rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
+                  />
+                </label>
+              ))}
+            </div>
+          </>
+        )
       ) : null}
     </div>
   )

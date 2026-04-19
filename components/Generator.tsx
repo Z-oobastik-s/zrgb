@@ -213,6 +213,7 @@ export function Generator() {
     null
   )
   const [yamlLinkedPath, setYamlLinkedPath] = useState('')
+  const [yamlExpanded, setYamlExpanded] = useState(false)
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
@@ -697,8 +698,14 @@ export function Generator() {
         </div>
       </section>
 
-      {/* Three columns */}
-      <section className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-2 overflow-hidden xl:grid-cols-3">
+      {/* Three columns - YAML can expand to full width under the preview */}
+      <section
+        className={`grid min-h-0 min-w-0 flex-1 gap-2 overflow-hidden ${
+          yamlExpanded ? 'grid-cols-1' : 'grid-cols-1 xl:grid-cols-3'
+        }`}
+      >
+        {!yamlExpanded ? (
+          <>
         {/* Colors */}
         <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-white/[0.06] bg-[#161922] p-3">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
@@ -920,18 +927,31 @@ export function Generator() {
             </label>
           </div>
         </div>
+          </>
+        ) : null}
 
-        <YamlEditorPanel
-          linkedFieldId={yamlLinkedFieldId}
-          generatorSyncedOutput={
-            yamlLinkedFieldId ? outputText : null
+        <div
+          className={
+            yamlExpanded
+              ? 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden'
+              : 'min-h-0 min-w-0'
           }
-          codeFormat={format}
-          onLinkField={handleYamlLinkField}
-          onLinkedFieldRawEdit={handleYamlLinkedRawEdit}
-          onApplyLinkedPreviewInput={applyLinkedPreviewInput}
-          onYamlEnvironmentReset={clearYamlLink}
-        />
+        >
+          <YamlEditorPanel
+            expanded={yamlExpanded}
+            onExpand={() => setYamlExpanded(true)}
+            onCollapse={() => setYamlExpanded(false)}
+            linkedFieldId={yamlLinkedFieldId}
+            generatorSyncedOutput={
+              yamlLinkedFieldId ? outputText : null
+            }
+            codeFormat={format}
+            onLinkField={handleYamlLinkField}
+            onLinkedFieldRawEdit={handleYamlLinkedRawEdit}
+            onApplyLinkedPreviewInput={applyLinkedPreviewInput}
+            onYamlEnvironmentReset={clearYamlLink}
+          />
+        </div>
       </section>
     </div>
   )
