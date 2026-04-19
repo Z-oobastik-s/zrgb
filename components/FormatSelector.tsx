@@ -15,7 +15,7 @@ export function FormatSelector({ format, onFormatChange }: FormatSelectorProps) 
   const formats: { value: CodeFormat; label: string; icon: string }[] = [
     { value: 'ampersand', label: t('ampersand'), icon: '&' },
     { value: 'section', label: t('section'), icon: '§' },
-    { value: 'hex', label: t('hex'), icon: '#' },
+    { value: 'bracket_hex', label: t('bracketHex'), icon: '#' },
     { value: 'minimessage', label: t('minimessage'), icon: '<>' },
   ]
 

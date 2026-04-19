@@ -42,9 +42,9 @@
   "formats": {
     "label": "Формат:",
     "minimessage": "MiniMessage (gradient / color)",
+    "entityHex": "&#rrggbb (на літеру)",
     "ampersand": "&x&r&r&g&g&b&b (&)",
     "section": "§x§r§r§g§g§b§b (§)",
-    "hex": "&x&r&r&g&g&b&b (Hex)",
     "bracketHex": "<#rrggbb>",
     "json": "JSON (extra[])",
     "bbcode": "[COLOR] BBCode"

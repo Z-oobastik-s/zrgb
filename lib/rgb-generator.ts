@@ -1,9 +1,9 @@
 export type CodeFormat =
   | 'ampersand'
   | 'section'
-  | 'hex'
   | 'minimessage'
   | 'bracket_hex'
+  | 'entity_hex'
   | 'json'
   | 'bbcode'
 
@@ -42,12 +42,69 @@ export const MINECRAFT_COLORS = {
 }
 
 const FORMAT_CODES = {
-  bold: { ampersand: '&l', section: '§l', hex: '&l', bracket_hex: '&l', bbcode: '', json: '' },
-  italic: { ampersand: '&o', section: '§o', hex: '&o', bracket_hex: '&o', bbcode: '', json: '' },
-  underline: { ampersand: '&n', section: '§n', hex: '&n', bracket_hex: '&n', bbcode: '', json: '' },
-  strikethrough: { ampersand: '&m', section: '§m', hex: '&m', bracket_hex: '&m', bbcode: '', json: '' },
-  obfuscated: { ampersand: '&k', section: '§k', hex: '&k', bracket_hex: '&k', bbcode: '', json: '' },
-  reset: { ampersand: '&r', section: '§r', hex: '&r', bracket_hex: '&r', bbcode: '', json: '' },
+  bold: {
+    ampersand: '&l',
+    section: '§l',
+    bracket_hex: '&l',
+    entity_hex: '&l',
+    bbcode: '',
+    json: '',
+  },
+  italic: {
+    ampersand: '&o',
+    section: '§o',
+    bracket_hex: '&o',
+    entity_hex: '&o',
+    bbcode: '',
+    json: '',
+  },
+  underline: {
+    ampersand: '&n',
+    section: '§n',
+    bracket_hex: '&n',
+    entity_hex: '&n',
+    bbcode: '',
+    json: '',
+  },
+  strikethrough: {
+    ampersand: '&m',
+    section: '§m',
+    bracket_hex: '&m',
+    entity_hex: '&m',
+    bbcode: '',
+    json: '',
+  },
+  obfuscated: {
+    ampersand: '&k',
+    section: '§k',
+    bracket_hex: '&k',
+    entity_hex: '&k',
+    bbcode: '',
+    json: '',
+  },
+  reset: {
+    ampersand: '&r',
+    section: '§r',
+    bracket_hex: '&r',
+    entity_hex: '&r',
+    bbcode: '',
+    json: '',
+  },
+}
+
+/** Old saves used `hex` as alias of `ampersand` (same output). */
+export function normalizeCodeFormat(value: string): CodeFormat {
+  if (value === 'hex') return 'ampersand'
+  const allowed: CodeFormat[] = [
+    'minimessage',
+    'entity_hex',
+    'ampersand',
+    'section',
+    'bracket_hex',
+    'json',
+    'bbcode',
+  ]
+  return allowed.includes(value as CodeFormat) ? (value as CodeFormat) : 'ampersand'
 }
 
 function rgbToHex(r: number, g: number, b: number, lowercase = false): string {
@@ -76,7 +133,6 @@ function generateColorCode(
 
   switch (format) {
     case 'ampersand':
-    case 'hex':
       return `&x&${hexDigits[0]}&${hexDigits[1]}&${hexDigits[2]}&${hexDigits[3]}&${hexDigits[4]}&${hexDigits[5]}`
     case 'section':
       return `§x§${hexDigits[0]}§${hexDigits[1]}§${hexDigits[2]}§${hexDigits[3]}§${hexDigits[4]}§${hexDigits[5]}`
@@ -84,6 +140,8 @@ function generateColorCode(
       return `<color:#${hex}>`
     case 'bracket_hex':
       return `<#${hex}>`
+    case 'entity_hex':
+      return `&#${hex}`
     case 'json':
     case 'bbcode':
       return ''
@@ -95,9 +153,16 @@ function generateColorCode(
 function generateLegacyFormatCodes(options: FormattingOptions, format: CodeFormat): string {
   if (format === 'json' || format === 'bbcode' || format === 'minimessage') return ''
   const codes: string[] = []
-  const f = format === 'hex' ? 'ampersand' : format
-  type LegacyKey = 'ampersand' | 'section' | 'bracket_hex'
-  const key = (f === 'section' ? 'section' : f === 'bracket_hex' ? 'bracket_hex' : 'ampersand') as LegacyKey
+  type LegacyKey = 'ampersand' | 'section' | 'bracket_hex' | 'entity_hex'
+  const key = (
+    format === 'section'
+      ? 'section'
+      : format === 'bracket_hex'
+        ? 'bracket_hex'
+        : format === 'entity_hex'
+          ? 'entity_hex'
+          : 'ampersand'
+  ) as LegacyKey
   if (options.bold) codes.push(FORMAT_CODES.bold[key])
   if (options.italic) codes.push(FORMAT_CODES.italic[key])
   if (options.underline) codes.push(FORMAT_CODES.underline[key])
@@ -185,7 +250,7 @@ export function generateRainbowGradient(
   const chars = text.split('')
   const result: string[] = []
   chars.forEach((char, index) => {
-    if (char === ' ') {
+    if (char === ' ' || char === '\n') {
       result.push(char)
       return
     }
@@ -255,6 +320,15 @@ export function generateSingleColor(
     const h = rgbToHexString(color, lowercaseHex)
     const inner = wrapBbcodeFormatting(`[COLOR=#${h}]${text}[/COLOR]`, options)
     return inner
+  }
+
+  if (format === 'entity_hex') {
+    const h = rgbToHexString(color, lowercaseHex)
+    const fc = generateLegacyFormatCodes(options, format)
+    return text
+      .split('')
+      .map((char) => (char === ' ' || char === '\n' ? char : `&#${h}${fc}${char}`))
+      .join('')
   }
 
   const colorCode = generateColorCode(color, format, lowercaseHex)
@@ -387,7 +461,7 @@ export function generateGradientText(
 
   const result: string[] = []
   chars.forEach((char, index) => {
-    if (char === ' ') {
+    if (char === ' ' || char === '\n') {
       result.push(char)
       return
     }

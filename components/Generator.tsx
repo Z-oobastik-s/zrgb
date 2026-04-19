@@ -37,6 +37,7 @@ import {
   buildPreviewSegments,
   rgbToHexString,
   hexToRgb,
+  normalizeCodeFormat,
 } from '@/lib/rgb-generator'
 import { ColorPalette } from './ColorPalette'
 
@@ -154,19 +155,9 @@ export function Generator() {
     window.history.replaceState(null, '', window.location.pathname + window.location.search)
   }, [])
 
-  const FORMAT_LIST: CodeFormat[] = [
-    'minimessage',
-    'ampersand',
-    'section',
-    'hex',
-    'bracket_hex',
-    'json',
-    'bbcode',
-  ]
-
   const applyPayload = (p: PresetPayload & { selectedColor?: RGBColor | null; useGradient?: boolean }) => {
     setInputText(p.inputText)
-    setFormat(FORMAT_LIST.includes(p.format) ? p.format : 'ampersand')
+    setFormat(normalizeCodeFormat(String(p.format)))
     setFormatting(p.formatting)
     const gc =
       p.gradientColors?.length ? p.gradientColors : defaultPayload().gradientColors
@@ -492,9 +483,9 @@ export function Generator() {
 
   const fmtOptions: { value: CodeFormat; label: string }[] = [
     { value: 'minimessage', label: tFmt('minimessage') },
+    { value: 'entity_hex', label: tFmt('entityHex') },
     { value: 'ampersand', label: tFmt('ampersand') },
     { value: 'section', label: tFmt('section') },
-    { value: 'hex', label: tFmt('hex') },
     { value: 'bracket_hex', label: tFmt('bracketHex') },
     { value: 'json', label: tFmt('json') },
     { value: 'bbcode', label: tFmt('bbcode') },
