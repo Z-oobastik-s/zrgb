@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react'
 
 const base =
-  'h-4 w-4 shrink-0'
+  'h-[22px] w-[22px] shrink-0'
 
 function G({
   children,

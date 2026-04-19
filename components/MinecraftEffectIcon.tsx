@@ -22,10 +22,10 @@ export function MinecraftEffectIcon({
     <Image
       src={minecraftEffectIconSrc(id)}
       alt=""
-      width={18}
-      height={18}
+      width={22}
+      height={22}
       unoptimized
-      className="h-[18px] w-[18px] shrink-0 object-contain [image-rendering:pixelated]"
+      className="h-[22px] w-[22px] shrink-0 object-contain [image-rendering:pixelated]"
       loading="lazy"
       onError={() => setFailed(true)}
     />
