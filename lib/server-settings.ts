@@ -35,7 +35,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Максимум игроков',
     description: 'Лимит одновременно подключенных игроков.',
     type: 'number',
-    value: 99,
+    value: 20,
   },
   {
     id: 'online-mode',
@@ -44,7 +44,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Онлайн-режим',
     description: 'Проверка лицензии Mojang. Для публичных серверов обычно true.',
     type: 'boolean',
-    value: false,
+    value: true,
   },
   {
     id: 'difficulty',
@@ -72,7 +72,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Дальность прорисовки',
     description: 'Сколько чанков сервер отправляет игроку.',
     type: 'number',
-    value: 8,
+    value: 10,
   },
   {
     id: 'simulation-distance',
@@ -81,7 +81,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Дальность симуляции',
     description: 'Радиус, где тикают сущности и механизмы.',
     type: 'number',
-    value: 4,
+    value: 10,
   },
   {
     id: 'enable-command-block',
@@ -108,7 +108,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Защита спавна',
     description: 'Радиус защиты от изменений блоков на спавне.',
     type: 'number',
-    value: 0,
+    value: 16,
   },
   {
     id: 'server-port',
@@ -117,7 +117,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Порт сервера',
     description: 'Порт, на котором слушает Minecraft-сервер.',
     type: 'number',
-    value: 20054,
+    value: 25565,
   },
   {
     id: 'enable-rcon',
@@ -126,7 +126,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'RCON',
     description: 'Удаленное управление сервером. Нужен надежный пароль.',
     type: 'boolean',
-    value: true,
+    value: false,
   },
   {
     id: 'settings.warn-on-overload',
@@ -279,7 +279,7 @@ export const SERVER_SETTINGS: ServerSetting[] = [
     label: 'Лимит коллизий сущностей',
     description: 'Снижает нагрузку в местах с большим скоплением мобов.',
     type: 'number',
-    value: 4,
+    value: 8,
   },
   {
     id: 'environment.optimize-explosions',

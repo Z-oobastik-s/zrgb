@@ -42,6 +42,10 @@ import { YamlEditorPanel } from './YamlEditorPanel'
 const HASH_PREFIX = 's='
 /** Reject oversized hash fragments before atob/JSON.parse blocks the main thread. */
 const MAX_HASH_B64_LENGTH = 65536
+const STORAGE_KEY = 'zrgb-generator-v1'
+/** Cap stored input so a huge paste cannot blow localStorage quota. */
+const MAX_STORED_INPUT_LENGTH = 50000
+const SAVE_DEBOUNCE_MS = 250
 
 type PresetPayload = {
   v: 1
@@ -185,6 +189,31 @@ function decodeHash(hash: string): PresetPayload | null {
   return null
 }
 
+function loadStoredPreset(): PresetPayload | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    return sanitizePresetPayload(JSON.parse(raw) as unknown)
+  } catch {
+    return null
+  }
+}
+
+function saveStoredPreset(payload: PresetPayload): void {
+  try {
+    const toStore: PresetPayload = {
+      ...payload,
+      inputText:
+        payload.inputText.length > MAX_STORED_INPUT_LENGTH
+          ? payload.inputText.slice(0, MAX_STORED_INPUT_LENGTH)
+          : payload.inputText,
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore))
+  } catch {
+    /* private mode / quota */
+  }
+}
+
 export function Generator() {
   const t = useTranslations('generator')
   const tFmt = useTranslations('formats')
@@ -217,11 +246,14 @@ export function Generator() {
   )
   const [yamlLinkedPath, setYamlLinkedPath] = useState('')
   const [yamlExpanded, setYamlExpanded] = useState(false)
+  const [storageReady, setStorageReady] = useState(false)
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const urlCopyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
     () => () => {
       if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
+      if (urlCopyResetTimeoutRef.current) clearTimeout(urlCopyResetTimeoutRef.current)
     },
     []
   )
@@ -247,11 +279,52 @@ export function Generator() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const h = window.location.hash.replace(/^#/, '')
-    const p = decodeHash(h)
-    if (!p) return
-    applyPayload(p)
-    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    const fromHash = decodeHash(h)
+    if (fromHash) {
+      applyPayload(fromHash)
+      saveStoredPreset(fromHash)
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search
+      )
+    } else {
+      const stored = loadStoredPreset()
+      if (stored) applyPayload(stored)
+    }
+    setStorageReady(true)
   }, [applyPayload])
+
+  useEffect(() => {
+    if (!storageReady) return
+    const payload: PresetPayload = {
+      v: 1,
+      inputText,
+      format,
+      formatting,
+      gradientColors,
+      useRainbow,
+      charsPerColor,
+      prefix,
+      suffix,
+      lowercaseHex,
+    }
+    const timer = window.setTimeout(() => {
+      saveStoredPreset(payload)
+    }, SAVE_DEBOUNCE_MS)
+    return () => window.clearTimeout(timer)
+  }, [
+    storageReady,
+    inputText,
+    format,
+    formatting,
+    gradientColors,
+    useRainbow,
+    charsPerColor,
+    prefix,
+    suffix,
+    lowercaseHex,
+  ])
 
   const clearYamlLink = useCallback(() => {
     setYamlLinkedFieldId(null)
@@ -421,14 +494,17 @@ export function Generator() {
         ? `${window.location.origin}${window.location.pathname}${window.location.search}`
         : ''
     const url = `${base}#${encodeHash(payload)}`
+    const markUrlCopied = () => {
+      setUrlCopied(true)
+      if (urlCopyResetTimeoutRef.current) clearTimeout(urlCopyResetTimeoutRef.current)
+      urlCopyResetTimeoutRef.current = setTimeout(() => {
+        setUrlCopied(false)
+        urlCopyResetTimeoutRef.current = null
+      }, 2000)
+    }
     try {
       await navigator.clipboard.writeText(url)
-      setUrlCopied(true)
-      if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
-      copyResetTimeoutRef.current = setTimeout(() => {
-        setUrlCopied(false)
-        copyResetTimeoutRef.current = null
-      }, 2000)
+      markUrlCopied()
     } catch {
       try {
         const ta = document.createElement('textarea')
@@ -440,12 +516,7 @@ export function Generator() {
         // Deprecated API: fallback when Clipboard API is unavailable (non-secure context).
         document.execCommand('copy')
         document.body.removeChild(ta)
-        setUrlCopied(true)
-        if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
-        copyResetTimeoutRef.current = setTimeout(() => {
-          setUrlCopied(false)
-          copyResetTimeoutRef.current = null
-        }, 2000)
+        markUrlCopied()
       } catch {
         /* ignore */
       }

@@ -300,6 +300,40 @@ function toYaml(value: unknown, depth = 0): string[] {
   return lines
 }
 
+function readSettingValuesFromText(
+  file: ServerConfigFile,
+  text: string
+): { values: ValueMap; error?: string } {
+  const fileRows = SERVER_SETTINGS.filter((s) => s.file === file)
+  const patch: ValueMap = {}
+  try {
+    if (file === 'server.properties') {
+      const map = readProperties(text)
+      for (const row of fileRows) {
+        if (row.keyPath in map) patch[row.id] = castByType(map[row.keyPath], row.type)
+      }
+    } else {
+      const doc = parseDocument(text)
+      if (doc.errors.length) {
+        return {
+          values: patch,
+          error: doc.errors.map((e) => e.message).join('; '),
+        }
+      }
+      for (const row of fileRows) {
+        const raw = doc.getIn(pathSegments(row.keyPath))
+        if (raw !== undefined) patch[row.id] = castByType(raw, row.type)
+      }
+    }
+    return { values: patch }
+  } catch (e) {
+    return {
+      values: patch,
+      error: e instanceof Error ? e.message : String(e),
+    }
+  }
+}
+
 export function ServerSettingsView() {
   const t = useTranslations('serverPage')
   const locale = useLocale()
@@ -384,6 +418,34 @@ export function ServerSettingsView() {
     }
     return out
   }, [rawFiles, values])
+
+  /** Full editor shows raw text; quick mode export applies values on top. */
+  const fullEditorText =
+    rawFiles[selectedFile] ?? DEFAULT_SERVER_CONFIG_TEMPLATES[selectedFile]
+
+  const activeFileContent =
+    editorMode === 'full' ? fullEditorText : exports[selectedFile]
+
+  const switchEditorMode = (mode: 'full' | 'quick') => {
+    if (mode === editorMode) return
+    if (mode === 'full') {
+      setRawFiles((prev) => ({
+        ...prev,
+        [selectedFile]: exports[selectedFile],
+      }))
+      setEditorMode('full')
+      return
+    }
+    const text = rawFiles[selectedFile] ?? DEFAULT_SERVER_CONFIG_TEMPLATES[selectedFile]
+    const parsed = readSettingValuesFromText(selectedFile, text)
+    if (parsed.error) {
+      setParseErrors((prev) => ({ ...prev, [selectedFile]: parsed.error }))
+    } else {
+      setParseErrors((prev) => ({ ...prev, [selectedFile]: undefined }))
+      setValues((prev) => ({ ...prev, ...parsed.values }))
+    }
+    setEditorMode('quick')
+  }
 
   const parsedLogLines = useMemo<LogLine[]>(() => {
     if (!logFile) return []
@@ -584,29 +646,13 @@ export function ServerSettingsView() {
       setCustomFile(null)
       setSelectedFile(preset)
       const target = preset
-      const fileRows = SERVER_SETTINGS.filter((s) => s.file === target)
-      try {
-        const patchValues: ValueMap = {}
-        if (target === 'server.properties') {
-          const map = readProperties(text)
-          for (const row of fileRows) {
-            if (row.keyPath in map) patchValues[row.id] = castByType(map[row.keyPath], row.type)
-          }
-        } else {
-          const doc = parseDocument(text)
-          for (const row of fileRows) {
-            const raw = doc.getIn(pathSegments(row.keyPath))
-            if (raw !== undefined) patchValues[row.id] = castByType(raw, row.type)
-          }
-        }
-        setRawFiles((prev) => ({ ...prev, [target]: text }))
-        setValues((prev) => ({ ...prev, ...patchValues }))
+      const parsed = readSettingValuesFromText(target, text)
+      setRawFiles((prev) => ({ ...prev, [target]: text }))
+      if (parsed.error) {
+        setParseErrors((prev) => ({ ...prev, [target]: parsed.error }))
+      } else {
+        setValues((prev) => ({ ...prev, ...parsed.values }))
         setParseErrors((prev) => ({ ...prev, [target]: undefined }))
-      } catch (e) {
-        setParseErrors((prev) => ({
-          ...prev,
-          [target]: e instanceof Error ? e.message : String(e),
-        }))
       }
       return
     }
@@ -685,9 +731,28 @@ export function ServerSettingsView() {
           <select
             value={selectedFile}
             onChange={(e) => {
+              const next = e.target.value as ServerConfigFile
+              if (editorMode === 'full' && next !== selectedFile) {
+                const text =
+                  rawFiles[selectedFile] ??
+                  DEFAULT_SERVER_CONFIG_TEMPLATES[selectedFile]
+                const parsed = readSettingValuesFromText(selectedFile, text)
+                if (!parsed.error) {
+                  setValues((prev) => ({ ...prev, ...parsed.values }))
+                  setParseErrors((prev) => ({
+                    ...prev,
+                    [selectedFile]: undefined,
+                  }))
+                } else {
+                  setParseErrors((prev) => ({
+                    ...prev,
+                    [selectedFile]: parsed.error,
+                  }))
+                }
+              }
               setCustomFile(null)
               setLogFile(null)
-              setSelectedFile(e.target.value as ServerConfigFile)
+              setSelectedFile(next)
             }}
             className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-2 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
           >
@@ -1037,7 +1102,7 @@ export function ServerSettingsView() {
                 <div className="inline-flex rounded-lg border border-white/10 bg-[#0d0f14] p-0.5">
                   <button
                     type="button"
-                    onClick={() => setEditorMode('full')}
+                    onClick={() => switchEditorMode('full')}
                     className={`rounded px-2 py-1 text-[11px] ${
                       editorMode === 'full'
                         ? 'bg-sky-500/20 text-sky-100'
@@ -1048,7 +1113,7 @@ export function ServerSettingsView() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditorMode('quick')}
+                    onClick={() => switchEditorMode('quick')}
                     className={`rounded px-2 py-1 text-[11px] ${
                       editorMode === 'quick'
                         ? 'bg-sky-500/20 text-sky-100'
@@ -1067,18 +1132,18 @@ export function ServerSettingsView() {
                     type="button"
                     onClick={() => {
                       setCopiedFile(selectedFile)
-                      void copy(exports[selectedFile])
+                      void copy(activeFileContent)
                     }}
                     className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
                   >
                     <Copy className="h-3 w-3" />
-                    {copiedFile === selectedFile && copiedId === exports[selectedFile]
+                    {copiedFile === selectedFile && copiedId === activeFileContent
                       ? t('copied')
                       : t('copy')}
                   </button>
                   <button
                     type="button"
-                    onClick={() => downloadText(selectedFile, exports[selectedFile])}
+                    onClick={() => downloadText(selectedFile, activeFileContent)}
                     className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
                   >
                     <Download className="h-3 w-3" />
@@ -1102,8 +1167,31 @@ export function ServerSettingsView() {
               ) : null}
               {editorMode === 'full' ? (
                 <textarea
-                  value={exports[selectedFile]}
-                  onChange={(e) => setRawFiles((prev) => ({ ...prev, [selectedFile]: e.target.value }))}
+                  value={fullEditorText}
+                  onChange={(e) => {
+                    setRawFiles((prev) => ({
+                      ...prev,
+                      [selectedFile]: e.target.value,
+                    }))
+                  }}
+                  onBlur={(e) => {
+                    const parsed = readSettingValuesFromText(
+                      selectedFile,
+                      e.currentTarget.value
+                    )
+                    if (parsed.error) {
+                      setParseErrors((prev) => ({
+                        ...prev,
+                        [selectedFile]: parsed.error,
+                      }))
+                      return
+                    }
+                    setParseErrors((prev) => ({
+                      ...prev,
+                      [selectedFile]: undefined,
+                    }))
+                    setValues((prev) => ({ ...prev, ...parsed.values }))
+                  }}
                   spellCheck={false}
                   className="min-h-[min(70vh,calc(100vh-15rem))] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
                 />

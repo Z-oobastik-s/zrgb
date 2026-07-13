@@ -12,6 +12,8 @@ const locales = ['ru', 'ua', 'en'] as const
 export type AppLocale = (typeof locales)[number]
 type Messages = typeof messagesRu
 
+const LOCALE_STORAGE_KEY = 'zrgb-locale'
+
 const LOADING_TEXT: Record<AppLocale, string> = {
   ru: ruPkg.common.loading,
   ua: uaPkg.common.loading,
@@ -27,15 +29,41 @@ export function isAppLocale(value: string): value is AppLocale {
   return (locales as readonly string[]).includes(value)
 }
 
+function readStoredLocale(): AppLocale {
+  try {
+    const raw = localStorage.getItem(LOCALE_STORAGE_KEY)
+    if (raw && isAppLocale(raw)) return raw
+  } catch {
+    /* ignore */
+  }
+  return 'ru'
+}
+
 export function SiteProviders({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<AppLocale>('ru')
   const [messages, setMessages] = useState<Messages | null>(null)
+  const [localeReady, setLocaleReady] = useState(false)
 
   useEffect(() => {
+    setLocale(readStoredLocale())
+    setLocaleReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (!localeReady) return
+    try {
+      localStorage.setItem(LOCALE_STORAGE_KEY, locale)
+    } catch {
+      /* ignore */
+    }
+  }, [locale, localeReady])
+
+  useEffect(() => {
+    if (!localeReady) return
     void import(`../messages/${locale}.json`).then((mod) => {
       setMessages(mod.default)
     })
-  }, [locale])
+  }, [locale, localeReady])
 
   useEffect(() => {
     if (typeof document === 'undefined') return
