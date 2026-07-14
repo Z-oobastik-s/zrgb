@@ -10,6 +10,7 @@
     "generator": "Generator",
     "enchant": "Enchantments",
     "effects": "Effects",
+    "symbols": "Symbols",
     "server": "Server"
   },
   "enchantPage": {
@@ -28,6 +29,15 @@
     "positive": "Beneficial",
     "negative": "Harmful",
     "copied": "OK"
+  },
+  "symbolsPage": {
+    "title": "Symbols",
+    "hint": "Click a symbol to copy",
+    "searchPlaceholder": "Search: paste a symbol or fragment…",
+    "count": "{shown} / {total}",
+    "noMatches": "Nothing found",
+    "copied": "Copied",
+    "copyHint": "Copy"
   },
   "generator": {
     "inputPlaceholder": "Enter text...",

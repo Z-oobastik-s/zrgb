@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { FlaskConical, Settings, Sparkles, Wand2 } from 'lucide-react'
+import { ALargeSmall, FlaskConical, Settings, Sparkles, Wand2 } from 'lucide-react'
 
 interface HeaderProps {
   currentLocale: string
@@ -27,8 +27,9 @@ export function Header({ currentLocale, onLocaleChange }: HeaderProps) {
   const last = path.split('/').filter(Boolean).pop() ?? ''
   const isEnchant = last === 'enchant'
   const isEffects = last === 'effects'
+  const isSymbols = last === 'symbols'
   const isServer = last === 'server'
-  const isHome = !isEnchant && !isEffects && !isServer
+  const isHome = !isEnchant && !isEffects && !isSymbols && !isServer
 
   return (
     <header className="z-50 shrink-0 border-b border-white/[0.06] bg-[#161922]/95 backdrop-blur-sm">
@@ -63,6 +64,10 @@ export function Header({ currentLocale, onLocaleChange }: HeaderProps) {
           <Link href="/effects" className={navButtonClass(isEffects)} title={tn('effects')}>
             <FlaskConical className="h-3 w-3 shrink-0 opacity-90" />
             <span className="max-w-[5.5rem] truncate sm:max-w-none">{tn('effects')}</span>
+          </Link>
+          <Link href="/symbols" className={navButtonClass(isSymbols)} title={tn('symbols')}>
+            <ALargeSmall className="h-3 w-3 shrink-0 opacity-90" />
+            <span className="max-w-[5.5rem] truncate sm:max-w-none">{tn('symbols')}</span>
           </Link>
           <Link href="/server" className={navButtonClass(isServer)} title={tn('server')}>
             <Settings className="h-3 w-3 shrink-0 opacity-90" />

@@ -183,6 +183,19 @@ export const EFFECTS_KEYWORDS: string[] = [
   'effect give список id',
 ]
 
+export const SYMBOLS_KEYWORDS: string[] = [
+  'Minecraft symbols',
+  'Minecraft unicode symbols',
+  'Minecraft nickname symbols',
+  'символы Minecraft',
+  'символы для ника Minecraft',
+  'юникод символы майнкрафт',
+  'символи Minecraft',
+  'символи для ніка',
+  'копировать символы Minecraft',
+  'fancy text minecraft symbols',
+]
+
 export const SERVER_KEYWORDS: string[] = [
   'minecraft server settings',
   'server.properties editor',

@@ -10,6 +10,7 @@
     "generator": "Генератор",
     "enchant": "Зачарования",
     "effects": "Эффекты",
+    "symbols": "Символы",
     "server": "Сервер"
   },
   "enchantPage": {
@@ -28,6 +29,15 @@
     "positive": "Полезные",
     "negative": "Вредные",
     "copied": "OK"
+  },
+  "symbolsPage": {
+    "title": "Символы",
+    "hint": "Нажмите на символ, чтобы скопировать",
+    "searchPlaceholder": "Поиск: вставьте символ или часть…",
+    "count": "{shown} / {total}",
+    "noMatches": "Ничего не найдено",
+    "copied": "Скопировано",
+    "copyHint": "Копировать"
   },
   "generator": {
     "inputPlaceholder": "Введите текст...",

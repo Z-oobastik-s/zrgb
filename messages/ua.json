@@ -10,6 +10,7 @@
     "generator": "Генератор",
     "enchant": "Зачарування",
     "effects": "Ефекти",
+    "symbols": "Символи",
     "server": "Сервер"
   },
   "enchantPage": {
@@ -28,6 +29,15 @@
     "positive": "Корисні",
     "negative": "Шкідливі",
     "copied": "OK"
+  },
+  "symbolsPage": {
+    "title": "Символи",
+    "hint": "Натисніть на символ, щоб скопіювати",
+    "searchPlaceholder": "Пошук: вставте символ або фрагмент…",
+    "count": "{shown} / {total}",
+    "noMatches": "Нічого не знайдено",
+    "copied": "Скопійовано",
+    "copyHint": "Копіювати"
   },
   "generator": {
     "inputPlaceholder": "Введіть текст...",
