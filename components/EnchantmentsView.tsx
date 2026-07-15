@@ -39,16 +39,16 @@ export function EnchantmentsView() {
         <button
           type="button"
           onClick={() => void copy(row.id)}
-          className="flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left transition-colors hover:bg-white/[0.05] sm:gap-2.5 sm:px-2.5 sm:py-1.5"
+          className="flex w-full items-center gap-2 rounded-lg px-2 py-1 text-left transition-colors hover:bg-muted-hover sm:gap-2.5 sm:px-2.5 sm:py-1.5"
         >
           <span className="shrink-0 opacity-95">
             <MinecraftEnchantmentIcon items={row.items} />
           </span>
-          <span className="min-w-0 flex-1 truncate text-xs leading-snug text-sky-200/95 sm:text-[13px]">
+          <span className="min-w-0 flex-1 truncate text-xs leading-snug text-accent/95 sm:text-[13px]">
             {label}
           </span>
           <span
-            className="shrink-0 tabular-nums text-[10px] text-zinc-500 sm:text-[11px]"
+            className="shrink-0 tabular-nums text-[10px] text-muted sm:text-[11px]"
             title={t('maxLevelTitle')}
           >
             {row.max}
@@ -70,13 +70,13 @@ export function EnchantmentsView() {
   return (
     <section className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-2 overflow-hidden px-0 sm:gap-2.5">
       <header className="shrink-0 text-center">
-        <h2 className="text-base font-semibold tracking-tight text-sky-300 sm:text-lg">
+        <h2 className="text-base font-semibold tracking-tight text-accent sm:text-lg">
           {t('title')}
         </h2>
-        <p className="text-[11px] text-zinc-500 sm:text-xs">{t('hint')}</p>
+        <p className="text-[11px] text-muted sm:text-xs">{t('hint')}</p>
       </header>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#141722] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-edge bg-panel shadow-inset-panel">
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-2 py-2 sm:px-3 sm:py-2.5">
           <div className="grid grid-cols-1 gap-x-4 gap-y-0 sm:grid-cols-2">
             <ul className="min-w-0 space-y-1">{colA.map((row) => renderRow(row))}</ul>

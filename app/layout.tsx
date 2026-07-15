@@ -4,6 +4,7 @@ import { SiteProviders } from '@/components/SiteProviders'
 import { SITE_KEYWORDS } from '@/lib/seo-keywords'
 import { websiteJsonLd } from '@/lib/seo-jsonld'
 import { absoluteUrl } from '@/lib/site-url'
+import { THEME_BOOT_SCRIPT } from '@/lib/theme'
 import './globals.css'
 
 const inter = Inter({
@@ -77,8 +78,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`dark ${inter.variable} ${mcPixel.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
       <body
-        className={`${inter.className} h-[100dvh] overflow-hidden bg-[#12141d] text-zinc-100 antialiased`}
+        className={`${inter.className} h-[100dvh] overflow-hidden bg-surface text-fg antialiased`}
       >
         <script
           type="application/ld+json"
@@ -91,4 +95,3 @@ export default function RootLayout({
     </html>
   )
 }
-

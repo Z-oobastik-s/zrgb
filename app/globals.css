@@ -2,9 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark (default) */
+html.dark,
+html:not(.light) {
+  --color-surface: #12141d;
+  --color-panel: #161922;
+  --color-panel-2: #131722;
+  --color-input: #0d0f14;
+  --color-muted-fill: rgba(0, 0, 0, 0.28);
+  --color-muted-hover: rgba(255, 255, 255, 0.08);
+  --color-edge: rgba(255, 255, 255, 0.08);
+  --color-edge-strong: rgba(255, 255, 255, 0.14);
+  --color-fg: #f4f4f5;
+  --color-fg-soft: #e4e4e7;
+  --color-muted: #71717a;
+  --color-accent: #7dd3fc;
+  --color-accent-soft: rgba(14, 165, 233, 0.18);
+  --color-inset-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  --scrollbar-track: #18181b;
+  --scrollbar-thumb: #3f3f46;
+  --scrollbar-thumb-hover: #52525b;
+  color-scheme: dark;
+}
+
+/* Light — ivory #FFFFF0 */
+html.light {
+  --color-surface: #fffff0;
+  --color-panel: #f4f4e4;
+  --color-panel-2: #ececd8;
+  --color-input: #ffffff;
+  --color-muted-fill: rgba(0, 0, 0, 0.05);
+  --color-muted-hover: rgba(0, 0, 0, 0.08);
+  --color-edge: rgba(0, 0, 0, 0.1);
+  --color-edge-strong: rgba(0, 0, 0, 0.16);
+  --color-fg: #1c1917;
+  --color-fg-soft: #292524;
+  --color-muted: #78716c;
+  --color-accent: #0369a1;
+  --color-accent-soft: rgba(14, 165, 233, 0.14);
+  --color-inset-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
+  --scrollbar-track: #ebebd6;
+  --scrollbar-thumb: #c4c4a8;
+  --scrollbar-thumb-hover: #a8a888;
+  color-scheme: light;
+}
+
 :root {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
+  --background: var(--color-surface);
+  --foreground: var(--color-fg);
 }
 
 * {
@@ -18,8 +63,8 @@ html {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--color-fg);
+  background: var(--color-surface);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -28,17 +73,29 @@ body {
   overflow-x: hidden;
 }
 
+/* Smooth theme cross-fade */
+html.theme-ready body,
+html.theme-ready body *:not(svg):not(path):not(circle):not(line):not(polyline):not(polygon):not(rect) {
+  transition-property: background-color, border-color, color, box-shadow, fill, stroke;
+  transition-duration: 0.35s;
+  transition-timing-function: ease;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .gradient-text {
     @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
   }
-  
+
   .glass-effect {
-    @apply backdrop-blur-xl bg-dark-100/50 border border-dark-200/50;
+    @apply border border-edge bg-panel/50 backdrop-blur-xl;
+  }
+
+  .shadow-inset-panel {
+    box-shadow: var(--color-inset-glow);
   }
 }
 
@@ -48,16 +105,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #18181b;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: var(--scrollbar-thumb);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Minecraft font effect */
@@ -76,6 +133,11 @@ body {
   font-family: var(--font-pixel), ui-monospace, 'Courier New', monospace;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.75);
   -webkit-font-smoothing: none;
+}
+
+html.light .minecraft-pixel-preview,
+html.light .rgb-editor-pixel-layer span {
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.65), 1px 1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .mc-obfuscated {
@@ -102,4 +164,3 @@ body {
 .rgb-editor-pixel-layer span {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.82);
 }
-

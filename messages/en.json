@@ -4,7 +4,9 @@
     "subtitle": "RGB Text Generator for Minecraft",
     "author": "Zoobastiks",
     "year": "2026",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "themeLight": "Light theme",
+    "themeDark": "Dark theme"
   },
   "nav": {
     "generator": "Generator",

@@ -227,21 +227,21 @@ export function YamlEditorPanel({
 
   return (
     <div
-      className={`panel flex h-full min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 ${
+      className={`panel flex h-full min-h-0 min-w-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 ${
         expanded
           ? 'min-h-0 flex-1 basis-0 overflow-hidden'
           : 'overflow-y-auto overflow-x-hidden'
       }`}
     >
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
           {t('columnYaml')}
         </h2>
         {expanded ? (
           <button
             type="button"
             onClick={onCollapse}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
           >
             <Minimize2 className="h-3.5 w-3.5" aria-hidden />
             {t('yamlCollapse')}
@@ -252,7 +252,7 @@ export function YamlEditorPanel({
             onClick={onExpand}
             disabled={!canExpand}
             title={!canExpand ? t('yamlExpandDisabled') : undefined}
-            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-sky-500/35 bg-sky-600/20 px-2 py-1 text-[11px] text-sky-100 hover:bg-sky-600/35 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-sky-500/35 bg-sky-600/20 px-2 py-1 text-[11px] text-accent hover:bg-sky-600/35 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Maximize2 className="h-3.5 w-3.5" aria-hidden />
             {t('yamlExpand')}
@@ -271,7 +271,7 @@ export function YamlEditorPanel({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="inline-flex items-center gap-1 rounded-md border border-white/10 bg-black/25 px-2 py-1.5 text-[11px] text-zinc-200 hover:bg-white/10"
+          className="inline-flex items-center gap-1 rounded-md border border-edge-strong bg-muted-fill px-2 py-1.5 text-[11px] text-fg-soft hover:bg-muted-hover"
         >
           <Upload className="h-3.5 w-3.5" />
           {t('yamlUpload')}
@@ -280,7 +280,7 @@ export function YamlEditorPanel({
           type="button"
           onClick={download}
           disabled={!raw || !!parseError || fields.length === 0}
-          className="inline-flex items-center gap-1 rounded-md border border-sky-500/40 bg-sky-600/25 px-2 py-1.5 text-[11px] text-sky-100 hover:bg-sky-600/40 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-1 rounded-md border border-sky-500/40 bg-sky-600/25 px-2 py-1.5 text-[11px] text-accent hover:bg-sky-600/40 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Download className="h-3.5 w-3.5" />
           {t('yamlDownload')}
@@ -289,7 +289,7 @@ export function YamlEditorPanel({
 
       {fileName ? (
         <p
-          className="shrink-0 truncate font-mono text-[10px] text-zinc-500"
+          className="shrink-0 truncate font-mono text-[10px] text-muted"
           title={fileName}
         >
           {fileName}
@@ -304,11 +304,11 @@ export function YamlEditorPanel({
       ) : null}
 
       {!raw ? (
-        <p className="shrink-0 text-[11px] leading-relaxed text-zinc-500">
+        <p className="shrink-0 text-[11px] leading-relaxed text-muted">
           {t('yamlNoFile')}
         </p>
       ) : !parseError ? (
-        <p className="shrink-0 text-[11px] text-zinc-500">
+        <p className="shrink-0 text-[11px] text-muted">
           {t('yamlFieldsCount', { count: fields.length })}
         </p>
       ) : null}
@@ -321,10 +321,10 @@ export function YamlEditorPanel({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('yamlSearch')}
-              className="shrink-0 rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
+              className="shrink-0 rounded-lg border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none placeholder:text-muted focus:border-sky-500/50"
             />
 
-            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
               <span>
                 {t('yamlPage', { n: page + 1, total: pageCount })}
               </span>
@@ -333,7 +333,7 @@ export function YamlEditorPanel({
                   type="button"
                   disabled={page <= 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                  className="rounded border border-edge-strong px-2 py-0.5 hover:bg-muted-hover disabled:opacity-30"
                 >
                   {t('yamlPrev')}
                 </button>
@@ -341,7 +341,7 @@ export function YamlEditorPanel({
                   type="button"
                   disabled={page >= pageCount - 1}
                   onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                  className="rounded border border-edge-strong px-2 py-0.5 hover:bg-muted-hover disabled:opacity-30"
                 >
                   {t('yamlNext')}
                 </button>
@@ -349,7 +349,7 @@ export function YamlEditorPanel({
             </div>
 
             {filtered.length === 0 ? (
-              <p className="shrink-0 text-[11px] text-zinc-500">
+              <p className="shrink-0 text-[11px] text-muted">
                 {t('yamlNoMatches')}
               </p>
             ) : null}
@@ -360,13 +360,13 @@ export function YamlEditorPanel({
                 {pageSlice.map((f) => (
                   <label
                     key={f.id}
-                    className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                    className={`flex flex-col gap-0.5 rounded-lg border bg-muted-fill p-2 ${
                       linkedFieldId === f.id
                         ? 'border-sky-500/55 ring-1 ring-sky-500/35'
-                        : 'border-white/[0.06]'
+                        : 'border-edge'
                     }`}
                   >
-                    <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
+                    <span className="break-all font-mono text-[9px] leading-tight text-muted">
                       {f.path}
                     </span>
                     <textarea
@@ -384,7 +384,7 @@ export function YamlEditorPanel({
                       }}
                       spellCheck={false}
                       rows={4}
-                      className="min-h-[4rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50 sm:min-h-[4.5rem] sm:text-xs"
+                      className="min-h-[4rem] w-full resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50 sm:min-h-[4.5rem] sm:text-xs"
                     />
                   </label>
                 ))}
@@ -398,10 +398,10 @@ export function YamlEditorPanel({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('yamlSearch')}
-              className="shrink-0 rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-600 focus:border-sky-500/50"
+              className="shrink-0 rounded-lg border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none placeholder:text-muted focus:border-sky-500/50"
             />
 
-            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-500">
+            <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px] text-muted">
               <span>
                 {t('yamlPage', { n: page + 1, total: pageCount })}
               </span>
@@ -410,7 +410,7 @@ export function YamlEditorPanel({
                   type="button"
                   disabled={page <= 0}
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
-                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                  className="rounded border border-edge-strong px-2 py-0.5 hover:bg-muted-hover disabled:opacity-30"
                 >
                   {t('yamlPrev')}
                 </button>
@@ -418,7 +418,7 @@ export function YamlEditorPanel({
                   type="button"
                   disabled={page >= pageCount - 1}
                   onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-                  className="rounded border border-white/10 px-2 py-0.5 hover:bg-white/10 disabled:opacity-30"
+                  className="rounded border border-edge-strong px-2 py-0.5 hover:bg-muted-hover disabled:opacity-30"
                 >
                   {t('yamlNext')}
                 </button>
@@ -426,7 +426,7 @@ export function YamlEditorPanel({
             </div>
 
             {filtered.length === 0 ? (
-              <p className="shrink-0 text-[11px] text-zinc-500">
+              <p className="shrink-0 text-[11px] text-muted">
                 {t('yamlNoMatches')}
               </p>
             ) : null}
@@ -435,13 +435,13 @@ export function YamlEditorPanel({
               {pageSlice.map((f) => (
                 <label
                   key={f.id}
-                  className={`flex flex-col gap-0.5 rounded-lg border bg-black/20 p-2 ${
+                  className={`flex flex-col gap-0.5 rounded-lg border bg-muted-fill p-2 ${
                     linkedFieldId === f.id
                       ? 'border-sky-500/55 ring-1 ring-sky-500/35'
-                      : 'border-white/[0.06]'
+                      : 'border-edge'
                   }`}
                 >
-                  <span className="break-all font-mono text-[9px] leading-tight text-zinc-500">
+                  <span className="break-all font-mono text-[9px] leading-tight text-muted">
                     {f.path}
                   </span>
                   <textarea
@@ -459,7 +459,7 @@ export function YamlEditorPanel({
                     }}
                     spellCheck={false}
                     rows={3}
-                    className="min-h-[3.5rem] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
+                    className="min-h-[3.5rem] w-full resize-y rounded border border-edge-strong bg-input px-2 py-1 font-mono text-[10px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50"
                   />
                 </label>
               ))}

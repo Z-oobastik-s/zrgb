@@ -120,9 +120,9 @@ const FABRIC_SKIP_ROOT_MOD_IDS = new Set(['java', 'minecraft'])
 function levelBadgeClass(level: LogLevel): string {
   if (level === 'error') return 'border-red-500/35 bg-red-500/8 text-red-100'
   if (level === 'warn') return 'border-amber-500/35 bg-amber-500/8 text-amber-100'
-  if (level === 'info') return 'border-sky-500/30 bg-sky-500/8 text-sky-100'
+  if (level === 'info') return 'border-sky-500/30 bg-sky-500/8 text-accent'
   if (level === 'debug') return 'border-violet-500/30 bg-violet-500/8 text-violet-100'
-  return 'border-zinc-500/30 bg-zinc-500/6 text-zinc-200'
+  return 'border-zinc-500/30 bg-zinc-500/6 text-fg-soft'
 }
 
 function levelRowClass(level: LogLevel): string {
@@ -130,7 +130,7 @@ function levelRowClass(level: LogLevel): string {
   if (level === 'warn') return 'border-amber-500/20 bg-amber-500/[0.05]'
   if (level === 'info') return 'border-sky-500/20 bg-sky-500/[0.04]'
   if (level === 'debug') return 'border-violet-500/20 bg-violet-500/[0.04]'
-  return 'border-white/10 bg-white/[0.02]'
+  return 'border-edge-strong bg-white/[0.02]'
 }
 
 function classifyProblemKind(line: string): LogProblemKind {
@@ -176,7 +176,7 @@ function kindBadgeClass(kind: LogProblemKind): string {
   if (kind === 'resourcepack') return 'border-cyan-500/35 bg-cyan-500/10 text-cyan-100'
   if (kind === 'settings') return 'border-violet-500/35 bg-violet-500/10 text-violet-100'
   if (kind === 'network') return 'border-blue-500/35 bg-blue-500/10 text-blue-100'
-  return 'border-zinc-500/35 bg-zinc-500/10 text-zinc-200'
+  return 'border-zinc-500/35 bg-zinc-500/10 text-fg-soft'
 }
 
 function kindPriority(kind: LogProblemKind): number {
@@ -686,43 +686,43 @@ export function ServerSettingsView() {
           </p>
         </div>
       ) : !logFile ? (
-        <div className="rounded-xl border border-sky-500/25 bg-sky-500/10 p-3 text-[12px] text-sky-100">
+        <div className="rounded-xl border border-sky-500/25 bg-sky-500/10 p-3 text-[12px] text-accent">
           <p className="font-semibold">{t('customEditorTitle')}</p>
-          <p className="mt-1 text-sky-100/85">
+          <p className="mt-1 text-accent/85">
             {t('customEditorHint')}
           </p>
         </div>
       ) : null}
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#141722] p-3">
-        <div className="grid shrink-0 grid-cols-1 gap-2 border-b border-white/[0.08] pb-3 xl:grid-cols-[1fr_auto_auto]">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-edge bg-panel p-3">
+        <div className="grid shrink-0 grid-cols-1 gap-2 border-b border-edge pb-3 xl:grid-cols-[1fr_auto_auto]">
           {!customFile && !logFile ? (
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="min-w-[18rem] rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-2 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
+              className="min-w-[18rem] rounded-lg border border-edge-strong bg-input px-3 py-2 text-xs text-fg-soft outline-none focus:border-sky-500/60"
             />
           ) : logFile ? (
-            <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-2 text-xs text-zinc-300">
-              <span className="text-zinc-500">{t('logFileLabel')}</span>
+            <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-lg border border-edge-strong bg-input px-3 py-2 text-xs text-fg-soft">
+              <span className="text-muted">{t('logFileLabel')}</span>
               <span className="font-mono text-violet-200">{logFile.name}</span>
               <button
                 type="button"
                 onClick={() => setLogFile(null)}
-                className="rounded border border-white/15 bg-black/40 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
               >
                 {t('backToTemplates')}
               </button>
             </div>
           ) : (
-            <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-2 text-xs text-zinc-300">
-              <span className="text-zinc-500">{t('openedFile')}</span>
-              <span className="font-mono text-sky-200">{customFile?.name ?? ''}</span>
+            <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-lg border border-edge-strong bg-input px-3 py-2 text-xs text-fg-soft">
+              <span className="text-muted">{t('openedFile')}</span>
+              <span className="font-mono text-accent">{customFile?.name ?? ''}</span>
               <button
                 type="button"
                 onClick={() => setCustomFile(null)}
-                className="rounded border border-white/15 bg-black/40 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
               >
                 {t('backToTemplates')}
               </button>
@@ -754,7 +754,7 @@ export function ServerSettingsView() {
               setLogFile(null)
               setSelectedFile(next)
             }}
-            className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-2 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
+            className="rounded-lg border border-edge-strong bg-input px-2 py-2 text-xs text-fg-soft outline-none focus:border-sky-500/60"
           >
             {CONFIG_FILE_ORDER.map((f) => (
               <option key={f} value={f}>
@@ -765,7 +765,7 @@ export function ServerSettingsView() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center justify-center gap-1 rounded border border-white/15 bg-black/30 px-3 py-2 text-[12px] text-zinc-200 hover:bg-white/10"
+            className="inline-flex items-center justify-center gap-1 rounded border border-edge-strong bg-muted-fill px-3 py-2 text-[12px] text-fg-soft hover:bg-muted-hover"
           >
             <Upload className="h-3.5 w-3.5" />
             {t('uploadFile')}
@@ -789,18 +789,18 @@ export function ServerSettingsView() {
           <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden pt-2">
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden xl:flex-row xl:items-stretch">
               <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-hidden">
-                <div className="grid shrink-0 grid-cols-1 gap-2 rounded-lg border border-white/[0.08] bg-[#10131d] p-2 xl:grid-cols-[1fr_auto]">
+                <div className="grid shrink-0 grid-cols-1 gap-2 rounded-lg border border-edge bg-panel-2 p-2 xl:grid-cols-[1fr_auto]">
                   <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_auto_auto]">
                     <input
                       value={logQuery}
                       onChange={(e) => setLogQuery(e.target.value)}
                       placeholder={t('logSearchPlaceholder')}
-                      className="min-w-0 rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-2 text-xs text-zinc-200 outline-none focus:border-violet-500/60"
+                      className="min-w-0 rounded-lg border border-edge-strong bg-input px-3 py-2 text-xs text-fg-soft outline-none focus:border-violet-500/60"
                     />
                     <select
                       value={logSource}
                       onChange={(e) => setLogSource(e.target.value)}
-                      className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-2 text-xs text-zinc-200 outline-none focus:border-violet-500/60"
+                      className="rounded-lg border border-edge-strong bg-input px-2 py-2 text-xs text-fg-soft outline-none focus:border-violet-500/60"
                     >
                       <option value="all">
                         {t('allSources')} ({parsedLogLines.length})
@@ -825,7 +825,7 @@ export function ServerSettingsView() {
                             other: true,
                           })
                         }}
-                        className="rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                        className="rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                       >
                         {t('all')}
                       </button>
@@ -864,7 +864,7 @@ export function ServerSettingsView() {
                         className={`inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] transition ${
                           logLevelFilter[level]
                             ? levelBadgeClass(level)
-                            : 'border-white/15 bg-black/30 text-zinc-400 hover:bg-white/10'
+                            : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover'
                         }`}
                       >
                         <span>{t(`logLevel.${level}`)}</span>
@@ -878,12 +878,12 @@ export function ServerSettingsView() {
                   </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-white/[0.07] bg-black/20 p-2">
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-edge bg-muted-fill p-2">
                   <div className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2 text-[11px]">
-                    <div className="text-zinc-400">
+                    <div className="text-muted">
                       {t('shownRows')}{' '}
-                      <span className="font-mono text-zinc-200">{filteredLogLines.length}</span> /{' '}
-                      <span className="font-mono text-zinc-200">{parsedLogLines.length}</span>
+                      <span className="font-mono text-fg-soft">{filteredLogLines.length}</span> /{' '}
+                      <span className="font-mono text-fg-soft">{parsedLogLines.length}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
@@ -892,7 +892,7 @@ export function ServerSettingsView() {
                           setCopiedFile('__log__')
                           void copy(filteredLogLines.map((line) => line.raw).join('\n'))
                         }}
-                        className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                        className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                       >
                         <Copy className="h-3 w-3" />
                         {copiedFile === '__log__' ? t('copied') : t('copyFiltered')}
@@ -905,7 +905,7 @@ export function ServerSettingsView() {
                             filteredLogLines.map((line) => line.raw).join('\n')
                           )
                         }
-                        className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                        className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                       >
                         <Download className="h-3 w-3" />
                         {t('downloadFiltered')}
@@ -913,15 +913,15 @@ export function ServerSettingsView() {
                     </div>
                   </div>
 
-                  <div className="min-h-0 flex-1 overflow-auto rounded border border-white/10 bg-[#0d0f14] p-2">
+                  <div className="min-h-0 flex-1 overflow-auto rounded border border-edge-strong bg-input p-2">
                     {filteredLogLines.length === 0 ? (
-                      <div className="p-3 text-[12px] text-zinc-500">
+                      <div className="p-3 text-[12px] text-muted">
                         {t('nothingFound')}
                         {logQuery.trim() ? (
                           <button
                             type="button"
                             onClick={() => setLogQuery('')}
-                            className="ml-2 rounded border border-white/15 bg-black/30 px-2 py-0.5 text-[11px] text-zinc-300 hover:bg-white/10"
+                            className="ml-2 rounded border border-edge-strong bg-muted-fill px-2 py-0.5 text-[11px] text-fg-soft hover:bg-muted-hover"
                           >
                             {t('clearSearch')}
                           </button>
@@ -932,15 +932,15 @@ export function ServerSettingsView() {
                         {filteredLogLines.map((line) => (
                           <div
                             key={`${line.idx}-${line.raw}`}
-                            className={`grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-0 rounded border px-2 py-1.5 font-mono text-[11px] leading-snug text-zinc-200/90 ${levelRowClass(line.level)}`}
+                            className={`grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-0 rounded border px-2 py-1.5 font-mono text-[11px] leading-snug text-fg-soft ${levelRowClass(line.level)}`}
                           >
-                            <span className="shrink-0 text-right tabular-nums text-zinc-400">
+                            <span className="shrink-0 text-right tabular-nums text-muted">
                               {line.idx}
                             </span>
-                            <span className="w-28 shrink-0 truncate text-zinc-300 sm:w-36">
+                            <span className="w-28 shrink-0 truncate text-fg-soft sm:w-36">
                               {line.source}
                             </span>
-                            <span className="min-w-0 whitespace-pre-wrap break-all text-zinc-200/90">
+                            <span className="min-w-0 whitespace-pre-wrap break-all text-fg-soft">
                               {line.raw || ' '}
                             </span>
                           </div>
@@ -951,7 +951,7 @@ export function ServerSettingsView() {
                 </div>
               </div>
 
-              <aside className="flex min-h-0 max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-hidden border-white/10 xl:max-h-none xl:w-[17.5rem] xl:border-l xl:pl-3">
+              <aside className="flex min-h-0 max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-hidden border-edge-strong xl:max-h-none xl:w-[17.5rem] xl:border-l xl:pl-3">
                 <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pr-0.5">
                   <div className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/[0.05] p-2">
                     <div className="mb-1 text-[11px] font-semibold text-red-200">
@@ -959,7 +959,7 @@ export function ServerSettingsView() {
                     </div>
                     <div className="max-h-32 space-y-1 overflow-y-auto text-[11px]">
                       {logInsights.problems.length === 0 ? (
-                        <p className="text-zinc-400">{t('logIssuesEmpty')}</p>
+                        <p className="text-muted">{t('logIssuesEmpty')}</p>
                       ) : (
                         (
                           [
@@ -982,21 +982,21 @@ export function ServerSettingsView() {
                               >
                                 {t(`logIssueKind.${k}`)}
                               </span>
-                              <span className="font-mono text-zinc-300">{problemCountsByKind[k]}</span>
+                              <span className="font-mono text-fg-soft">{problemCountsByKind[k]}</span>
                             </div>
                           ))
                       )}
                     </div>
                   </div>
 
-                  <div className="shrink-0 rounded-lg border border-white/10 bg-black/20 p-2">
-                    <div className="mb-0.5 text-[11px] font-semibold text-sky-200">
+                  <div className="shrink-0 rounded-lg border border-edge-strong bg-muted-fill p-2">
+                    <div className="mb-0.5 text-[11px] font-semibold text-accent">
                       {t('logModsTitle')} ({logInsights.mods.length})
                     </div>
-                    <p className="mb-1 text-[10px] leading-snug text-zinc-500">{t('logModsHint')}</p>
-                    <div className="max-h-36 space-y-0.5 overflow-y-auto font-mono text-[10px] text-zinc-300">
+                    <p className="mb-1 text-[10px] leading-snug text-muted">{t('logModsHint')}</p>
+                    <div className="max-h-36 space-y-0.5 overflow-y-auto font-mono text-[10px] text-fg-soft">
                       {logInsights.mods.length === 0 ? (
-                        <p className="font-sans text-zinc-400">{t('logModsEmpty')}</p>
+                        <p className="font-sans text-muted">{t('logModsEmpty')}</p>
                       ) : (
                         logInsights.mods.map((m) => (
                           <div key={m} className="break-all">
@@ -1007,14 +1007,14 @@ export function ServerSettingsView() {
                     </div>
                   </div>
 
-                  <div className="shrink-0 rounded-lg border border-white/10 bg-black/20 p-2">
+                  <div className="shrink-0 rounded-lg border border-edge-strong bg-muted-fill p-2">
                     <div className="mb-0.5 text-[11px] font-semibold text-cyan-200">
                       {t('logResourcepacksTitle')} ({logInsights.resourcePacks.length})
                     </div>
-                    <p className="mb-1 text-[10px] leading-snug text-zinc-500">{t('logResourcepacksHint')}</p>
-                    <div className="max-h-32 space-y-0.5 overflow-y-auto font-mono text-[10px] text-zinc-300">
+                    <p className="mb-1 text-[10px] leading-snug text-muted">{t('logResourcepacksHint')}</p>
+                    <div className="max-h-32 space-y-0.5 overflow-y-auto font-mono text-[10px] text-fg-soft">
                       {logInsights.resourcePacks.length === 0 ? (
-                        <p className="font-sans text-zinc-400">{t('logResourcepacksEmpty')}</p>
+                        <p className="font-sans text-muted">{t('logResourcepacksEmpty')}</p>
                       ) : (
                         logInsights.resourcePacks.map((p) => (
                           <div key={p} className="break-all">
@@ -1028,15 +1028,15 @@ export function ServerSettingsView() {
                   </div>
 
                   {logInsights.problems.length > 0 ? (
-                    <div className="shrink-0 rounded-lg border border-white/[0.08] bg-[#10131d] p-2">
-                      <div className="mb-1 text-[11px] font-semibold text-zinc-200">
+                    <div className="shrink-0 rounded-lg border border-edge bg-panel-2 p-2">
+                      <div className="mb-1 text-[11px] font-semibold text-fg-soft">
                         {t('logIssueHintsTitle')}
                       </div>
                       <div className="max-h-48 space-y-1 overflow-y-auto text-[11px]">
                         {logInsights.problems.slice(0, 10).map((p) => (
                           <div
                             key={`${p.line}-${p.text}`}
-                            className="rounded border border-white/10 bg-black/20 px-2 py-1"
+                            className="rounded border border-edge-strong bg-muted-fill px-2 py-1"
                           >
                             <div className="mb-0.5 flex flex-wrap items-center gap-2">
                               <span
@@ -1044,10 +1044,10 @@ export function ServerSettingsView() {
                               >
                                 {t(`logIssueKind.${p.kind}`)}
                               </span>
-                              <span className="font-mono text-zinc-400">L{p.line}</span>
+                              <span className="font-mono text-muted">L{p.line}</span>
                             </div>
-                            <p className="line-clamp-3 font-mono text-[10px] text-zinc-300">{p.text}</p>
-                            <p className="mt-0.5 text-zinc-400">{t(`logIssueHint.${p.kind}`)}</p>
+                            <p className="line-clamp-3 font-mono text-[10px] text-fg-soft">{p.text}</p>
+                            <p className="mt-0.5 text-muted">{t(`logIssueHint.${p.kind}`)}</p>
                           </div>
                         ))}
                       </div>
@@ -1059,10 +1059,10 @@ export function ServerSettingsView() {
           </div>
         ) : customFile ? (
           <div className="flex min-h-0 flex-1 flex-col gap-2 pt-3">
-            <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-white/[0.07] bg-black/20 p-2">
-              <h3 className="mb-2 inline-flex flex-wrap items-center gap-2 text-sm font-semibold text-sky-200">
+            <div className="flex min-h-0 flex-1 flex-col rounded-lg border border-edge bg-muted-fill p-2">
+              <h3 className="mb-2 inline-flex flex-wrap items-center gap-2 text-sm font-semibold text-accent">
                 <ShieldCheck className="h-4 w-4 shrink-0" />
-                <span className="break-all font-mono text-xs text-zinc-200">{customFile.name}</span>
+                <span className="break-all font-mono text-xs text-fg-soft">{customFile.name}</span>
               </h3>
               <div className="mb-2 flex flex-wrap items-center justify-end gap-2">
                 <button
@@ -1071,7 +1071,7 @@ export function ServerSettingsView() {
                     setCopiedFile('__custom__')
                     void copy(customFile.text)
                   }}
-                  className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                  className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                 >
                   <Copy className="h-3 w-3" />
                   {copiedFile === '__custom__' && copiedId === customFile.text
@@ -1081,7 +1081,7 @@ export function ServerSettingsView() {
                 <button
                   type="button"
                   onClick={() => downloadText(customFile.name, customFile.text)}
-                  className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                  className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                 >
                   <Download className="h-3 w-3" />
                   {t('download')}
@@ -1091,7 +1091,7 @@ export function ServerSettingsView() {
                 value={customFile.text}
                 onChange={(e) => setCustomFile({ name: customFile.name, text: e.target.value })}
                 spellCheck={false}
-                className="min-h-[min(70vh,calc(100vh-14rem))] flex-1 resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
+                className="min-h-[min(70vh,calc(100vh-14rem))] flex-1 resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50"
               />
             </div>
           </div>
@@ -1099,14 +1099,14 @@ export function ServerSettingsView() {
           <div className="flex min-h-0 flex-1 flex-col gap-3 pt-3">
             <div className="min-h-0 overflow-y-auto pr-1">
               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <div className="inline-flex rounded-lg border border-white/10 bg-[#0d0f14] p-0.5">
+                <div className="inline-flex rounded-lg border border-edge-strong bg-input p-0.5">
                   <button
                     type="button"
                     onClick={() => switchEditorMode('full')}
                     className={`rounded px-2 py-1 text-[11px] ${
                       editorMode === 'full'
-                        ? 'bg-sky-500/20 text-sky-100'
-                        : 'text-zinc-400 hover:bg-white/5'
+                        ? 'bg-sky-500/20 text-accent'
+                        : 'text-muted hover:bg-muted-hover'
                     }`}
                   >
                     {t('fullTemplateMode')}
@@ -1116,15 +1116,15 @@ export function ServerSettingsView() {
                     onClick={() => switchEditorMode('quick')}
                     className={`rounded px-2 py-1 text-[11px] ${
                       editorMode === 'quick'
-                        ? 'bg-sky-500/20 text-sky-100'
-                        : 'text-zinc-400 hover:bg-white/5'
+                        ? 'bg-sky-500/20 text-accent'
+                        : 'text-muted hover:bg-muted-hover'
                     }`}
                   >
                     {t('quickParamsMode')}
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-200">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     {selectedFile}
                   </span>
@@ -1134,7 +1134,7 @@ export function ServerSettingsView() {
                       setCopiedFile(selectedFile)
                       void copy(activeFileContent)
                     }}
-                    className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                    className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                   >
                     <Copy className="h-3 w-3" />
                     {copiedFile === selectedFile && copiedId === activeFileContent
@@ -1144,7 +1144,7 @@ export function ServerSettingsView() {
                   <button
                     type="button"
                     onClick={() => downloadText(selectedFile, activeFileContent)}
-                    className="inline-flex items-center gap-1 rounded border border-white/15 bg-black/30 px-2 py-1 text-[11px] text-zinc-200 hover:bg-white/10"
+                    className="inline-flex items-center gap-1 rounded border border-edge-strong bg-muted-fill px-2 py-1 text-[11px] text-fg-soft hover:bg-muted-hover"
                   >
                     <Download className="h-3 w-3" />
                     {t('download')}
@@ -1156,7 +1156,7 @@ export function ServerSettingsView() {
                   {t('loadedFileHint')}
                 </p>
               ) : (
-                <p className="mb-2 text-[10px] text-zinc-500">
+                <p className="mb-2 text-[10px] text-muted">
                   {t('templateHint')}
                 </p>
               )}
@@ -1193,7 +1193,7 @@ export function ServerSettingsView() {
                     setValues((prev) => ({ ...prev, ...parsed.values }))
                   }}
                   spellCheck={false}
-                  className="min-h-[min(70vh,calc(100vh-15rem))] w-full resize-y rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 font-mono text-[11px] leading-relaxed text-zinc-200 outline-none focus:border-sky-500/50"
+                  className="min-h-[min(70vh,calc(100vh-15rem))] w-full resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50"
                 />
               ) : (
                 <div className="space-y-1">
@@ -1202,12 +1202,12 @@ export function ServerSettingsView() {
                     return (
                       <label
                         key={row.id}
-                        className="flex flex-col gap-1 border-b border-white/[0.06] py-2 last:border-b-0"
+                        className="flex flex-col gap-1 border-b border-edge py-2 last:border-b-0"
                       >
-                        <span className="text-[12px] font-medium text-zinc-100">
+                        <span className="text-[12px] font-medium text-fg">
                           {locale === 'ru' ? row.label : row.keyPath}
                         </span>
-                        <span className="font-mono text-[10px] text-zinc-500">{row.keyPath}</span>
+                        <span className="font-mono text-[10px] text-muted">{row.keyPath}</span>
                         {row.type === 'boolean' ? (
                           <input
                             type="checkbox"
@@ -1215,7 +1215,7 @@ export function ServerSettingsView() {
                             onChange={(e) =>
                               setValues((prev) => ({ ...prev, [row.id]: e.target.checked }))
                             }
-                            className="mt-1 h-4 w-4 rounded border-white/20 bg-[#0d0f14] text-sky-500"
+                            className="mt-1 h-4 w-4 rounded border-edge-strong bg-input text-sky-500"
                           />
                         ) : row.type === 'select' ? (
                           <select
@@ -1223,7 +1223,7 @@ export function ServerSettingsView() {
                             onChange={(e) =>
                               setValues((prev) => ({ ...prev, [row.id]: e.target.value }))
                             }
-                            className="rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
+                            className="rounded border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/60"
                           >
                             {row.options?.map((o) => (
                               <option key={o} value={o}>
@@ -1238,7 +1238,7 @@ export function ServerSettingsView() {
                             onChange={(e) =>
                               setValues((prev) => ({ ...prev, [row.id]: Number(e.target.value) }))
                             }
-                            className="rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
+                            className="rounded border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/60"
                           />
                         ) : (
                           <input
@@ -1247,11 +1247,11 @@ export function ServerSettingsView() {
                             onChange={(e) =>
                               setValues((prev) => ({ ...prev, [row.id]: e.target.value }))
                             }
-                            className="rounded border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-sky-500/60"
+                            className="rounded border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/60"
                           />
                         )}
                         {locale === 'ru' ? (
-                          <span className="text-[11px] text-zinc-400">{row.description}</span>
+                          <span className="text-[11px] text-muted">{row.description}</span>
                         ) : null}
                       </label>
                     )

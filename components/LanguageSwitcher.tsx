@@ -16,8 +16,8 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ currentLocale, onLocaleChange }: LanguageSwitcherProps) {
   return (
-    <div className="flex items-center gap-1 rounded-md border border-white/[0.08] bg-black/25 p-0.5">
-      <Globe className="h-3.5 w-3.5 shrink-0 text-zinc-500" />
+    <div className="flex items-center gap-1 rounded-md border border-edge bg-muted-fill p-0.5">
+      <Globe className="h-3.5 w-3.5 shrink-0 text-muted" />
       {languages.map((lang) => (
         <button
           key={lang.code}
@@ -25,14 +25,14 @@ export function LanguageSwitcher({ currentLocale, onLocaleChange }: LanguageSwit
           onClick={() => onLocaleChange(lang.code)}
           className={`relative rounded px-2 py-0.5 text-xs font-medium transition-all duration-200 ${
             currentLocale === lang.code
-              ? 'bg-sky-500/20 text-sky-300'
-              : 'text-zinc-500 hover:bg-white/10 hover:text-zinc-200'
+              ? 'bg-accent-soft text-accent'
+              : 'text-muted hover:bg-muted-hover hover:text-fg'
           }`}
         >
           {currentLocale === lang.code && (
             <motion.div
               layoutId="activeLang"
-              className="absolute inset-0 rounded-md bg-sky-500/15"
+              className="absolute inset-0 rounded-md bg-accent-soft"
               transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
             />
           )}
@@ -45,4 +45,3 @@ export function LanguageSwitcher({ currentLocale, onLocaleChange }: LanguageSwit
     </div>
   )
 }
-

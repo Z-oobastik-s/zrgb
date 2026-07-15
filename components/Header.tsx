@@ -4,23 +4,32 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ThemeToggle } from './ThemeToggle'
 import { ALargeSmall, FlaskConical, Settings, Sparkles, Wand2 } from 'lucide-react'
+import type { AppTheme } from '@/lib/theme'
 
 interface HeaderProps {
   currentLocale: string
   onLocaleChange: (locale: string) => void
+  theme: AppTheme
+  onThemeChange: (theme: AppTheme) => void
 }
 
 function navButtonClass(active: boolean) {
   return [
     'inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors sm:px-2.5 sm:text-[11px]',
     active
-      ? 'border-sky-500/50 bg-sky-500/15 text-sky-200 shadow-sm shadow-sky-500/10'
-      : 'border-white/[0.08] bg-black/20 text-zinc-400 hover:border-white/15 hover:bg-white/[0.06] hover:text-zinc-100',
+      ? 'border-sky-500/50 bg-accent-soft text-accent shadow-sm shadow-sky-500/10'
+      : 'border-edge bg-muted-fill text-muted hover:border-edge-strong hover:bg-muted-hover hover:text-fg',
   ].join(' ')
 }
 
-export function Header({ currentLocale, onLocaleChange }: HeaderProps) {
+export function Header({
+  currentLocale,
+  onLocaleChange,
+  theme,
+  onThemeChange,
+}: HeaderProps) {
   const t = useTranslations('common')
   const tn = useTranslations('nav')
   const path = usePathname() ?? ''
@@ -32,18 +41,18 @@ export function Header({ currentLocale, onLocaleChange }: HeaderProps) {
   const isHome = !isEnchant && !isEffects && !isSymbols && !isServer
 
   return (
-    <header className="z-50 shrink-0 border-b border-white/[0.06] bg-[#161922]/95 backdrop-blur-sm">
+    <header className="z-50 shrink-0 border-b border-edge bg-panel/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-[min(92rem,calc(100vw-0.75rem))] items-center gap-1 px-2 py-1.5 sm:gap-2 sm:px-3">
         <Link
           href="/"
           className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg outline-none ring-sky-500/40 focus-visible:ring-2"
         >
-          <Sparkles className="h-5 w-5 shrink-0 text-sky-400 sm:h-6 sm:w-6" />
+          <Sparkles className="h-5 w-5 shrink-0 text-sky-500 sm:h-6 sm:w-6" />
           <div className="min-w-0 text-left">
-            <span className="block truncate text-sm font-semibold leading-tight text-sky-300 sm:text-base">
+            <span className="block truncate text-sm font-semibold leading-tight text-accent sm:text-base">
               {t('title')}
             </span>
-            <span className="block truncate text-[10px] text-zinc-500 sm:text-xs">
+            <span className="block truncate text-[10px] text-muted sm:text-xs">
               {t('subtitle')}
             </span>
           </div>
@@ -76,8 +85,9 @@ export function Header({ currentLocale, onLocaleChange }: HeaderProps) {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
           <LanguageSwitcher currentLocale={currentLocale} onLocaleChange={onLocaleChange} />
-          <div className="hidden text-[10px] text-zinc-500 sm:block sm:text-xs">
+          <div className="hidden text-[10px] text-muted sm:block sm:text-xs">
             {t('author')} © {t('year')}
           </div>
         </div>

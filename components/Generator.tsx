@@ -637,9 +637,9 @@ export function Generator() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       {/* Hero: input + live preview + gradient strip */}
-      <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-white/[0.06] bg-[#161922] p-3 shadow-lg">
-        <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/[0.08] bg-[#0d0f14]">
-          <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-black/50 p-0.5">
+      <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 shadow-lg">
+        <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-edge bg-input">
+          <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-edge-strong bg-panel/90 p-0.5 backdrop-blur-sm">
             {(
               [
                 ['bold', Bold],
@@ -657,7 +657,7 @@ export function Generator() {
                 className={`rounded p-1.5 transition-colors ${
                   formatting[key]
                     ? 'bg-sky-500/40 text-white ring-1 ring-sky-400/70'
-                    : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
+                    : 'text-muted hover:bg-muted-hover hover:text-fg'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -691,7 +691,7 @@ export function Generator() {
               }}
             >
               {!inputText ? (
-                <span className="text-zinc-500">{t('inputPlaceholder')}</span>
+                <span className="text-muted">{t('inputPlaceholder')}</span>
               ) : (
                 <div className={`rgb-editor-pixel-layer text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (
@@ -724,20 +724,20 @@ export function Generator() {
       </section>
 
       {/* Full-width generated output: compact strip under input, above settings */}
-      <section className="panel shrink-0 rounded-xl border border-white/[0.06] bg-[#161922] p-2 shadow-lg">
+      <section className="panel shrink-0 rounded-xl border border-edge bg-panel p-2 shadow-lg">
         <div className="relative h-[4.75rem] sm:h-[5.25rem]">
           <textarea
             value={outputText}
             readOnly
             placeholder={t('outputPlaceholder')}
-            className="box-border h-full w-full resize-none overflow-y-auto rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 pb-9 font-mono text-[10px] leading-relaxed text-zinc-300 outline-none"
+            className="box-border h-full w-full resize-none overflow-y-auto rounded-lg border border-edge-strong bg-input px-2 py-1.5 pb-9 font-mono text-[10px] leading-relaxed text-fg-soft outline-none"
             aria-label={t('outputPlaceholder')}
           />
           <div className="pointer-events-auto absolute bottom-1.5 right-1.5 z-20 flex items-center gap-1">
             <button
               type="button"
               onClick={copyUrl}
-              className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-white/10 bg-black/90 px-2 py-1 text-[11px] text-zinc-200 shadow-md hover:bg-zinc-800"
+              className="inline-flex cursor-pointer items-center gap-1 rounded-md border border-edge-strong bg-panel px-2 py-1 text-[11px] text-fg-soft shadow-md hover:bg-muted-hover"
             >
               {urlCopied ? (
                 <>
@@ -783,27 +783,27 @@ export function Generator() {
         {!yamlExpanded ? (
           <>
         {/* Colors */}
-        <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-white/[0.06] bg-[#161922] p-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-edge bg-panel p-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
             {t('columnColors')}
           </h2>
 
-          <div className="flex items-center justify-between gap-2 text-[11px] text-zinc-400">
+          <div className="flex items-center justify-between gap-2 text-[11px] text-muted">
             <span>{t('charsPerColor')}</span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="rounded border border-white/10 bg-black/30 p-1 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill p-1 hover:bg-muted-hover"
                 onClick={() => bumpCharsPerColor(-1)}
               >
                 <Minus className="h-3 w-3" />
               </button>
-              <span className="min-w-[1.5rem] text-center tabular-nums text-zinc-200">
+              <span className="min-w-[1.5rem] text-center tabular-nums text-fg-soft">
                 {charsPerColor}
               </span>
               <button
                 type="button"
-                className="rounded border border-white/10 bg-black/30 p-1 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill p-1 hover:bg-muted-hover"
                 onClick={() => bumpCharsPerColor(1)}
               >
                 <Plus className="h-3 w-3" />
@@ -811,22 +811,22 @@ export function Generator() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 text-[11px] text-zinc-400">
+          <div className="flex items-center justify-between gap-2 text-[11px] text-muted">
             <span>{t('colorCount')}</span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
-                className="rounded border border-white/10 bg-black/30 p-1 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill p-1 hover:bg-muted-hover"
                 onClick={() => setColorCount(gradientColors.length - 1)}
               >
                 <Minus className="h-3 w-3" />
               </button>
-              <span className="min-w-[1.5rem] text-center tabular-nums text-zinc-200">
+              <span className="min-w-[1.5rem] text-center tabular-nums text-fg-soft">
                 {gradientColors.length}
               </span>
               <button
                 type="button"
-                className="rounded border border-white/10 bg-black/30 p-1 hover:bg-white/10"
+                className="rounded border border-edge-strong bg-muted-fill p-1 hover:bg-muted-hover"
                 onClick={() => setColorCount(gradientColors.length + 1)}
               >
                 <Plus className="h-3 w-3" />
@@ -841,7 +841,7 @@ export function Generator() {
               className={`rounded-md px-2 py-1 text-[11px] ${
                 useRainbow
                   ? 'bg-gradient-to-r from-red-500 via-lime-500 to-violet-600 text-white'
-                  : 'border border-white/10 bg-black/25 text-zinc-300 hover:bg-white/10'
+                  : 'border border-edge-strong bg-muted-fill text-fg-soft hover:bg-muted-hover'
               }`}
             >
               {t('rainbow')}
@@ -849,7 +849,7 @@ export function Generator() {
             <button
               type="button"
               onClick={handleRandom}
-              className="inline-flex items-center gap-1 rounded-md border border-sky-500/40 bg-sky-600/30 px-2 py-1 text-[11px] text-sky-200 hover:bg-sky-600/45"
+              className="inline-flex items-center gap-1 rounded-md border border-sky-500/40 bg-sky-600/30 px-2 py-1 text-[11px] text-accent hover:bg-sky-600/45"
             >
               <Shuffle className="h-3 w-3" />
               {t('random')}
@@ -857,7 +857,7 @@ export function Generator() {
             <button
               type="button"
               onClick={reverseColors}
-              className="rounded-md border border-white/10 p-1 text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
+              className="rounded-md border border-edge-strong p-1 text-muted hover:bg-muted-hover hover:text-fg-soft"
               title={t('reverseColors')}
             >
               <ArrowLeftRight className="h-3.5 w-3.5" />
@@ -865,7 +865,7 @@ export function Generator() {
             <button
               type="button"
               onClick={shuffleColors}
-              className="rounded-md border border-white/10 p-1 text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
+              className="rounded-md border border-edge-strong p-1 text-muted hover:bg-muted-hover hover:text-fg-soft"
               title={t('shuffleColors')}
             >
               <Shuffle className="h-3.5 w-3.5" />
@@ -873,7 +873,7 @@ export function Generator() {
             <button
               type="button"
               onClick={copyColorsJson}
-              className="rounded-md border border-white/10 p-1 text-zinc-400 hover:bg-white/10 hover:text-zinc-200"
+              className="rounded-md border border-edge-strong p-1 text-muted hover:bg-muted-hover hover:text-fg-soft"
               title={t('copyColors')}
             >
               <Copy className="h-3.5 w-3.5" />
@@ -884,13 +884,13 @@ export function Generator() {
             {gradientColors.map((c, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-2 rounded-lg border border-white/[0.07] bg-black/25 p-2"
+                className="flex items-center gap-2 rounded-lg border border-edge bg-muted-fill p-2"
               >
                 <input
                   type="color"
                   value={`#${rgbToHexString(c)}`}
                   onChange={(e) => updateColorHex(idx, e.target.value)}
-                  className="h-9 w-10 shrink-0 cursor-pointer rounded border border-white/10 bg-transparent p-0"
+                  className="h-9 w-10 shrink-0 cursor-pointer rounded border border-edge-strong bg-transparent p-0"
                 />
                 <input
                   type="text"
@@ -930,7 +930,7 @@ export function Generator() {
                       setUseRainbow(false)
                     }
                   }}
-                  className="relative z-10 min-w-0 flex-1 rounded border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[11px] text-zinc-200 outline-none focus:border-sky-500/50"
+                  className="relative z-10 min-w-0 flex-1 rounded border border-edge-strong bg-input px-2 py-1 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50"
                   spellCheck={false}
                   autoComplete="off"
                   aria-label={t('hexInputAria')}
@@ -939,7 +939,7 @@ export function Generator() {
                   type="button"
                   onClick={() => removeColorAt(idx)}
                   disabled={gradientColors.length <= 1}
-                  className="shrink-0 rounded p-1 text-zinc-500 hover:bg-red-500/20 hover:text-red-300 disabled:opacity-30"
+                  className="shrink-0 rounded p-1 text-muted hover:bg-red-500/20 hover:text-red-300 disabled:opacity-30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
@@ -949,18 +949,18 @@ export function Generator() {
         </div>
 
         {/* Output */}
-        <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-white/[0.06] bg-[#161922] p-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-edge bg-panel p-3">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
             {t('columnOutput')}
           </h2>
 
-          <label className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+          <label className="text-[10px] font-medium uppercase tracking-wide text-muted">
             {t('format')}
           </label>
           <select
             value={format}
             onChange={(e) => setFormat(e.target.value as CodeFormat)}
-            className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1.5 text-xs text-zinc-200 outline-none focus:border-sky-500/50"
+            className="rounded-lg border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/50"
           >
             {fmtOptions.map((o) => (
               <option key={o.value} value={o.value}>
@@ -970,34 +970,34 @@ export function Generator() {
           </select>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+            <label className="text-[10px] font-medium uppercase tracking-wide text-muted">
               {t('prefix')}
             </label>
             <input
               type="text"
               value={prefix}
               onChange={(e) => setPrefix(e.target.value)}
-              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] text-zinc-200 outline-none focus:border-sky-500/50"
+              className="rounded-lg border border-edge-strong bg-input px-2 py-1 font-mono text-[10px] text-fg-soft outline-none focus:border-sky-500/50"
               spellCheck={false}
               autoComplete="off"
             />
-            <label className="text-[10px] font-medium uppercase tracking-wide text-zinc-500">
+            <label className="text-[10px] font-medium uppercase tracking-wide text-muted">
               {t('suffix')}
             </label>
             <input
               type="text"
               value={suffix}
               onChange={(e) => setSuffix(e.target.value)}
-              className="rounded-lg border border-white/10 bg-[#0d0f14] px-2 py-1 font-mono text-[10px] text-zinc-200 outline-none focus:border-sky-500/50"
+              className="rounded-lg border border-edge-strong bg-input px-2 py-1 font-mono text-[10px] text-fg-soft outline-none focus:border-sky-500/50"
               spellCheck={false}
               autoComplete="off"
             />
-            <label className="flex cursor-pointer items-center gap-2 text-[11px] text-zinc-400">
+            <label className="flex cursor-pointer items-center gap-2 text-[11px] text-muted">
               <input
                 type="checkbox"
                 checked={lowercaseHex}
                 onChange={(e) => setLowercaseHex(e.target.checked)}
-                className="rounded border-white/20 bg-[#0d0f14] text-sky-500"
+                className="rounded border-edge-strong bg-input text-sky-500"
               />
               {t('lowercaseHex')}
             </label>

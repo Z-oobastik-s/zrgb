@@ -37,17 +37,17 @@ export function SymbolsView() {
     [
       'shrink-0 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors',
       active
-        ? 'border-sky-500/50 bg-sky-500/20 text-sky-100'
-        : 'border-white/10 bg-black/30 text-zinc-400 hover:border-white/20 hover:bg-white/[0.06] hover:text-zinc-200',
+        ? 'border-sky-500/50 bg-accent-soft text-accent'
+        : 'border-edge-strong bg-muted-fill text-muted hover:border-edge-strong hover:bg-muted-hover hover:text-fg-soft',
     ].join(' ')
 
   return (
     <section className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-2 overflow-hidden px-0 sm:gap-2.5">
       <header className="shrink-0 text-center">
-        <h2 className="text-base font-semibold tracking-tight text-sky-300 sm:text-lg">
+        <h2 className="text-base font-semibold tracking-tight text-accent sm:text-lg">
           {t('title')}
         </h2>
-        <p className="text-[11px] text-zinc-500 sm:text-xs">{t('hint')}</p>
+        <p className="text-[11px] text-muted sm:text-xs">{t('hint')}</p>
       </header>
 
       <div className="flex shrink-0 items-center gap-2">
@@ -74,26 +74,26 @@ export function SymbolsView() {
             </button>
           ))}
         </div>
-        <span className="hidden shrink-0 tabular-nums text-[11px] text-zinc-500 sm:inline">
+        <span className="hidden shrink-0 tabular-nums text-[11px] text-muted sm:inline">
           {t('count', { shown: shownCount, total: ALL_SYMBOLS_COUNT })}
         </span>
       </div>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#141722] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-edge bg-panel shadow-inset-panel">
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain p-2 sm:p-3">
           {visibleGroups.length === 0 ? (
-            <p className="p-4 text-center text-[12px] text-zinc-500">{t('noMatches')}</p>
+            <p className="p-4 text-center text-[12px] text-muted">{t('noMatches')}</p>
           ) : (
             <div className="flex flex-col gap-4">
               {visibleGroups.map((group) => (
                 <section key={group.id} className="min-w-0">
                   {filter === 'all' || visibleGroups.length > 1 ? (
-                    <h3 className="mb-2 flex items-center gap-2 border-b border-white/[0.06] pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
-                      <span className="text-base font-normal normal-case tracking-normal text-zinc-200">
+                    <h3 className="mb-2 flex items-center gap-2 border-b border-edge pb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                      <span className="text-base font-normal normal-case tracking-normal text-fg-soft">
                         {group.symbols[0]}
                       </span>
                       {t(`cat.${group.id}`)}
-                      <span className="font-normal normal-case tracking-normal text-zinc-600">
+                      <span className="font-normal normal-case tracking-normal text-muted">
                         {group.symbols.length}
                       </span>
                     </h3>
@@ -110,7 +110,7 @@ export function SymbolsView() {
                           className={`flex aspect-square items-center justify-center rounded-lg border text-base leading-none transition-colors sm:text-lg ${
                             active
                               ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-100 ring-1 ring-emerald-400/40'
-                              : 'border-white/[0.07] bg-black/25 text-zinc-100 hover:border-sky-500/40 hover:bg-sky-500/10'
+                              : 'border-edge bg-muted-fill text-fg hover:border-sky-500/40 hover:bg-sky-500/10'
                           }`}
                         >
                           <span className="select-none">{sym}</span>
