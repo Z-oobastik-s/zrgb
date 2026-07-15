@@ -22,6 +22,9 @@ import {
   ArrowLeftRight,
   Plus,
   Minus,
+  Dices,
+  Undo2,
+  Sparkles,
 } from 'lucide-react'
 import type { CodeFormat } from '@/lib/rgb-generator'
 import {
@@ -36,8 +39,19 @@ import {
   hexToRgb,
   normalizeCodeFormat,
 } from '@/lib/rgb-generator'
+import {
+  PALETTE_MODE_IDS,
+  generatePalette,
+  luckyColorCount,
+  paletteModeSwatch,
+  palettePreviewStyle,
+  randomPaletteMode,
+  type PaletteMode,
+} from '@/lib/random-palettes'
 import { stripToRgbPlainInput } from '@/lib/strip-minecraft-codes'
 import { YamlEditorPanel } from './YamlEditorPanel'
+
+const PALETTE_HISTORY_MAX = 10
 
 const HASH_PREFIX = 's='
 /** Reject oversized hash fragments before atob/JSON.parse blocks the main thread. */
@@ -247,13 +261,19 @@ export function Generator() {
   const [yamlLinkedPath, setYamlLinkedPath] = useState('')
   const [yamlExpanded, setYamlExpanded] = useState(false)
   const [storageReady, setStorageReady] = useState(false)
+  const [paletteMode, setPaletteMode] = useState<PaletteMode>('harmony')
+  const [luckyCount, setLuckyCount] = useState(false)
+  const [paletteHistory, setPaletteHistory] = useState<RGBColor[][]>([])
+  const [diceSpin, setDiceSpin] = useState(false)
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const urlCopyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const diceSpinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(
     () => () => {
       if (copyResetTimeoutRef.current) clearTimeout(copyResetTimeoutRef.current)
       if (urlCopyResetTimeoutRef.current) clearTimeout(urlCopyResetTimeoutRef.current)
+      if (diceSpinTimeoutRef.current) clearTimeout(diceSpinTimeoutRef.current)
     },
     []
   )
@@ -533,9 +553,55 @@ export function Generator() {
     lowercaseHex,
   ])
 
+  const pushPaletteHistory = useCallback((colors: RGBColor[]) => {
+    setPaletteHistory((prev) => {
+      const next = [colors.map((c) => ({ ...c })), ...prev]
+      return next.slice(0, PALETTE_HISTORY_MAX)
+    })
+  }, [])
+
+  const applyRolledPalette = useCallback(
+    (colors: RGBColor[]) => {
+      setUseRainbow(false)
+      setGradientColors(colors)
+      pushPaletteHistory(colors)
+      setDiceSpin(true)
+      if (diceSpinTimeoutRef.current) clearTimeout(diceSpinTimeoutRef.current)
+      diceSpinTimeoutRef.current = setTimeout(() => {
+        setDiceSpin(false)
+        diceSpinTimeoutRef.current = null
+      }, 450)
+    },
+    [pushPaletteHistory]
+  )
+
   const handleRandom = useCallback(() => {
+    const count = luckyCount ? luckyColorCount() : gradientColors.length
+    applyRolledPalette(generatePalette(paletteMode, count))
+  }, [applyRolledPalette, gradientColors.length, luckyCount, paletteMode])
+
+  const handleLuckySurprise = useCallback(() => {
+    const mode = randomPaletteMode()
+    setPaletteMode(mode)
+    applyRolledPalette(generatePalette(mode, luckyColorCount()))
+  }, [applyRolledPalette])
+
+  const restoreHistoryPalette = useCallback((colors: RGBColor[]) => {
     setUseRainbow(false)
-    setGradientColors((prev) => prev.map(() => generateRandomColor()))
+    setGradientColors(colors.map((c) => ({ ...c })))
+  }, [])
+
+  const undoLastRoll = useCallback(() => {
+    setPaletteHistory((prev) => {
+      if (prev.length < 2) return prev
+      const [, ...rest] = prev
+      const restore = rest[0]
+      if (restore) {
+        setUseRainbow(false)
+        setGradientColors(restore.map((c) => ({ ...c })))
+      }
+      return rest
+    })
   }, [])
 
   const toggleFormatting = useCallback((key: keyof FormattingOptions) => {
@@ -834,6 +900,104 @@ export function Generator() {
             </div>
           </div>
 
+          <div className="flex flex-col gap-2 rounded-xl border border-edge bg-muted-fill/60 p-2">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted">
+                {t('paletteModes')}
+              </span>
+              <label className="inline-flex cursor-pointer items-center gap-1.5 text-[10px] text-muted">
+                <input
+                  type="checkbox"
+                  checked={luckyCount}
+                  onChange={(e) => setLuckyCount(e.target.checked)}
+                  className="rounded border-edge-strong bg-input text-sky-500"
+                />
+                {t('luckyCount')}
+              </label>
+            </div>
+            <div className="flex gap-1 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {PALETTE_MODE_IDS.map((mode) => {
+                const active = paletteMode === mode
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setPaletteMode(mode)}
+                    title={t(`palette.${mode}`)}
+                    className={`relative h-8 w-11 shrink-0 overflow-hidden rounded-md border transition ${
+                      active
+                        ? 'border-sky-500 ring-2 ring-sky-400/50'
+                        : 'border-edge-strong hover:border-sky-500/40'
+                    }`}
+                    style={{ background: palettePreviewStyle(paletteModeSwatch(mode)) }}
+                  >
+                    <span className="sr-only">{t(`palette.${mode}`)}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[11px] font-medium text-accent">
+              {t(`palette.${paletteMode}`)}
+              <span className="ml-1 font-normal text-muted">
+                — {t(`paletteHint.${paletteMode}`)}
+              </span>
+            </p>
+
+            <div className="grid grid-cols-[1fr_auto_auto] gap-1.5">
+              <button
+                type="button"
+                onClick={handleRandom}
+                className="group relative inline-flex min-h-[2.35rem] items-center justify-center gap-2 overflow-hidden rounded-lg border border-sky-400/50 bg-gradient-to-r from-sky-600 via-violet-600 to-fuchsia-600 px-3 text-[12px] font-semibold text-white shadow-md shadow-sky-600/20 transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <span
+                  className="pointer-events-none absolute inset-0 opacity-30"
+                  style={{ background: palettePreviewStyle(gradientColors) }}
+                />
+                <Dices
+                  className={`relative h-4 w-4 ${diceSpin ? 'animate-spin' : 'group-hover:rotate-12'}`}
+                />
+                <span className="relative">{t('randomRoll')}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleLuckySurprise}
+                title={t('luckySurprise')}
+                className="inline-flex items-center justify-center rounded-lg border border-fuchsia-500/45 bg-fuchsia-600/20 px-2.5 text-fuchsia-600 transition hover:bg-fuchsia-600/35 dark:text-fuchsia-200"
+              >
+                <Sparkles className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={undoLastRoll}
+                disabled={paletteHistory.length < 2}
+                title={t('undoRoll')}
+                className="inline-flex items-center justify-center rounded-lg border border-edge-strong bg-panel px-2.5 text-muted transition hover:bg-muted-hover hover:text-fg disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                <Undo2 className="h-4 w-4" />
+              </button>
+            </div>
+
+            {paletteHistory.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] uppercase tracking-wide text-muted">
+                  {t('paletteHistory')}
+                </span>
+                <div className="flex gap-1 overflow-x-auto pb-0.5">
+                  {paletteHistory.map((colors, i) => (
+                    <button
+                      key={`hist-${i}-${colors.map((c) => `${c.r}${c.g}${c.b}`).join('-')}`}
+                      type="button"
+                      onClick={() => restoreHistoryPalette(colors)}
+                      title={t('restorePalette')}
+                      className="h-5 w-12 shrink-0 rounded border border-edge-strong transition hover:scale-105 hover:border-sky-400/60"
+                      style={{ background: palettePreviewStyle(colors) }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="flex flex-wrap gap-1">
             <button
               type="button"
@@ -845,14 +1009,6 @@ export function Generator() {
               }`}
             >
               {t('rainbow')}
-            </button>
-            <button
-              type="button"
-              onClick={handleRandom}
-              className="inline-flex items-center gap-1 rounded-md border border-sky-500/40 bg-sky-600/30 px-2 py-1 text-[11px] text-accent hover:bg-sky-600/45"
-            >
-              <Shuffle className="h-3 w-3" />
-              {t('random')}
             </button>
             <button
               type="button"
