@@ -79,6 +79,7 @@
     "undoRoll": "Отменить последний бросок",
     "paletteModes": "Стили палитры",
     "luckyCount": "Случайное число цветов",
+    "luckyCountShort": "N≈",
     "paletteHistory": "Недавние",
     "restorePalette": "Вернуть эту палитру",
     "palette": {
@@ -113,7 +114,9 @@
     "rainbow": "Радуга",
     "columnColors": "Цвета",
     "charsPerColor": "Символов на цвет",
+    "charsPerColorShort": "Симв.",
     "colorCount": "Количество цветов",
+    "colorCountShort": "Цвет.",
     "columnOutput": "Вывод",
     "columnYaml": "YAML / JSON",
     "yamlUpload": "Загрузить файл",

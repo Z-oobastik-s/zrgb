@@ -79,6 +79,7 @@
     "undoRoll": "Undo last roll",
     "paletteModes": "Palette styles",
     "luckyCount": "Random color count",
+    "luckyCountShort": "N≈",
     "paletteHistory": "Recent",
     "restorePalette": "Restore this palette",
     "palette": {
@@ -113,7 +114,9 @@
     "rainbow": "Rainbow",
     "columnColors": "Colors",
     "charsPerColor": "Chars per color",
+    "charsPerColorShort": "Chars",
     "colorCount": "Color count",
+    "colorCountShort": "Colors",
     "columnOutput": "Output",
     "columnYaml": "YAML / JSON",
     "yamlUpload": "Upload file",

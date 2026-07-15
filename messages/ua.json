@@ -79,6 +79,7 @@
     "undoRoll": "Скасувати останній кидок",
     "paletteModes": "Стилі палітри",
     "luckyCount": "Випадкова кількість кольорів",
+    "luckyCountShort": "N≈",
     "paletteHistory": "Нещодавні",
     "restorePalette": "Повернути цю палітру",
     "palette": {
@@ -113,7 +114,9 @@
     "rainbow": "Веселка",
     "columnColors": "Кольори",
     "charsPerColor": "Символів на колір",
+    "charsPerColorShort": "Симв.",
     "colorCount": "Кількість кольорів",
+    "colorCountShort": "Кол.",
     "columnOutput": "Вивід",
     "columnYaml": "YAML / JSON",
     "yamlUpload": "Завантажити файл",
