@@ -750,8 +750,6 @@ export function Generator() {
     [contrastColors, contrastSceneList]
   )
 
-  const showContrastPanel = contrastMulti.verdict === 'fail'
-
   const applyBoostedColors = useCallback((next: RGBColor[]) => {
     setUseRainbow(false)
     setGradientColors(next)
@@ -843,6 +841,45 @@ export function Generator() {
             ))}
           </div>
 
+          <div className="absolute bottom-2 right-2 z-20 flex max-w-[min(100%,18rem)] items-center gap-0.5 rounded-lg border border-white/10 bg-[#161922]/95 p-0.5 backdrop-blur-sm">
+            {contrastMulti.rows.map((row) => {
+              const Icon = PREVIEW_BG_ICONS[row.id as PreviewBgId]
+              const v = row.report.verdict
+              return (
+                <button
+                  key={row.id}
+                  type="button"
+                  title={`${t(`previewBg.${row.id}`)} · ${row.report.avgRatio.toFixed(1)}:1`}
+                  onClick={() => setPreviewBg(row.id as PreviewBgId)}
+                  className={`inline-flex items-center gap-0.5 rounded px-1 py-1 tabular-nums text-[10px] transition-colors ${
+                    v === 'ok'
+                      ? 'text-emerald-300'
+                      : v === 'warn'
+                        ? 'text-yellow-300'
+                        : 'text-red-300'
+                  }`}
+                >
+                  <Icon className="h-3 w-3" />
+                  {row.report.avgRatio.toFixed(1)}
+                </button>
+              )
+            })}
+            <button
+              type="button"
+              title={t('contrastBoostAll')}
+              onClick={boostContrastAllScenes}
+              disabled={contrastMulti.verdict === 'ok'}
+              className={`ml-0.5 inline-flex items-center gap-0.5 rounded px-1.5 py-1 text-[10px] font-medium transition-colors ${
+                contrastMulti.verdict === 'ok'
+                  ? 'cursor-default text-zinc-600'
+                  : 'bg-sky-500/30 text-sky-100 ring-1 ring-sky-400/50 hover:bg-sky-500/45'
+              }`}
+            >
+              <SunMedium className="h-3 w-3" />
+              <span className="hidden sm:inline">{t('contrastBoostAll')}</span>
+            </button>
+          </div>
+
           <textarea
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
@@ -899,42 +936,6 @@ export function Generator() {
           style={gradientBarStyle}
           aria-hidden
         />
-
-        {showContrastPanel ? (
-          <div className="flex shrink-0 flex-wrap items-center gap-1 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 py-1 text-[10px] text-amber-950 dark:text-amber-100">
-            <span className="font-medium opacity-75">{t('contrastScenesLabel')}</span>
-            {contrastMulti.rows.map((row) => {
-              const Icon = PREVIEW_BG_ICONS[row.id as PreviewBgId]
-              const v = row.report.verdict
-              return (
-                <button
-                  key={row.id}
-                  type="button"
-                  title={`${t(`previewBg.${row.id}`)} · avg ${row.report.avgRatio.toFixed(1)}:1 (min ${row.report.minRatio.toFixed(1)})`}
-                  onClick={() => setPreviewBg(row.id as PreviewBgId)}
-                  className={`inline-flex items-center gap-0.5 rounded px-1 py-0.5 tabular-nums ${
-                    v === 'ok'
-                      ? 'text-emerald-800 dark:text-emerald-200'
-                      : v === 'warn'
-                        ? 'text-yellow-900 dark:text-yellow-100'
-                        : 'text-red-800 dark:text-red-200'
-                  }`}
-                >
-                  <Icon className="h-3 w-3" />
-                  {row.report.avgRatio.toFixed(1)}
-                </button>
-              )
-            })}
-            <button
-              type="button"
-              onClick={boostContrastAllScenes}
-              className="ml-auto inline-flex items-center gap-1 rounded border border-sky-500/40 bg-sky-500/15 px-1.5 py-0.5 font-medium text-sky-950 hover:bg-sky-500/25 dark:text-sky-50"
-            >
-              <SunMedium className="h-3 w-3" />
-              {t('contrastBoostAll')}
-            </button>
-          </div>
-        ) : null}
 
         {yamlLinkedFieldId ? (
           <p className="shrink-0 text-[10px] leading-snug text-sky-800 dark:text-sky-400/90">
