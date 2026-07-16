@@ -710,8 +710,8 @@ export function Generator() {
     formatting.obfuscated ? 'mc-obfuscated ' : ''
 
   const previewVisualFmt = [
-    formatting.bold ? 'font-bold' : '',
-    formatting.italic ? 'italic' : '',
+    formatting.bold ? 'rgb-fmt-bold' : '',
+    formatting.italic ? 'rgb-fmt-italic' : '',
     formatting.underline ? 'underline' : '',
     formatting.strikethrough ? 'line-through' : '',
   ]

@@ -237,3 +237,24 @@ html.light .minecraft-pixel-preview {
 .rgb-editor-pixel-layer span {
   text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.82);
 }
+
+/* Pixel font has no bold/italic faces — fake Minecraft-style look */
+.rgb-fmt-bold .rgb-editor-pixel-layer span {
+  text-shadow:
+    1px 0 0 currentColor,
+    1px 1px 0 rgba(0, 0, 0, 0.82),
+    2px 1px 0 rgba(0, 0, 0, 0.55);
+}
+
+.rgb-fmt-italic .rgb-editor-pixel-layer {
+  display: inline-block;
+  transform: skewX(-14deg);
+  transform-origin: left center;
+}
+
+.rgb-fmt-bold.rgb-fmt-italic .rgb-editor-pixel-layer span {
+  text-shadow:
+    1px 0 0 currentColor,
+    1px 1px 0 rgba(0, 0, 0, 0.82),
+    2px 1px 0 rgba(0, 0, 0, 0.55);
+}
