@@ -109,7 +109,7 @@ export function SymbolsView() {
                           onClick={() => void copy(sym)}
                           className={`flex aspect-square items-center justify-center rounded-lg border text-base leading-none transition-colors sm:text-lg ${
                             active
-                              ? 'border-emerald-500/50 bg-emerald-500/20 text-ink text-emerald-800 ring-1 ring-emerald-400/40 dark:text-emerald-100'
+                              ? 'border-emerald-500/50 bg-emerald-500/20 text-emerald-800 ring-1 ring-emerald-400/40 dark:text-emerald-100'
                               : 'border-edge bg-muted-fill text-fg hover:border-sky-500/40 hover:bg-sky-500/10'
                           }`}
                         >

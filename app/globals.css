@@ -44,13 +44,6 @@ html.light {
   --scrollbar-track: #ebebd6;
   --scrollbar-thumb: #c4c4a8;
   --scrollbar-thumb-hover: #a8a888;
-  /* Slight black outline so pale accents stay readable on ivory */
-  --text-ink-stroke:
-    -0.55px -0.55px 0 rgba(0, 0, 0, 0.45),
-    0.55px -0.55px 0 rgba(0, 0, 0, 0.45),
-    -0.55px 0.55px 0 rgba(0, 0, 0, 0.45),
-    0.55px 0.55px 0 rgba(0, 0, 0, 0.45),
-    0 0 1px rgba(0, 0, 0, 0.35);
   color-scheme: light;
 }
 
@@ -104,43 +97,9 @@ html.theme-ready body *:not(svg):not(path):not(circle):not(line):not(polyline):n
   .shadow-inset-panel {
     box-shadow: var(--color-inset-glow);
   }
-
-  /* Soft black outline for light-on-light accent text */
-  .text-ink {
-    text-shadow: var(--text-ink-stroke, none);
-  }
 }
 
-/* Light theme: pale Tailwind accents get ink stroke + darker fallbacks */
-html.light .text-ink,
-html.light .text-muted,
-html.light .text-accent,
-html.light .text-emerald-100,
-html.light .text-emerald-100\/80,
-html.light .text-emerald-200,
-html.light .text-emerald-300,
-html.light .text-emerald-300\/90,
-html.light .text-emerald-300\/95,
-html.light .text-amber-100,
-html.light .text-amber-200,
-html.light .text-amber-200\/90,
-html.light .text-rose-100,
-html.light .text-rose-300,
-html.light .text-rose-300\/95,
-html.light .text-sky-100,
-html.light .text-sky-200,
-html.light .text-sky-300,
-html.light .text-sky-400,
-html.light .text-sky-400\/90,
-html.light .text-violet-200,
-html.light .text-fuchsia-200,
-html.light .text-red-200,
-html.light .text-orange-100,
-html.light .text-yellow-100,
-html.light .text-cyan-200 {
-  text-shadow: var(--text-ink-stroke);
-}
-
+/* Light theme: darken pale Tailwind accents (no text-shadow — it blurs) */
 html.light .text-emerald-100,
 html.light .text-emerald-100\/80 {
   color: #065f46;

@@ -38,8 +38,8 @@ export function EffectsView() {
     const active = copiedId === row.id
     const nameClass =
       kind === 'positive'
-        ? 'text-ink text-emerald-800 dark:text-emerald-300/95'
-        : 'text-ink text-rose-800 dark:text-rose-300/95'
+        ? 'text-emerald-800 dark:text-emerald-300/95'
+        : 'text-rose-800 dark:text-rose-300/95'
     return (
       <li key={row.id}>
         <button
@@ -56,7 +56,7 @@ export function EffectsView() {
             {labelForLocale(row, locale)}
           </span>
           <span
-            className={`shrink-0 rounded-md border px-1.5 py-0.5 font-mono text-[10px] text-ink sm:text-[11px] ${
+            className={`shrink-0 rounded-md border px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] ${
               active
                 ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200'
                 : 'border-amber-500/25 bg-amber-500/[0.07] text-amber-900 dark:text-amber-200/90'

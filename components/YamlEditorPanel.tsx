@@ -234,7 +234,7 @@ export function YamlEditorPanel({
       }`}
     >
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted text-ink">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
           {t('columnYaml')}
         </h2>
         {expanded ? (
