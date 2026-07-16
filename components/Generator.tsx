@@ -1061,7 +1061,13 @@ export function Generator() {
                   <button
                     key={mode}
                     type="button"
-                    onClick={() => setPaletteMode(mode)}
+                    onClick={() => {
+                      setPaletteMode(mode)
+                      const count = luckyCount
+                        ? luckyColorCount()
+                        : gradientColors.length
+                      applyRolledPalette(generatePalette(mode, count))
+                    }}
                     title={`${t(`palette.${mode}`)} — ${t(`paletteHint.${mode}`)}`}
                     className={`h-5 w-6 shrink-0 overflow-hidden rounded border transition ${
                       active
