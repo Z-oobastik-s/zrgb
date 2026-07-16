@@ -70,8 +70,20 @@
   },
   "generator": {
     "inputPlaceholder": "Введіть текст...",
-    "previewBgMinecraft": "Фон Minecraft (як у грі)",
-    "previewBgSolid": "Темний фон без картинки",
+    "previewBg": {
+      "solid": "Темний фон",
+      "overworld": "Верхній світ (трава)",
+      "nether": "Пекло (Незер)",
+      "end": "Енд",
+      "chat": "Білий чат"
+    },
+    "contrastFail": "На тлі «{bg}» градієнт майже не читається (контраст {ratio}:1).",
+    "contrastWarn": "На тлі «{bg}» градієнт слабко читається (контраст {ratio}:1).",
+    "contrastFailMulti": "Погано читається: {scenes} (найгірший контраст {ratio}:1).",
+    "contrastWarnMulti": "Слабко читається: {scenes} (найгірший контраст {ratio}:1).",
+    "contrastScenesLabel": "Читабельність:",
+    "contrastBoost": "Для цього фону",
+    "contrastBoostAll": "Для всіх сцен",
     "outputPlaceholder": "Результат з'явиться тут...",
     "copy": "Скопіювати",
     "copied": "Скопійовано!",

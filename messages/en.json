@@ -70,8 +70,20 @@
   },
   "generator": {
     "inputPlaceholder": "Enter text...",
-    "previewBgMinecraft": "Minecraft background (in-game look)",
-    "previewBgSolid": "Solid dark background",
+    "previewBg": {
+      "solid": "Solid dark",
+      "overworld": "Overworld (grass)",
+      "nether": "The Nether",
+      "end": "The End",
+      "chat": "White chat"
+    },
+    "contrastFail": "On “{bg}” this gradient is nearly unreadable (contrast {ratio}:1).",
+    "contrastWarn": "On “{bg}” this gradient is hard to read (contrast {ratio}:1).",
+    "contrastFailMulti": "Hard to read on: {scenes} (worst contrast {ratio}:1).",
+    "contrastWarnMulti": "Weak on: {scenes} (worst contrast {ratio}:1).",
+    "contrastScenesLabel": "Readability:",
+    "contrastBoost": "This background",
+    "contrastBoostAll": "All scenes",
     "outputPlaceholder": "Result will appear here...",
     "copy": "Copy",
     "copied": "Copied!",

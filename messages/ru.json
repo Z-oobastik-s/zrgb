@@ -70,8 +70,20 @@
   },
   "generator": {
     "inputPlaceholder": "Введите текст...",
-    "previewBgMinecraft": "Фон Minecraft (как в игре)",
-    "previewBgSolid": "Тёмный фон без картинки",
+    "previewBg": {
+      "solid": "Тёмный фон",
+      "overworld": "Верхний мир (трава)",
+      "nether": "Ад (Незер)",
+      "end": "Энд",
+      "chat": "Белый чат"
+    },
+    "contrastFail": "На фоне «{bg}» градиент почти не читается (контраст {ratio}:1).",
+    "contrastWarn": "На фоне «{bg}» градиент слабо читается (контраст {ratio}:1).",
+    "contrastFailMulti": "Плохо читается: {scenes} (худший контраст {ratio}:1).",
+    "contrastWarnMulti": "Слабо читается: {scenes} (худший контраст {ratio}:1).",
+    "contrastScenesLabel": "Читаемость:",
+    "contrastBoost": "Для этого фона",
+    "contrastBoostAll": "Для всех сцен",
     "outputPlaceholder": "Результат появится здесь...",
     "copy": "Скопировать",
     "copied": "Скопировано!",

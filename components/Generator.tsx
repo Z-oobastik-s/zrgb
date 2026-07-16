@@ -25,7 +25,12 @@ import {
   Dices,
   Undo2,
   Sparkles,
-  ImageIcon,
+  Trees,
+  Flame,
+  MoonStar,
+  MessageSquare,
+  Square,
+  SunMedium,
 } from 'lucide-react'
 import type { CodeFormat } from '@/lib/rgb-generator'
 import {
@@ -50,7 +55,22 @@ import {
   type PaletteMode,
 } from '@/lib/random-palettes'
 import { stripToRgbPlainInput } from '@/lib/strip-minecraft-codes'
-import { assetUrl } from '@/lib/asset-url'
+import {
+  analyzeColorsAgainstBackground,
+  analyzeColorsAcrossScenes,
+  boostColorsForBackground,
+  boostColorsForScenes,
+  sampleRainbowStops,
+} from '@/lib/contrast'
+import {
+  CONTRAST_SCENE_IDS,
+  PREVIEW_BACKGROUNDS,
+  PREVIEW_BG_ORDER,
+  effectivePreviewBgColor,
+  normalizePreviewBgId,
+  previewBgCss,
+  type PreviewBgId,
+} from '@/lib/preview-backgrounds'
 import { YamlEditorPanel } from './YamlEditorPanel'
 
 const PALETTE_HISTORY_MAX = 10
@@ -60,11 +80,17 @@ const HASH_PREFIX = 's='
 const MAX_HASH_B64_LENGTH = 65536
 const STORAGE_KEY = 'zrgb-generator-v1'
 const PREVIEW_BG_KEY = 'zrgb-preview-bg'
-const PREVIEW_BG_MINECRAFT = assetUrl('/text-background/text_1.png')
-type PreviewBg = 'solid' | 'minecraft'
 /** Cap stored input so a huge paste cannot blow localStorage quota. */
 const MAX_STORED_INPUT_LENGTH = 50000
 const SAVE_DEBOUNCE_MS = 250
+
+const PREVIEW_BG_ICONS = {
+  solid: Square,
+  overworld: Trees,
+  nether: Flame,
+  end: MoonStar,
+  chat: MessageSquare,
+} as const
 
 type PresetPayload = {
   v: 1
@@ -233,16 +259,15 @@ function saveStoredPreset(payload: PresetPayload): void {
   }
 }
 
-function loadPreviewBg(): PreviewBg {
+function loadPreviewBg(): PreviewBgId {
   try {
-    const v = localStorage.getItem(PREVIEW_BG_KEY)
-    return v === 'minecraft' ? 'minecraft' : 'solid'
+    return normalizePreviewBgId(localStorage.getItem(PREVIEW_BG_KEY))
   } catch {
     return 'solid'
   }
 }
 
-function savePreviewBg(bg: PreviewBg): void {
+function savePreviewBg(bg: PreviewBgId): void {
   try {
     localStorage.setItem(PREVIEW_BG_KEY, bg)
   } catch {
@@ -287,7 +312,7 @@ export function Generator() {
   const [luckyCount, setLuckyCount] = useState(false)
   const [paletteHistory, setPaletteHistory] = useState<RGBColor[][]>([])
   const [diceSpin, setDiceSpin] = useState(false)
-  const [previewBg, setPreviewBg] = useState<PreviewBg>('solid')
+  const [previewBg, setPreviewBg] = useState<PreviewBgId>('solid')
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const urlCopyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const diceSpinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -706,6 +731,59 @@ export function Generator() {
     setCharsPerColor((c) => Math.max(1, Math.min(24, c + d)))
   }, [])
 
+  const previewBgDef = PREVIEW_BACKGROUNDS[previewBg]
+  const previewBgEffective = useMemo(
+    () => effectivePreviewBgColor(previewBgDef),
+    [previewBgDef]
+  )
+
+  const contrastSceneList = useMemo(
+    () =>
+      CONTRAST_SCENE_IDS.map((id) => ({
+        id,
+        background: effectivePreviewBgColor(PREVIEW_BACKGROUNDS[id]),
+      })),
+    []
+  )
+
+  const contrastColors = useMemo(() => {
+    if (useRainbow) return sampleRainbowStops(6)
+    return gradientColors
+  }, [useRainbow, gradientColors])
+
+  const contrastCurrent = useMemo(
+    () => analyzeColorsAgainstBackground(contrastColors, previewBgEffective),
+    [contrastColors, previewBgEffective]
+  )
+
+  const contrastMulti = useMemo(
+    () => analyzeColorsAcrossScenes(contrastColors, contrastSceneList),
+    [contrastColors, contrastSceneList]
+  )
+
+  const showContrastPanel =
+    contrastMulti.verdict !== 'ok' ||
+    (previewBg !== 'solid' && contrastCurrent.verdict !== 'ok')
+
+  const applyBoostedColors = useCallback(
+    (next: RGBColor[]) => {
+      setUseRainbow(false)
+      setGradientColors(next)
+    },
+    []
+  )
+
+  const boostContrastCurrent = useCallback(() => {
+    const base = useRainbow ? sampleRainbowStops(5) : gradientColors
+    applyBoostedColors(boostColorsForBackground(base, previewBgEffective))
+  }, [useRainbow, gradientColors, previewBgEffective, applyBoostedColors])
+
+  const boostContrastAllScenes = useCallback(() => {
+    const base = useRainbow ? sampleRainbowStops(5) : gradientColors
+    const bgs = contrastSceneList.map((s) => s.background)
+    applyBoostedColors(boostColorsForScenes(base, bgs))
+  }, [useRainbow, gradientColors, contrastSceneList, applyBoostedColors])
+
   const mirrorObfuscation =
     formatting.obfuscated ? 'mc-obfuscated ' : ''
 
@@ -732,43 +810,35 @@ export function Generator() {
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       {/* Hero: input + live preview + gradient strip */}
-      <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 shadow-lg">
+      <section className="panel flex max-h-[min(48vh,26rem)] shrink-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 shadow-lg">
         <div
-          className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14]"
-          style={
-            previewBg === 'minecraft'
-              ? {
-                  backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.42)), url(${PREVIEW_BG_MINECRAFT})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center 22%',
-                  backgroundRepeat: 'no-repeat',
-                }
-              : undefined
-          }
+          className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/10"
+          style={previewBgCss(previewBgDef)}
         >
+          <div className="absolute bottom-2 left-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-[#161922]/95 p-0.5 backdrop-blur-sm">
+            {PREVIEW_BG_ORDER.map((id) => {
+              const Icon = PREVIEW_BG_ICONS[id]
+              const active = previewBg === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  title={t(`previewBg.${id}`)}
+                  aria-pressed={active}
+                  onClick={() => setPreviewBg(id)}
+                  className={`rounded p-1.5 transition-colors ${
+                    active
+                      ? 'bg-emerald-500/35 text-white ring-1 ring-emerald-400/70'
+                      : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </button>
+              )
+            })}
+          </div>
+
           <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-[#161922]/95 p-0.5 backdrop-blur-sm">
-            <button
-              type="button"
-              title={
-                previewBg === 'minecraft'
-                  ? t('previewBgSolid')
-                  : t('previewBgMinecraft')
-              }
-              aria-pressed={previewBg === 'minecraft'}
-              onClick={() =>
-                setPreviewBg((prev) =>
-                  prev === 'minecraft' ? 'solid' : 'minecraft'
-                )
-              }
-              className={`rounded p-1.5 transition-colors ${
-                previewBg === 'minecraft'
-                  ? 'bg-emerald-500/35 text-white ring-1 ring-emerald-400/70'
-                  : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
-              }`}
-            >
-              <ImageIcon className="h-3.5 w-3.5" />
-            </button>
-            <span className="mx-0.5 h-4 w-px bg-white/15" aria-hidden />
             {(
               [
                 ['bold', Bold],
@@ -807,11 +877,11 @@ export function Generator() {
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            className={`rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-[6.5rem] text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35 ${previewVisualFmt}`}
+            className={`rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pb-10 pr-14 text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35 ${previewVisualFmt}`}
           />
 
           <div
-            className={`rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-[6.5rem] ${previewVisualFmt}`}
+            className={`rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pb-10 pr-14 ${previewVisualFmt}`}
             aria-hidden
           >
             <div
@@ -820,7 +890,13 @@ export function Generator() {
               }}
             >
               {!inputText ? (
-                <span className="text-zinc-400">{t('inputPlaceholder')}</span>
+                <span
+                  className={
+                    previewBg === 'chat' ? 'text-zinc-500' : 'text-zinc-400'
+                  }
+                >
+                  {t('inputPlaceholder')}
+                </span>
               ) : (
                 <div className={`rgb-editor-pixel-layer text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (
@@ -844,6 +920,93 @@ export function Generator() {
           style={gradientBarStyle}
           aria-hidden
         />
+
+        {showContrastPanel ? (
+          <div
+            className={`flex shrink-0 flex-col gap-1.5 rounded-lg border px-2.5 py-1.5 text-[10px] leading-snug sm:text-[11px] ${
+              contrastMulti.verdict === 'fail' || contrastCurrent.verdict === 'fail'
+                ? 'border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-100'
+                : 'border-yellow-500/35 bg-yellow-500/10 text-yellow-950 dark:text-yellow-100'
+            }`}
+          >
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="mr-1 font-medium opacity-80">
+                {t('contrastScenesLabel')}
+              </span>
+              {contrastMulti.rows.map((row) => {
+                const Icon = PREVIEW_BG_ICONS[row.id as PreviewBgId]
+                const v = row.report.verdict
+                return (
+                  <button
+                    key={row.id}
+                    type="button"
+                    title={`${t(`previewBg.${row.id}`)} · ${row.report.minRatio.toFixed(1)}:1`}
+                    onClick={() => setPreviewBg(row.id as PreviewBgId)}
+                    className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 transition ${
+                      v === 'ok'
+                        ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-900 dark:text-emerald-100'
+                        : v === 'warn'
+                          ? 'border-yellow-500/45 bg-yellow-500/20 text-yellow-950 dark:text-yellow-50'
+                          : 'border-red-500/45 bg-red-500/20 text-red-900 dark:text-red-100'
+                    }`}
+                  >
+                    <Icon className="h-3 w-3" />
+                    <span className="tabular-nums">
+                      {row.report.minRatio.toFixed(1)}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="min-w-0 flex-1">
+                {contrastMulti.failingIds.length > 0
+                  ? t(
+                      contrastMulti.verdict === 'fail'
+                        ? 'contrastFailMulti'
+                        : 'contrastWarnMulti',
+                      {
+                        scenes: contrastMulti.failingIds
+                          .map((id) => t(`previewBg.${id}`))
+                          .join(', '),
+                        ratio: contrastMulti.worstRatio.toFixed(1),
+                      }
+                    )
+                  : t(
+                      contrastCurrent.verdict === 'fail'
+                        ? 'contrastFail'
+                        : 'contrastWarn',
+                      {
+                        bg: t(`previewBg.${previewBg}`),
+                        ratio: contrastCurrent.minRatio.toFixed(1),
+                      }
+                    )}
+              </p>
+              <div className="flex shrink-0 flex-wrap items-center gap-1">
+                {previewBg !== 'solid' && contrastCurrent.verdict !== 'ok' ? (
+                  <button
+                    type="button"
+                    onClick={boostContrastCurrent}
+                    className="inline-flex items-center gap-1 rounded-md border border-amber-500/45 bg-amber-500/20 px-2 py-1 font-medium text-amber-950 transition hover:bg-amber-500/30 dark:text-amber-50"
+                  >
+                    <SunMedium className="h-3.5 w-3.5" />
+                    {t('contrastBoost')}
+                  </button>
+                ) : null}
+                {contrastMulti.verdict !== 'ok' ? (
+                  <button
+                    type="button"
+                    onClick={boostContrastAllScenes}
+                    className="inline-flex items-center gap-1 rounded-md border border-sky-500/45 bg-sky-500/20 px-2 py-1 font-medium text-sky-950 transition hover:bg-sky-500/30 dark:text-sky-50"
+                  >
+                    <SunMedium className="h-3.5 w-3.5" />
+                    {t('contrastBoostAll')}
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {yamlLinkedFieldId ? (
           <p className="shrink-0 text-[10px] leading-snug text-sky-800 dark:text-sky-400/90">
