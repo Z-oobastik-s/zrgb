@@ -704,8 +704,8 @@ export function Generator() {
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       {/* Hero: input + live preview + gradient strip */}
       <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 shadow-lg">
-        <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-edge bg-input">
-          <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-edge-strong bg-panel/90 p-0.5 backdrop-blur-sm">
+        <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14]">
+          <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-[#161922]/95 p-0.5 backdrop-blur-sm">
             {(
               [
                 ['bold', Bold],
@@ -723,7 +723,7 @@ export function Generator() {
                 className={`rounded p-1.5 transition-colors ${
                   formatting[key]
                     ? 'bg-sky-500/40 text-white ring-1 ring-sky-400/70'
-                    : 'text-muted hover:bg-muted-hover hover:text-fg'
+                    : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -757,7 +757,7 @@ export function Generator() {
               }}
             >
               {!inputText ? (
-                <span className="text-muted">{t('inputPlaceholder')}</span>
+                <span className="text-zinc-500">{t('inputPlaceholder')}</span>
               ) : (
                 <div className={`rgb-editor-pixel-layer text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (

@@ -209,8 +209,7 @@ html.light .border-emerald-500\/25 {
   -webkit-font-smoothing: none;
 }
 
-html.light .minecraft-pixel-preview,
-html.light .rgb-editor-pixel-layer span {
+html.light .minecraft-pixel-preview {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.65), 1px 1px 0 rgba(0, 0, 0, 0.25);
 }
 
