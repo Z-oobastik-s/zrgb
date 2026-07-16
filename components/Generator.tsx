@@ -58,7 +58,6 @@ import { stripToRgbPlainInput } from '@/lib/strip-minecraft-codes'
 import {
   analyzeColorsAcrossScenes,
   boostColorsForScenes,
-  pickMostReadablePalette,
   sampleRainbowStops,
 } from '@/lib/contrast'
 import {
@@ -307,7 +306,7 @@ export function Generator() {
   const [yamlLinkedPath, setYamlLinkedPath] = useState('')
   const [yamlExpanded, setYamlExpanded] = useState(false)
   const [storageReady, setStorageReady] = useState(false)
-  const [paletteMode, setPaletteMode] = useState<PaletteMode>('harmony')
+  const [paletteMode, setPaletteMode] = useState<PaletteMode>('chaos')
   const [luckyCount, setLuckyCount] = useState(false)
   const [paletteHistory, setPaletteHistory] = useState<RGBColor[][]>([])
   const [diceSpin, setDiceSpin] = useState(false)
@@ -630,25 +629,13 @@ export function Generator() {
 
   const handleRandom = useCallback(() => {
     const count = luckyCount ? luckyColorCount() : gradientColors.length
-    const bgs = CONTRAST_SCENE_IDS.map((id) =>
-      effectivePreviewBgColor(PREVIEW_BACKGROUNDS[id])
-    )
-    const candidates = Array.from({ length: 14 }, () =>
-      generatePalette(paletteMode, count)
-    )
-    applyRolledPalette(pickMostReadablePalette(candidates, bgs))
+    applyRolledPalette(generatePalette(paletteMode, count))
   }, [applyRolledPalette, gradientColors.length, luckyCount, paletteMode])
 
   const handleLuckySurprise = useCallback(() => {
     const mode = randomPaletteMode()
     setPaletteMode(mode)
-    const bgs = CONTRAST_SCENE_IDS.map((id) =>
-      effectivePreviewBgColor(PREVIEW_BACKGROUNDS[id])
-    )
-    const candidates = Array.from({ length: 14 }, () =>
-      generatePalette(mode, luckyColorCount())
-    )
-    applyRolledPalette(pickMostReadablePalette(candidates, bgs))
+    applyRolledPalette(generatePalette(mode, luckyColorCount()))
   }, [applyRolledPalette])
 
   const restoreHistoryPalette = useCallback((colors: RGBColor[]) => {

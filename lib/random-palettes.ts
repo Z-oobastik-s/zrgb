@@ -57,89 +57,104 @@ export function generatePalette(mode: PaletteMode, count: number): RGBColor[] {
 
   switch (mode) {
     case 'chaos': {
-      return Array.from({ length: n }, () =>
-        hsl(rand(0, 360), rand(55, 100), rand(22, 78))
-      )
+      // Full RGB lottery — any of ~16.7M colors, no “safe” mid-band filter
+      return Array.from({ length: n }, () => ({
+        r: randInt(0, 255),
+        g: randInt(0, 255),
+        b: randInt(0, 255),
+      }))
     }
     case 'harmony': {
       const base = rand(0, 360)
-      return spacedHues(n, base - 28, 56).map((h, i) =>
-        hsl(h, rand(62, 92), lerp(42, 62, n === 1 ? 0.5 : i / (n - 1)) + rand(-4, 4))
+      const span = rand(48, 100)
+      return spacedHues(n, base - span / 2, span).map((h, i) =>
+        hsl(
+          h,
+          rand(40, 100),
+          lerp(rand(18, 40), rand(55, 88), n === 1 ? 0.5 : i / (n - 1)) +
+            rand(-8, 8)
+        )
       )
     }
     case 'complement': {
       const base = rand(0, 360)
-      if (n === 1) return [hsl(base, rand(70, 95), rand(45, 58))]
-      const hues = spacedHues(n, base, 180)
+      if (n === 1) return [hsl(base, rand(50, 100), rand(20, 80))]
+      const hues = spacedHues(n, base, 180 + rand(-20, 40))
       return hues.map((h, i) =>
-        hsl(h, rand(68, 96), lerp(40, 60, i / (n - 1)) + rand(-3, 3))
+        hsl(
+          h,
+          rand(55, 100),
+          lerp(rand(18, 45), rand(50, 85), i / (n - 1)) + rand(-6, 6)
+        )
       )
     }
     case 'pastel': {
       const base = rand(0, 360)
-      return spacedHues(n, base, rand(40, 100)).map((h) =>
-        hsl(h, rand(35, 62), rand(68, 84))
+      return spacedHues(n, base, rand(60, 160)).map((h) =>
+        hsl(h, rand(25, 70), rand(62, 90))
       )
     }
     case 'neon': {
       const base = rand(0, 360)
-      return spacedHues(n, base, rand(80, 200)).map((h) =>
-        hsl(h, rand(90, 100), rand(48, 60))
+      return spacedHues(n, base, rand(90, 280)).map((h) =>
+        hsl(h, rand(85, 100), rand(42, 68))
       )
     }
     case 'sunset': {
-      const start = rand(8, 28)
-      return spacedHues(n, start, rand(40, 70)).map((h, i) => {
+      const start = rand(0, 40)
+      return spacedHues(n, start, rand(45, 95)).map((h, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h + rand(-4, 8), lerp(85, 70, t), lerp(48, 62, t))
+        return hsl(h + rand(-8, 12), lerp(100, 65, t), lerp(35, 72, t) + rand(-5, 5))
       })
     }
     case 'ocean': {
-      const start = rand(170, 200)
-      return spacedHues(n, start, rand(50, 90)).map((h, i) => {
+      const start = rand(150, 220)
+      return spacedHues(n, start, rand(55, 120)).map((h, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h, lerp(70, 90, t), lerp(36, 62, t))
+        return hsl(h, lerp(55, 100, t), lerp(22, 72, t) + rand(-4, 4))
       })
     }
     case 'fire': {
-      const start = rand(-10, 15)
-      return spacedHues(n, start, rand(35, 55)).map((h, i) => {
+      const start = rand(-20, 25)
+      return spacedHues(n, start, rand(40, 80)).map((h, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h, lerp(95, 80, t), lerp(40, 58, t))
+        return hsl(h, lerp(100, 75, t), lerp(28, 68, t) + rand(-4, 4))
       })
     }
     case 'ice': {
-      const start = rand(185, 210)
-      return spacedHues(n, start, rand(35, 70)).map((h, i) => {
+      const start = rand(170, 230)
+      return spacedHues(n, start, rand(40, 100)).map((h, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h, lerp(55, 85, t), lerp(58, 78, t))
+        return hsl(h, lerp(40, 95, t), lerp(45, 88, t) + rand(-4, 4))
       })
     }
     case 'gold': {
-      const start = rand(32, 48)
-      return spacedHues(n, start, rand(18, 36)).map((h, i) => {
+      const start = rand(25, 55)
+      return spacedHues(n, start, rand(20, 55)).map((h, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h, lerp(80, 95, t), lerp(42, 68, t))
+        return hsl(h, lerp(70, 100, t), lerp(28, 78, t) + rand(-4, 4))
       })
     }
     case 'mono': {
       const h = rand(0, 360)
-      const s = rand(40, 85)
+      const s = rand(15, 100)
       return Array.from({ length: n }, (_, i) => {
         const t = n === 1 ? 0.5 : i / (n - 1)
-        return hsl(h, s + rand(-6, 6), lerp(28, 78, t))
+        return hsl(h + rand(-4, 4), s + rand(-10, 10), lerp(8, 92, t))
       })
     }
     case 'candy': {
       const base = rand(0, 360)
-      return spacedHues(n, base, rand(120, 280)).map((h) =>
-        hsl(h, rand(75, 100), rand(55, 72))
+      return spacedHues(n, base, rand(140, 320)).map((h) =>
+        hsl(h, rand(65, 100), rand(45, 80))
       )
     }
     default:
-      return Array.from({ length: n }, () =>
-        hsl(rand(0, 360), rand(55, 100), rand(40, 65))
-      )
+      return Array.from({ length: n }, () => ({
+        r: randInt(0, 255),
+        g: randInt(0, 255),
+        b: randInt(0, 255),
+      }))
   }
 }
 
