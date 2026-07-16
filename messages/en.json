@@ -70,6 +70,8 @@
   },
   "generator": {
     "inputPlaceholder": "Enter text...",
+    "previewBgMinecraft": "Minecraft background (in-game look)",
+    "previewBgSolid": "Solid dark background",
     "outputPlaceholder": "Result will appear here...",
     "copy": "Copy",
     "copied": "Copied!",

@@ -70,6 +70,8 @@
   },
   "generator": {
     "inputPlaceholder": "Введіть текст...",
+    "previewBgMinecraft": "Фон Minecraft (як у грі)",
+    "previewBgSolid": "Темний фон без картинки",
     "outputPlaceholder": "Результат з'явиться тут...",
     "copy": "Скопіювати",
     "copied": "Скопійовано!",

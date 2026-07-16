@@ -25,6 +25,7 @@ import {
   Dices,
   Undo2,
   Sparkles,
+  ImageIcon,
 } from 'lucide-react'
 import type { CodeFormat } from '@/lib/rgb-generator'
 import {
@@ -49,6 +50,7 @@ import {
   type PaletteMode,
 } from '@/lib/random-palettes'
 import { stripToRgbPlainInput } from '@/lib/strip-minecraft-codes'
+import { assetUrl } from '@/lib/asset-url'
 import { YamlEditorPanel } from './YamlEditorPanel'
 
 const PALETTE_HISTORY_MAX = 10
@@ -57,6 +59,9 @@ const HASH_PREFIX = 's='
 /** Reject oversized hash fragments before atob/JSON.parse blocks the main thread. */
 const MAX_HASH_B64_LENGTH = 65536
 const STORAGE_KEY = 'zrgb-generator-v1'
+const PREVIEW_BG_KEY = 'zrgb-preview-bg'
+const PREVIEW_BG_MINECRAFT = assetUrl('/text-background/text_1.png')
+type PreviewBg = 'solid' | 'minecraft'
 /** Cap stored input so a huge paste cannot blow localStorage quota. */
 const MAX_STORED_INPUT_LENGTH = 50000
 const SAVE_DEBOUNCE_MS = 250
@@ -228,6 +233,23 @@ function saveStoredPreset(payload: PresetPayload): void {
   }
 }
 
+function loadPreviewBg(): PreviewBg {
+  try {
+    const v = localStorage.getItem(PREVIEW_BG_KEY)
+    return v === 'minecraft' ? 'minecraft' : 'solid'
+  } catch {
+    return 'solid'
+  }
+}
+
+function savePreviewBg(bg: PreviewBg): void {
+  try {
+    localStorage.setItem(PREVIEW_BG_KEY, bg)
+  } catch {
+    /* ignore quota */
+  }
+}
+
 export function Generator() {
   const t = useTranslations('generator')
   const tFmt = useTranslations('formats')
@@ -265,6 +287,7 @@ export function Generator() {
   const [luckyCount, setLuckyCount] = useState(false)
   const [paletteHistory, setPaletteHistory] = useState<RGBColor[][]>([])
   const [diceSpin, setDiceSpin] = useState(false)
+  const [previewBg, setPreviewBg] = useState<PreviewBg>('solid')
   const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const urlCopyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const diceSpinTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -312,8 +335,14 @@ export function Generator() {
       const stored = loadStoredPreset()
       if (stored) applyPayload(stored)
     }
+    setPreviewBg(loadPreviewBg())
     setStorageReady(true)
   }, [applyPayload])
+
+  useEffect(() => {
+    if (!storageReady) return
+    savePreviewBg(previewBg)
+  }, [storageReady, previewBg])
 
   useEffect(() => {
     if (!storageReady) return
@@ -704,8 +733,42 @@ export function Generator() {
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       {/* Hero: input + live preview + gradient strip */}
       <section className="panel flex max-h-[min(38vh,19rem)] shrink-0 flex-col gap-2 rounded-xl border border-edge bg-panel p-3 shadow-lg">
-        <div className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14]">
+        <div
+          className="relative min-h-[5.5rem] flex-1 overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14]"
+          style={
+            previewBg === 'minecraft'
+              ? {
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.42)), url(${PREVIEW_BG_MINECRAFT})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center 22%',
+                  backgroundRepeat: 'no-repeat',
+                }
+              : undefined
+          }
+        >
           <div className="absolute right-2 top-2 z-20 flex items-center gap-0.5 rounded-lg border border-white/10 bg-[#161922]/95 p-0.5 backdrop-blur-sm">
+            <button
+              type="button"
+              title={
+                previewBg === 'minecraft'
+                  ? t('previewBgSolid')
+                  : t('previewBgMinecraft')
+              }
+              aria-pressed={previewBg === 'minecraft'}
+              onClick={() =>
+                setPreviewBg((prev) =>
+                  prev === 'minecraft' ? 'solid' : 'minecraft'
+                )
+              }
+              className={`rounded p-1.5 transition-colors ${
+                previewBg === 'minecraft'
+                  ? 'bg-emerald-500/35 text-white ring-1 ring-emerald-400/70'
+                  : 'text-zinc-400 hover:bg-white/10 hover:text-zinc-100'
+              }`}
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+            </button>
+            <span className="mx-0.5 h-4 w-px bg-white/15" aria-hidden />
             {(
               [
                 ['bold', Bold],
@@ -744,11 +807,11 @@ export function Generator() {
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
-            className={`rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-14 text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35 ${previewVisualFmt}`}
+            className={`rgb-editor-stack absolute inset-0 z-10 box-border resize-none bg-transparent px-3 py-3 pr-[6.5rem] text-transparent caret-sky-400 outline-none ring-0 selection:bg-sky-500/35 ${previewVisualFmt}`}
           />
 
           <div
-            className={`rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-14 ${previewVisualFmt}`}
+            className={`rgb-editor-stack pointer-events-none absolute inset-0 z-0 overflow-hidden px-3 py-3 pr-[6.5rem] ${previewVisualFmt}`}
             aria-hidden
           >
             <div
@@ -757,7 +820,7 @@ export function Generator() {
               }}
             >
               {!inputText ? (
-                <span className="text-zinc-500">{t('inputPlaceholder')}</span>
+                <span className="text-zinc-400">{t('inputPlaceholder')}</span>
               ) : (
                 <div className={`rgb-editor-pixel-layer text-[inherit] ${mirrorObfuscation}`}>
                   {previewSegments.map((seg, i) => (
