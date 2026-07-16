@@ -1,9 +1,12 @@
 import { hslToRgb, type RGBColor } from '@/lib/rgb-generator'
 
-/** Minecraft preview text is small — aim near WCAG AA for normal text. */
-export const MIN_CONTRAST_RATIO = 4.5
-/** Soft warn band: readable with black outline but risky */
-export const WARN_CONTRAST_RATIO = 3.2
+/**
+ * Minecraft preview text has a strong black pixel outline, so real-world
+ * readability is better than raw WCAG numbers. Keep thresholds soft —
+ * otherwise almost every mid-tone “pretty” gradient screams forever.
+ */
+export const MIN_CONTRAST_RATIO = 2.5
+export const WARN_CONTRAST_RATIO = 1.9
 
 function srgbChannelToLinear(c8: number): number {
   const c = c8 / 255
@@ -54,6 +57,7 @@ export type ContrastVerdict = 'ok' | 'warn' | 'fail'
 
 export type ContrastReport = {
   minRatio: number
+  avgRatio: number
   worstIndex: number
   verdict: ContrastVerdict
   ratios: number[]
@@ -67,21 +71,33 @@ export function analyzeColorsAgainstBackground(
   const minOk = opts?.minOk ?? MIN_CONTRAST_RATIO
   const minWarn = opts?.minWarn ?? WARN_CONTRAST_RATIO
   if (colors.length === 0) {
-    return { minRatio: Infinity, worstIndex: -1, verdict: 'ok', ratios: [] }
+    return {
+      minRatio: Infinity,
+      avgRatio: Infinity,
+      worstIndex: -1,
+      verdict: 'ok',
+      ratios: [],
+    }
   }
   const ratios = colors.map((c) => contrastRatio(c, background))
   let worstIndex = 0
   let minRatio = ratios[0]!
-  for (let i = 1; i < ratios.length; i++) {
+  let sum = 0
+  for (let i = 0; i < ratios.length; i++) {
     const r = ratios[i]!
+    sum += r
     if (r < minRatio) {
       minRatio = r
       worstIndex = i
     }
   }
+  const avgRatio = sum / ratios.length
+  // Gradients often mix dark + light stops — judging by the single worst
+  // stop makes every roll look broken. Average better matches “can I read this”.
+  const score = avgRatio
   const verdict: ContrastVerdict =
-    minRatio >= minOk ? 'ok' : minRatio >= minWarn ? 'warn' : 'fail'
-  return { minRatio, worstIndex, verdict, ratios }
+    score >= minOk ? 'ok' : score >= minWarn ? 'warn' : 'fail'
+  return { minRatio, avgRatio, worstIndex, verdict, ratios }
 }
 
 /**
@@ -248,8 +264,10 @@ export function analyzeColorsAcrossScenes(
   let verdict: ContrastVerdict = 'ok'
 
   for (const row of rows) {
-    if (row.report.minRatio < worstRatio) {
-      worstRatio = row.report.minRatio
+    // Prefer avg for “how bad is this scene overall”
+    const score = row.report.avgRatio
+    if (score < worstRatio) {
+      worstRatio = score
       worstId = row.id
     }
     if (row.report.verdict === 'fail' || row.report.verdict === 'warn') {
@@ -280,4 +298,45 @@ export function sampleRainbowStops(count = 6): RGBColor[] {
     out.push(hslToRgb(h, 90, 55))
   }
   return out
+}
+
+/** Average of each color's worst scene contrast — higher is more readable everywhere. */
+export function multiSceneScore(
+  colors: RGBColor[],
+  backgrounds: RGBColor[]
+): number {
+  if (colors.length === 0 || backgrounds.length === 0) return Infinity
+  let sum = 0
+  for (const c of colors) {
+    let worst = Infinity
+    for (const bg of backgrounds) {
+      worst = Math.min(worst, contrastRatio(c, bg))
+    }
+    sum += worst
+  }
+  return sum / colors.length
+}
+
+/**
+ * From several candidate palettes, keep the most readable across scenes.
+ * Still random — just avoids dumping unreadable mid-mud every roll.
+ */
+export function pickMostReadablePalette(
+  candidates: RGBColor[][],
+  backgrounds: RGBColor[]
+): RGBColor[] {
+  if (candidates.length === 0) return []
+  let best = candidates[0]!
+  let bestScore = multiSceneScore(best, backgrounds)
+  for (let i = 1; i < candidates.length; i++) {
+    const c = candidates[i]!
+    const score = multiSceneScore(c, backgrounds)
+    if (score > bestScore) {
+      best = c
+      bestScore = score
+    }
+  }
+  if (bestScore >= WARN_CONTRAST_RATIO) return best
+  // Gentle lift — don't nuke the vibe of the palette
+  return boostColorsForScenes(best, backgrounds, WARN_CONTRAST_RATIO)
 }

@@ -58,7 +58,7 @@ export function generatePalette(mode: PaletteMode, count: number): RGBColor[] {
   switch (mode) {
     case 'chaos': {
       return Array.from({ length: n }, () =>
-        hsl(rand(0, 360), rand(55, 100), rand(38, 68))
+        hsl(rand(0, 360), rand(55, 100), rand(22, 78))
       )
     }
     case 'harmony': {
