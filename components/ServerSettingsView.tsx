@@ -679,9 +679,9 @@ export function ServerSettingsView() {
   return (
     <section className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-hidden">
       {!customFile && !logFile ? (
-        <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-[12px] text-emerald-100">
+        <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-3 text-[12px] text-ink text-emerald-900 dark:text-emerald-100">
           <p className="font-semibold">{t('title')}</p>
-          <p className="mt-1 text-emerald-100/80">
+          <p className="mt-1 text-emerald-800/90 dark:text-emerald-100/80">
             {t('subtitle')}
           </p>
         </div>
@@ -706,7 +706,7 @@ export function ServerSettingsView() {
           ) : logFile ? (
             <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-lg border border-edge-strong bg-input px-3 py-2 text-xs text-fg-soft">
               <span className="text-muted">{t('logFileLabel')}</span>
-              <span className="font-mono text-violet-200">{logFile.name}</span>
+              <span className="font-mono text-violet-800 dark:text-violet-200">{logFile.name}</span>
               <button
                 type="button"
                 onClick={() => setLogFile(null)}
@@ -840,14 +840,14 @@ export function ServerSettingsView() {
                             other: false,
                           })
                         }
-                        className="rounded border border-red-500/35 bg-red-500/10 px-2 py-1 text-[11px] text-red-200 hover:bg-red-500/20"
+                        className="rounded border border-red-500/35 bg-red-500/10 px-2 py-1 text-[11px] text-ink text-red-800 hover:bg-red-500/20 dark:text-red-200"
                       >
                         {t('onlyProblems')}
                       </button>
                       <button
                         type="button"
                         onClick={() => setLogQuery('Exception')}
-                        className="rounded border border-violet-500/35 bg-violet-500/10 px-2 py-1 text-[11px] text-violet-200 hover:bg-violet-500/20"
+                        className="rounded border border-violet-500/35 bg-violet-500/10 px-2 py-1 text-[11px] text-ink text-violet-800 hover:bg-violet-500/20 dark:text-violet-200"
                       >
                         {t('stacktraces')}
                       </button>
@@ -954,7 +954,7 @@ export function ServerSettingsView() {
               <aside className="flex min-h-0 max-h-[40vh] w-full shrink-0 flex-col gap-2 overflow-hidden border-edge-strong xl:max-h-none xl:w-[17.5rem] xl:border-l xl:pl-3">
                 <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain pr-0.5">
                   <div className="shrink-0 rounded-lg border border-red-500/20 bg-red-500/[0.05] p-2">
-                    <div className="mb-1 text-[11px] font-semibold text-red-200">
+                    <div className="mb-1 text-[11px] font-semibold text-ink text-red-800 dark:text-red-200">
                       {t('logIssuesTitle')} ({logInsights.problems.length})
                     </div>
                     <div className="max-h-32 space-y-1 overflow-y-auto text-[11px]">
@@ -1008,7 +1008,7 @@ export function ServerSettingsView() {
                   </div>
 
                   <div className="shrink-0 rounded-lg border border-edge-strong bg-muted-fill p-2">
-                    <div className="mb-0.5 text-[11px] font-semibold text-cyan-200">
+                    <div className="mb-0.5 text-[11px] font-semibold text-ink text-cyan-800 dark:text-cyan-200">
                       {t('logResourcepacksTitle')} ({logInsights.resourcePacks.length})
                     </div>
                     <p className="mb-1 text-[10px] leading-snug text-muted">{t('logResourcepacksHint')}</p>
@@ -1091,7 +1091,7 @@ export function ServerSettingsView() {
                 value={customFile.text}
                 onChange={(e) => setCustomFile({ name: customFile.name, text: e.target.value })}
                 spellCheck={false}
-                className="min-h-[min(70vh,calc(100vh-14rem))] flex-1 resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50"
+                className="min-h-[min(70vh,calc(100vh-14rem))] flex-1 resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg outline-none focus:border-sky-500/50"
               />
             </div>
           </div>
@@ -1152,7 +1152,7 @@ export function ServerSettingsView() {
                 </div>
               </div>
               {rawFiles[selectedFile] ? (
-                <p className="mb-2 text-[10px] text-emerald-300/90">
+                <p className="mb-2 text-[10px] text-ink text-emerald-800 dark:text-emerald-300/90">
                   {t('loadedFileHint')}
                 </p>
               ) : (
@@ -1193,7 +1193,7 @@ export function ServerSettingsView() {
                     setValues((prev) => ({ ...prev, ...parsed.values }))
                   }}
                   spellCheck={false}
-                  className="min-h-[min(70vh,calc(100vh-15rem))] w-full resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg-soft outline-none focus:border-sky-500/50"
+                  className="min-h-[min(70vh,calc(100vh-15rem))] w-full resize-y rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] leading-relaxed text-fg outline-none focus:border-sky-500/50"
                 />
               ) : (
                 <div className="space-y-1">

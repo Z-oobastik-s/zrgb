@@ -54,10 +54,10 @@ export function EnchantmentsView() {
             {row.max}
           </span>
           <span
-            className={`max-w-[min(100%,11rem)] shrink-0 truncate rounded-md border px-1.5 py-0.5 font-mono text-[10px] sm:max-w-[13rem] sm:text-[11px] ${
+            className={`max-w-[min(100%,11rem)] shrink-0 truncate rounded-md border px-1.5 py-0.5 font-mono text-[10px] text-ink sm:max-w-[13rem] sm:text-[11px] ${
               active
-                ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
-                : 'border-amber-500/25 bg-amber-500/[0.07] text-amber-200/90'
+                ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-800 dark:text-emerald-200'
+                : 'border-amber-500/25 bg-amber-500/[0.07] text-amber-900 dark:text-amber-200/90'
             }`}
           >
             {active ? t('copied') : row.id}

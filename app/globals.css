@@ -28,22 +28,29 @@ html:not(.light) {
 /* Light — ivory #FFFFF0 */
 html.light {
   --color-surface: #fffff0;
-  --color-panel: #f4f4e4;
-  --color-panel-2: #ececd8;
+  --color-panel: #f2f2de;
+  --color-panel-2: #e8e8d2;
   --color-input: #ffffff;
-  --color-muted-fill: rgba(0, 0, 0, 0.05);
-  --color-muted-hover: rgba(0, 0, 0, 0.08);
-  --color-edge: rgba(0, 0, 0, 0.1);
-  --color-edge-strong: rgba(0, 0, 0, 0.16);
-  --color-fg: #1c1917;
-  --color-fg-soft: #292524;
-  --color-muted: #78716c;
-  --color-accent: #0369a1;
-  --color-accent-soft: rgba(14, 165, 233, 0.14);
+  --color-muted-fill: rgba(0, 0, 0, 0.06);
+  --color-muted-hover: rgba(0, 0, 0, 0.1);
+  --color-edge: rgba(0, 0, 0, 0.14);
+  --color-edge-strong: rgba(0, 0, 0, 0.22);
+  --color-fg: #0c0a09;
+  --color-fg-soft: #1c1917;
+  --color-muted: #44403c;
+  --color-accent: #075985;
+  --color-accent-soft: rgba(14, 165, 233, 0.18);
   --color-inset-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.55);
   --scrollbar-track: #ebebd6;
   --scrollbar-thumb: #c4c4a8;
   --scrollbar-thumb-hover: #a8a888;
+  /* Slight black outline so pale accents stay readable on ivory */
+  --text-ink-stroke:
+    -0.55px -0.55px 0 rgba(0, 0, 0, 0.45),
+    0.55px -0.55px 0 rgba(0, 0, 0, 0.45),
+    -0.55px 0.55px 0 rgba(0, 0, 0, 0.45),
+    0.55px 0.55px 0 rgba(0, 0, 0, 0.45),
+    0 0 1px rgba(0, 0, 0, 0.35);
   color-scheme: light;
 }
 
@@ -97,6 +104,114 @@ html.theme-ready body *:not(svg):not(path):not(circle):not(line):not(polyline):n
   .shadow-inset-panel {
     box-shadow: var(--color-inset-glow);
   }
+
+  /* Soft black outline for light-on-light accent text */
+  .text-ink {
+    text-shadow: var(--text-ink-stroke, none);
+  }
+}
+
+/* Light theme: pale Tailwind accents get ink stroke + darker fallbacks */
+html.light .text-ink,
+html.light .text-muted,
+html.light .text-accent,
+html.light .text-emerald-100,
+html.light .text-emerald-100\/80,
+html.light .text-emerald-200,
+html.light .text-emerald-300,
+html.light .text-emerald-300\/90,
+html.light .text-emerald-300\/95,
+html.light .text-amber-100,
+html.light .text-amber-200,
+html.light .text-amber-200\/90,
+html.light .text-rose-100,
+html.light .text-rose-300,
+html.light .text-rose-300\/95,
+html.light .text-sky-100,
+html.light .text-sky-200,
+html.light .text-sky-300,
+html.light .text-sky-400,
+html.light .text-sky-400\/90,
+html.light .text-violet-200,
+html.light .text-fuchsia-200,
+html.light .text-red-200,
+html.light .text-orange-100,
+html.light .text-yellow-100,
+html.light .text-cyan-200 {
+  text-shadow: var(--text-ink-stroke);
+}
+
+html.light .text-emerald-100,
+html.light .text-emerald-100\/80 {
+  color: #065f46;
+}
+
+html.light .text-emerald-200,
+html.light .text-emerald-300,
+html.light .text-emerald-300\/90,
+html.light .text-emerald-300\/95 {
+  color: #047857;
+}
+
+html.light .text-amber-100,
+html.light .text-amber-200,
+html.light .text-amber-200\/90 {
+  color: #92400e;
+}
+
+html.light .text-rose-100,
+html.light .text-rose-300,
+html.light .text-rose-300\/95 {
+  color: #be123c;
+}
+
+html.light .text-sky-100,
+html.light .text-sky-200,
+html.light .text-sky-300,
+html.light .text-sky-400,
+html.light .text-sky-400\/90 {
+  color: #075985;
+}
+
+html.light .text-violet-200 {
+  color: #6d28d9;
+}
+
+html.light .text-fuchsia-200 {
+  color: #a21caf;
+}
+
+html.light .text-red-200 {
+  color: #b91c1c;
+}
+
+html.light .text-cyan-200 {
+  color: #0e7490;
+}
+
+html.light .text-emerald-800\/90 {
+  color: #065f46;
+}
+
+html.light .text-emerald-900 {
+  color: #064e3b;
+}
+
+html.light .border-amber-500\/25 {
+  border-color: rgba(180, 83, 9, 0.45);
+}
+
+html.light .bg-amber-500\/\[0\.07\] {
+  background-color: rgba(251, 191, 36, 0.28);
+}
+
+html.light .bg-emerald-500\/10,
+html.light .bg-emerald-500\/15 {
+  background-color: rgba(16, 185, 129, 0.18);
+}
+
+html.light .border-emerald-500\/25 {
+  border-color: rgba(5, 150, 105, 0.4);
 }
 
 /* Custom scrollbar */

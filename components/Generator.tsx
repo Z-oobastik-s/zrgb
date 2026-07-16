@@ -783,7 +783,7 @@ export function Generator() {
         />
 
         {yamlLinkedFieldId ? (
-          <p className="shrink-0 text-[10px] leading-snug text-sky-400/90">
+          <p className="shrink-0 text-[10px] leading-snug text-ink text-sky-800 dark:text-sky-400/90">
             {t('yamlPreviewLinked', { path: yamlLinkedPath })}
           </p>
         ) : null}
@@ -851,9 +851,9 @@ export function Generator() {
         {/* Colors */}
         <div className="panel flex min-h-0 min-w-0 flex-col gap-1.5 overflow-hidden rounded-xl border border-edge bg-panel p-2.5">
           <div className="flex shrink-0 items-center justify-between gap-2">
-            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted">
-              {t('columnColors')}
-            </h2>
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted text-ink">
+            {t('columnColors')}
+          </h2>
             <div className="flex items-center gap-2 text-[10px] text-muted">
               <div className="flex items-center gap-0.5" title={t('charsPerColor')}>
                 <span className="mr-0.5 hidden sm:inline">{t('charsPerColorShort')}</span>
@@ -1085,7 +1085,7 @@ export function Generator() {
 
         {/* Output */}
         <div className="panel flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto rounded-xl border border-edge bg-panel p-3">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted text-ink">
             {t('columnOutput')}
           </h2>
 
