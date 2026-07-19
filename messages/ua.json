@@ -6,7 +6,12 @@
     "year": "2026",
     "loading": "Завантаження...",
     "themeLight": "Світла тема",
-    "themeDark": "Темна тема"
+    "themeDark": "Темна тема",
+    "statsVisits": "Візитів",
+    "statsOnline": "Онлайн",
+    "statsVisitsHint": "Скільки разів відкривали сайт (раз за вкладку)",
+    "statsOnlineHint": "Скільки людей зараз на сайті",
+    "statsNeedConfig": "Лічильник: додай Firebase ключі в .env.local"
   },
   "nav": {
     "generator": "Генератор",

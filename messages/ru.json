@@ -6,7 +6,12 @@
     "year": "2026",
     "loading": "Загрузка...",
     "themeLight": "Светлая тема",
-    "themeDark": "Тёмная тема"
+    "themeDark": "Тёмная тема",
+    "statsVisits": "Визитов",
+    "statsOnline": "Онлайн",
+    "statsVisitsHint": "Сколько раз открывали сайт (уникально за вкладку)",
+    "statsOnlineHint": "Сколько человек сейчас на сайте",
+    "statsNeedConfig": "Счётчик: добавь Firebase ключи в .env.local"
   },
   "nav": {
     "generator": "Генератор",

@@ -6,7 +6,12 @@
     "year": "2026",
     "loading": "Loading...",
     "themeLight": "Light theme",
-    "themeDark": "Dark theme"
+    "themeDark": "Dark theme",
+    "statsVisits": "Visits",
+    "statsOnline": "Online",
+    "statsVisitsHint": "How many times the site was opened (once per tab)",
+    "statsOnlineHint": "People currently on the site",
+    "statsNeedConfig": "Stats: add Firebase keys to .env.local"
   },
   "nav": {
     "generator": "Generator",

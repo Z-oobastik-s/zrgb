@@ -3,6 +3,7 @@
 import { useState, useEffect, type ReactNode } from 'react'
 import { NextIntlClientProvider } from 'next-intl'
 import { Header } from '@/components/Header'
+import { VisitorStatsFooter } from '@/components/VisitorStatsFooter'
 import type messagesRu from '@/messages/ru.json'
 import ruPkg from '@/messages/ru.json'
 import enPkg from '@/messages/en.json'
@@ -119,6 +120,7 @@ export function SiteProviders({ children }: { children: ReactNode }) {
           }}
         />
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <VisitorStatsFooter />
       </div>
     </NextIntlClientProvider>
   )
