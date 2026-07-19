@@ -11,21 +11,25 @@ import {
   query,
   where,
   deleteDoc,
-  serverTimestamp,
   type Firestore,
 } from 'firebase/firestore'
 
-/** Project: zgbminecraft — fill via NEXT_PUBLIC_FIREBASE_* or defaults below. */
+/** Project: zgbminecraft — web config is public by design; protect data via Firestore Rules. */
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? '',
+  apiKey:
+    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ??
+    'AIzaSyC_TS4slOoQyAjnwsK29n0o5Pq0EiURoN4',
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ?? 'zgbminecraft.firebaseapp.com',
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? 'zgbminecraft',
   storageBucket:
     process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ??
     'zgbminecraft.firebasestorage.app',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID ?? '',
+  messagingSenderId:
+    process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID ?? '429823486179',
+  appId:
+    process.env.NEXT_PUBLIC_FIREBASE_APP_ID ??
+    '1:429823486179:web:1140eafe78e88fbcfefdd6',
 }
 
 const STATS_COLLECTION = 'site'
@@ -84,11 +88,10 @@ export async function recordVisitOnce(): Promise<number | null> {
     if (!already) {
       const snap = await getDoc(ref)
       if (!snap.exists()) {
-        await setDoc(ref, { visits: 1, updatedAt: serverTimestamp() })
+        await setDoc(ref, { visits: 1 })
       } else {
         await updateDoc(ref, {
           visits: increment(1),
-          updatedAt: serverTimestamp(),
         })
       }
       sessionStorage.setItem(VISIT_SESSION_KEY, '1')
@@ -123,7 +126,6 @@ export async function heartbeatPresence(sessionId: string): Promise<void> {
       doc(firestore, PRESENCE_COLLECTION, sessionId),
       {
         lastSeen: Date.now(),
-        updatedAt: serverTimestamp(),
       },
       { merge: true }
     )
