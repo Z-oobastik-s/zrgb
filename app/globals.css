@@ -209,6 +209,21 @@ html.light .border-emerald-500\/25 {
   -webkit-font-smoothing: none;
 }
 
+/* TAB frame preview: room for tall pixel glyphs, bold, combining marks (̷, etc.) */
+.tab-frame-preview {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 2.4;
+  padding-block: 0.35em;
+  overflow: visible;
+  white-space: pre;
+  vertical-align: middle;
+}
+
+.tab-frame-preview span {
+  overflow: visible;
+}
+
 html.light .minecraft-pixel-preview {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.65), 1px 1px 0 rgba(0, 0, 0, 0.25);
 }

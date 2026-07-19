@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Check, Copy, Pause, Play, X } from 'lucide-react'
 import { hexToRgb, rgbToHexString, type RGBColor } from '@/lib/rgb-generator'
 import {
-  TAB_ANIM_MODES,
+  TAB_ANIM_CATEGORIES,
   generateTabFrames,
   generateTabYaml,
   parseTabFramePreview,
@@ -253,27 +253,41 @@ export function TabGeneratorView() {
             />
           </label>
 
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
-              {t('mode')}
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {TAB_ANIM_MODES.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => {
-                    clearTemplate()
-                    setMode(m)
-                  }}
-                  className={`rounded-md border px-2 py-1 text-[10px] transition ${
-                    !templateLocked && mode === m
-                      ? 'border-sky-500/50 bg-accent-soft text-accent'
-                      : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
-                  }`}
-                >
-                  {t(`modes.${m}`)}
-                </button>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
+                {t('mode')}
+              </span>
+              <span className="text-[10px] tabular-nums text-muted">
+                {t('modeCount', { count: TAB_ANIM_CATEGORIES.reduce((n, c) => n + c.modes.length, 0) })}
+              </span>
+            </div>
+            <div className="flex max-h-[14rem] flex-col gap-2 overflow-y-auto pr-0.5 sm:max-h-[16rem]">
+              {TAB_ANIM_CATEGORIES.map((cat) => (
+                <div key={cat.id} className="flex flex-col gap-1">
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/80">
+                    {t(`categories.${cat.id}`)}
+                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {cat.modes.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => {
+                          clearTemplate()
+                          setMode(m)
+                        }}
+                        className={`rounded-md border px-2 py-1 text-[10px] transition ${
+                          !templateLocked && mode === m
+                            ? 'border-sky-500/50 bg-accent-soft text-accent'
+                            : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
+                        }`}
+                      >
+                        {t(`modes.${m}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
             {!templateLocked && (
@@ -442,12 +456,12 @@ export function TabGeneratorView() {
             </div>
           </div>
 
-          <div className="flex min-h-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-5">
+          <div className="flex min-h-[6rem] shrink-0 items-center justify-center overflow-x-auto overflow-y-visible rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-6 sm:min-h-[6.5rem]">
             {previewSegments.length === 0 ? (
               <span className="text-[11px] text-zinc-500">{t('emptyPreview')}</span>
             ) : (
               <div
-                className={`minecraft-pixel-preview max-w-full overflow-x-auto text-center text-[13px] leading-relaxed sm:text-[15px] ${
+                className={`minecraft-pixel-preview tab-frame-preview max-w-full text-center text-[13px] sm:text-[15px] ${
                   previewSegments.some((s) => s.bold) ? 'font-bold' : ''
                 }`}
               >
