@@ -951,7 +951,15 @@ export function Generator() {
             value={outputText}
             readOnly
             placeholder={t('outputPlaceholder')}
-            className="box-border h-full w-full resize-none overflow-y-auto rounded-lg border border-edge-strong bg-input px-2 py-1.5 pb-9 font-mono text-[10px] leading-relaxed text-fg-soft outline-none"
+            title={outputText ? t('clickToCopy') : undefined}
+            onClick={() => {
+              if (outputText) void copyToClipboard()
+            }}
+            className={`box-border h-full w-full resize-none overflow-y-auto rounded-lg border border-edge-strong bg-input px-2 py-1.5 pb-9 font-mono text-[10px] leading-relaxed text-fg-soft outline-none transition ${
+              outputText
+                ? 'cursor-pointer hover:border-sky-500/50'
+                : 'cursor-default'
+            }`}
             aria-label={t('outputPlaceholder')}
           />
           <div className="pointer-events-auto absolute bottom-1.5 right-1.5 z-20 flex items-center gap-1">

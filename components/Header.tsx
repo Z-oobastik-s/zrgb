@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
-import { ALargeSmall, FlaskConical, Settings, Sparkles, Wand2 } from 'lucide-react'
+import { ALargeSmall, FlaskConical, LayoutList, Settings, Sparkles, Wand2 } from 'lucide-react'
 import type { AppTheme } from '@/lib/theme'
 
 interface HeaderProps {
@@ -35,10 +35,11 @@ export function Header({
   const path = usePathname() ?? ''
   const last = path.split('/').filter(Boolean).pop() ?? ''
   const isEnchant = last === 'enchant'
+  const isTab = last === 'tab'
   const isEffects = last === 'effects'
   const isSymbols = last === 'symbols'
   const isServer = last === 'server'
-  const isHome = !isEnchant && !isEffects && !isSymbols && !isServer
+  const isHome = !isEnchant && !isTab && !isEffects && !isSymbols && !isServer
 
   return (
     <header className="z-50 shrink-0 border-b border-edge bg-panel/95 backdrop-blur-sm">
@@ -65,6 +66,10 @@ export function Header({
           <Link href="/" className={navButtonClass(isHome)} title={tn('generator')}>
             <Wand2 className="h-3 w-3 shrink-0 opacity-90" />
             <span className="max-w-[5.5rem] truncate sm:max-w-none">{tn('generator')}</span>
+          </Link>
+          <Link href="/tab" className={navButtonClass(isTab)} title={tn('tab')}>
+            <LayoutList className="h-3 w-3 shrink-0 opacity-90" />
+            <span className="max-w-[5.5rem] truncate sm:max-w-none">{tn('tab')}</span>
           </Link>
           <Link href="/enchant" className={navButtonClass(isEnchant)} title={tn('enchant')}>
             <Sparkles className="h-3 w-3 shrink-0 opacity-90" />

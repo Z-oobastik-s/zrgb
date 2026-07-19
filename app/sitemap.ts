@@ -13,6 +13,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: absoluteUrl('/tab'),
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.95,
+    },
+    {
       url: absoluteUrl('/enchant'),
       lastModified,
       changeFrequency: 'weekly',
