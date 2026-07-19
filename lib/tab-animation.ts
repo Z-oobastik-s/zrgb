@@ -1,4 +1,9 @@
-import { rgbToHexString, type RGBColor } from '@/lib/rgb-generator'
+import {
+  hexToRgb,
+  lerpRgb,
+  rgbToHexString,
+  type RGBColor,
+} from '@/lib/rgb-generator'
 
 export type TabAnimMode =
   | 'wave'
@@ -215,4 +220,65 @@ export function generateTabYaml(opts: TabGeneratorOptions): string {
     opts.changeIntervalMs,
     generateTabFrames(opts)
   )
+}
+
+export type TabPreviewSegment = {
+  char: string
+  color: string
+  bold: boolean
+}
+
+const FORMAT_CODE_RE = /§[0-9a-fk-or]|§l|&[0-9a-fk-or]|&l/gi
+
+function pushPlainText(raw: string, out: TabPreviewSegment[]): void {
+  const bold = /§l|&l/i.test(raw)
+  const clean = raw.replace(FORMAT_CODE_RE, '')
+  for (const char of clean) {
+    if (char === '\n') continue
+    out.push({ char, color: '#e4e4e7', bold })
+  }
+}
+
+/**
+ * Parse a TAB frame (`<#aabbcc>…</#ddeeff>`, §l, &r) into colored preview chars.
+ */
+export function parseTabFramePreview(frame: string): TabPreviewSegment[] {
+  if (!frame || frame === '&r' || frame === '§r') return []
+
+  const out: TabPreviewSegment[] = []
+  const re = /<#([0-9a-fA-F]{6})>([\s\S]*?)<\/#([0-9a-fA-F]{6})>/gi
+  let last = 0
+  let m: RegExpExecArray | null
+
+  while ((m = re.exec(frame)) !== null) {
+    if (m.index > last) {
+      pushPlainText(frame.slice(last, m.index), out)
+    }
+    const start = hexToRgb(m[1]!)
+    const end = hexToRgb(m[3]!)
+    const raw = m[2] ?? ''
+    const bold = /§l|&l/i.test(raw)
+    const clean = raw.replace(FORMAT_CODE_RE, '')
+    const chars = [...clean]
+    if (start && end && chars.length > 0) {
+      for (let i = 0; i < chars.length; i++) {
+        const t = chars.length === 1 ? 0 : i / (chars.length - 1)
+        const c = lerpRgb(start, end, t)
+        out.push({
+          char: chars[i]!,
+          color: `#${rgbToHexString(c)}`,
+          bold,
+        })
+      }
+    } else {
+      pushPlainText(raw, out)
+    }
+    last = m.index + m[0].length
+  }
+
+  if (last < frame.length) {
+    pushPlainText(frame.slice(last), out)
+  }
+
+  return out
 }

@@ -8,6 +8,7 @@ import {
   TAB_ANIM_MODES,
   generateTabFrames,
   generateTabYaml,
+  parseTabFramePreview,
   type TabAnimMode,
   type TabGeneratorOptions,
 } from '@/lib/tab-animation'
@@ -141,6 +142,10 @@ export function TabGeneratorView() {
   }, [yaml])
 
   const previewFrame = frames[previewIndex] ?? ''
+  const previewSegments = useMemo(
+    () => parseTabFramePreview(previewFrame),
+    [previewFrame]
+  )
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
@@ -309,10 +314,29 @@ export function TabGeneratorView() {
             </div>
           </div>
 
-          <div className="flex min-h-[3.5rem] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-4">
-            <pre className="max-w-full overflow-x-auto whitespace-pre-wrap break-all font-mono text-[11px] leading-relaxed text-zinc-200">
-              {previewFrame || t('emptyPreview')}
-            </pre>
+          <div className="flex min-h-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/10 bg-[#0d0f14] px-3 py-5">
+            {previewSegments.length === 0 ? (
+              <span className="text-[11px] text-zinc-500">{t('emptyPreview')}</span>
+            ) : (
+              <div
+                className={`minecraft-pixel-preview max-w-full overflow-x-auto text-center text-[13px] leading-relaxed sm:text-[15px] ${
+                  previewSegments.some((s) => s.bold) ? 'font-bold' : ''
+                }`}
+              >
+                {previewSegments.map((seg, i) => (
+                  <span
+                    key={`${i}-${seg.char}`}
+                    className={seg.bold ? 'font-bold' : undefined}
+                    style={{
+                      color: seg.color,
+                      textShadow: '1px 1px 0 rgba(0,0,0,0.85)',
+                    }}
+                  >
+                    {seg.char === ' ' ? '\u00A0' : seg.char}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="relative min-h-0 flex-1">
