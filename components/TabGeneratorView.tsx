@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Check, Copy, Pause, Play } from 'lucide-react'
+import { Check, Copy, Pause, Play, X } from 'lucide-react'
 import { hexToRgb, rgbToHexString, type RGBColor } from '@/lib/rgb-generator'
 import {
   TAB_ANIM_MODES,
@@ -12,6 +12,11 @@ import {
   type TabAnimMode,
   type TabGeneratorOptions,
 } from '@/lib/tab-animation'
+import {
+  TAB_TEMPLATES,
+  type TabTemplate,
+  type TabTemplateId,
+} from '@/lib/tab-templates'
 
 const DEFAULT_A: RGBColor = { r: 251, g: 154, b: 39 }
 const DEFAULT_B: RGBColor = { r: 204, g: 253, b: 65 }
@@ -68,10 +73,33 @@ export function TabGeneratorView() {
   const [emptyLines, setEmptyLines] = useState(0)
   const [bold, setBold] = useState(false)
   const [lowercaseHex, setLowercaseHex] = useState(false)
+  const [customFrames, setCustomFrames] = useState<string[] | null>(null)
+  const [activeTemplate, setActiveTemplate] = useState<TabTemplateId | null>(
+    null
+  )
   const [copied, setCopied] = useState(false)
   const [previewPlaying, setPreviewPlaying] = useState(true)
   const [previewIndex, setPreviewIndex] = useState(0)
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearTemplate = useCallback(() => {
+    setCustomFrames(null)
+    setActiveTemplate(null)
+  }, [])
+
+  const applyTemplate = useCallback((tpl: TabTemplate) => {
+    setActiveTemplate(tpl.id)
+    setCustomFrames(tpl.frames)
+    setKeyName(tpl.keyName)
+    setText(tpl.text)
+    setMode(tpl.mode)
+    setColorA(tpl.colorA)
+    setColorB(tpl.colorB)
+    setColorHighlight(tpl.colorHighlight)
+    setIntervalMs(tpl.changeIntervalMs)
+    setBold(tpl.bold)
+    setEmptyLines(0)
+  }, [])
 
   const opts: TabGeneratorOptions = useMemo(
     () => ({
@@ -87,6 +115,7 @@ export function TabGeneratorView() {
       emptyLines,
       bold,
       lowercaseHex,
+      customFrames,
     }),
     [
       keyName,
@@ -101,15 +130,17 @@ export function TabGeneratorView() {
       emptyLines,
       bold,
       lowercaseHex,
+      customFrames,
     ]
   )
 
   const frames = useMemo(() => generateTabFrames(opts), [opts])
   const yaml = useMemo(() => generateTabYaml(opts), [opts])
+  const templateLocked = customFrames !== null
 
   useEffect(() => {
     setPreviewIndex(0)
-  }, [frames.length, mode, text])
+  }, [frames.length, mode, text, activeTemplate])
 
   useEffect(() => {
     if (!previewPlaying || frames.length === 0) return
@@ -157,6 +188,47 @@ export function TabGeneratorView() {
       <div className="grid min-h-0 flex-1 gap-2 overflow-hidden lg:grid-cols-2">
         {/* Controls */}
         <section className="panel flex min-h-0 flex-col gap-2 overflow-y-auto rounded-xl border border-edge bg-panel p-3 shadow-lg">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
+              {t('templates')}
+            </span>
+            <div className="flex flex-wrap gap-1">
+              {TAB_TEMPLATES.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => applyTemplate(tpl)}
+                  className={`rounded-md border px-2 py-1 text-[10px] transition ${
+                    activeTemplate === tpl.id
+                      ? 'border-amber-500/50 bg-amber-500/15 text-amber-200'
+                      : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
+                  }`}
+                >
+                  {t(`templateNames.${tpl.id}`)}
+                </button>
+              ))}
+              {templateLocked && (
+                <button
+                  type="button"
+                  onClick={clearTemplate}
+                  className="inline-flex items-center gap-0.5 rounded-md border border-edge-strong bg-muted-fill px-2 py-1 text-[10px] text-muted hover:bg-muted-hover hover:text-fg"
+                >
+                  <X className="h-3 w-3" />
+                  {t('clearTemplate')}
+                </button>
+              )}
+            </div>
+            {templateLocked ? (
+              <p className="text-[10px] leading-snug text-amber-200/80">
+                {t('templateActiveHint')}
+              </p>
+            ) : (
+              <p className="text-[10px] leading-snug text-muted">
+                {t('templatesHint')}
+              </p>
+            )}
+          </div>
+
           <label className="flex flex-col gap-0.5 text-[10px] text-muted">
             <span className="font-medium uppercase tracking-wide">{t('keyName')}</span>
             <input
@@ -171,8 +243,12 @@ export function TabGeneratorView() {
             <span className="font-medium uppercase tracking-wide">{t('text')}</span>
             <input
               value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="rounded-lg border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/50"
+              onChange={(e) => {
+                clearTemplate()
+                setText(e.target.value)
+              }}
+              disabled={templateLocked}
+              className="rounded-lg border border-edge-strong bg-input px-2 py-1.5 text-xs text-fg-soft outline-none focus:border-sky-500/50 disabled:opacity-60"
               spellCheck={false}
             />
           </label>
@@ -186,9 +262,12 @@ export function TabGeneratorView() {
                 <button
                   key={m}
                   type="button"
-                  onClick={() => setMode(m)}
+                  onClick={() => {
+                    clearTemplate()
+                    setMode(m)
+                  }}
                   className={`rounded-md border px-2 py-1 text-[10px] transition ${
-                    mode === m
+                    !templateLocked && mode === m
                       ? 'border-sky-500/50 bg-accent-soft text-accent'
                       : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
                   }`}
@@ -197,16 +276,39 @@ export function TabGeneratorView() {
                 </button>
               ))}
             </div>
-            <p className="text-[10px] leading-snug text-muted">{t(`modeHint.${mode}`)}</p>
+            {!templateLocked && (
+              <p className="text-[10px] leading-snug text-muted">
+                {t(`modeHint.${mode}`)}
+              </p>
+            )}
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-3">
-            <ColorField label={t('colorA')} color={colorA} onChange={setColorA} />
-            <ColorField label={t('colorB')} color={colorB} onChange={setColorB} />
+          <div
+            className={`grid gap-2 sm:grid-cols-3 ${templateLocked ? 'pointer-events-none opacity-50' : ''}`}
+          >
+            <ColorField
+              label={t('colorA')}
+              color={colorA}
+              onChange={(c) => {
+                clearTemplate()
+                setColorA(c)
+              }}
+            />
+            <ColorField
+              label={t('colorB')}
+              color={colorB}
+              onChange={(c) => {
+                clearTemplate()
+                setColorB(c)
+              }}
+            />
             <ColorField
               label={t('colorHighlight')}
               color={colorHighlight}
-              onChange={setColorHighlight}
+              onChange={(c) => {
+                clearTemplate()
+                setColorHighlight(c)
+              }}
             />
           </div>
 
@@ -224,7 +326,9 @@ export function TabGeneratorView() {
                 className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50"
               />
             </label>
-            <label className="flex flex-col gap-0.5 text-[10px] text-muted">
+            <label
+              className={`flex flex-col gap-0.5 text-[10px] text-muted ${templateLocked ? 'opacity-50' : ''}`}
+            >
               <span className="font-medium uppercase tracking-wide">
                 {t('holdFrames')}
               </span>
@@ -233,11 +337,17 @@ export function TabGeneratorView() {
                 min={0}
                 max={120}
                 value={holdFrames}
-                onChange={(e) => setHoldFrames(Number(e.target.value) || 0)}
-                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50"
+                disabled={templateLocked}
+                onChange={(e) => {
+                  clearTemplate()
+                  setHoldFrames(Number(e.target.value) || 0)
+                }}
+                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50 disabled:opacity-60"
               />
             </label>
-            <label className="flex flex-col gap-0.5 text-[10px] text-muted">
+            <label
+              className={`flex flex-col gap-0.5 text-[10px] text-muted ${templateLocked ? 'opacity-50' : ''}`}
+            >
               <span className="font-medium uppercase tracking-wide">
                 {t('staticRepeats')}
               </span>
@@ -246,11 +356,17 @@ export function TabGeneratorView() {
                 min={1}
                 max={60}
                 value={staticRepeats}
-                onChange={(e) => setStaticRepeats(Number(e.target.value) || 1)}
-                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50"
+                disabled={templateLocked}
+                onChange={(e) => {
+                  clearTemplate()
+                  setStaticRepeats(Number(e.target.value) || 1)
+                }}
+                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50 disabled:opacity-60"
               />
             </label>
-            <label className="flex flex-col gap-0.5 text-[10px] text-muted">
+            <label
+              className={`flex flex-col gap-0.5 text-[10px] text-muted ${templateLocked ? 'opacity-50' : ''}`}
+            >
               <span className="font-medium uppercase tracking-wide">
                 {t('emptyLines')}
               </span>
@@ -259,18 +375,27 @@ export function TabGeneratorView() {
                 min={0}
                 max={20}
                 value={emptyLines}
-                onChange={(e) => setEmptyLines(Number(e.target.value) || 0)}
-                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50"
+                disabled={templateLocked}
+                onChange={(e) => {
+                  clearTemplate()
+                  setEmptyLines(Number(e.target.value) || 0)
+                }}
+                className="rounded border border-edge-strong bg-input px-2 py-1.5 font-mono text-[11px] text-fg-soft outline-none focus:border-sky-500/50 disabled:opacity-60"
               />
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-3 text-[11px] text-muted">
+          <div
+            className={`flex flex-wrap gap-3 text-[11px] text-muted ${templateLocked ? 'pointer-events-none opacity-50' : ''}`}
+          >
             <label className="inline-flex cursor-pointer items-center gap-1.5">
               <input
                 type="checkbox"
                 checked={bold}
-                onChange={(e) => setBold(e.target.checked)}
+                onChange={(e) => {
+                  clearTemplate()
+                  setBold(e.target.checked)
+                }}
                 className="rounded border-edge-strong bg-input text-sky-500"
               />
               {t('bold')}
@@ -279,7 +404,10 @@ export function TabGeneratorView() {
               <input
                 type="checkbox"
                 checked={lowercaseHex}
-                onChange={(e) => setLowercaseHex(e.target.checked)}
+                onChange={(e) => {
+                  clearTemplate()
+                  setLowercaseHex(e.target.checked)
+                }}
                 className="rounded border-edge-strong bg-input text-sky-500"
               />
               {t('lowercaseHex')}

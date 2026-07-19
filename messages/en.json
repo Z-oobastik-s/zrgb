@@ -27,10 +27,25 @@
     "keyName": "Key (block name)",
     "text": "Text",
     "mode": "Animation",
+    "templates": "Ready templates",
+    "templatesHint": "Load a full frame sequence (Telegram glow, server name, Satan…).",
+    "templateActiveHint": "Template frames are locked. Clear the template or pick an animation mode to generate from your text.",
+    "clearTemplate": "Clear",
+    "templateNames": {
+      "web1": "Telegram glow",
+      "server_name": "Server name",
+      "satan": "Satan"
+    },
     "modes": {
       "wave": "Wave",
       "wave_bounce": "Wave bounce",
+      "middle_out": "Middle out",
+      "glow": "Glow trail",
+      "glow_fill": "Glow fill",
       "typewriter": "Typewriter",
+      "strike_reveal": "Strike reveal",
+      "corrupt": "Corrupt",
+      "rainbow": "Rainbow",
       "blink": "Blink",
       "static": "Static",
       "flash": "Flash"
@@ -38,7 +53,13 @@
     "modeHint": {
       "wave": "Highlight runs across letters, then holds on the full line.",
       "wave_bounce": "Wave forward and back.",
+      "middle_out": "Highlight expands from the center letter.",
+      "glow": "MiniMessage glow: {#accent} + per-letter sweep (like Telegram).",
+      "glow_fill": "Accent fills the word from left to right.",
       "typewriter": "Text appears character by character.",
+      "strike_reveal": "Strikethrough clears letter by letter.",
+      "corrupt": "☠ spreads from the center, then clears.",
+      "rainbow": "Per-letter hue shift loop.",
       "blink": "Alternate base and accent colors.",
       "static": "Repeated identical frames + optional empty &r lines.",
       "flash": "Short accent flash, then hold."
