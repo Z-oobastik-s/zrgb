@@ -7,9 +7,9 @@
     "loading": "Завантаження...",
     "themeLight": "Світла тема",
     "themeDark": "Темна тема",
-    "statsVisits": "Візитів",
+    "statsVisits": "Відвідувачів",
     "statsOnline": "Онлайн",
-    "statsVisitsHint": "Скільки разів відкривали сайт (раз за вкладку)",
+    "statsVisitsHint": "Унікальні браузери (повторне відкриття з того ж ПК не рахується)",
     "statsOnlineHint": "Скільки людей зараз на сайті",
     "statsNeedConfig": "Лічильник: додай Firebase ключі в .env.local"
   },

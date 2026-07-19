@@ -7,9 +7,9 @@
     "loading": "Loading...",
     "themeLight": "Light theme",
     "themeDark": "Dark theme",
-    "statsVisits": "Visits",
+    "statsVisits": "Visitors",
     "statsOnline": "Online",
-    "statsVisitsHint": "How many times the site was opened (once per tab)",
+    "statsVisitsHint": "Unique browsers (reopening from the same PC does not count again)",
     "statsOnlineHint": "People currently on the site",
     "statsNeedConfig": "Stats: add Firebase keys to .env.local"
   },

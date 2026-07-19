@@ -7,9 +7,9 @@
     "loading": "Загрузка...",
     "themeLight": "Светлая тема",
     "themeDark": "Тёмная тема",
-    "statsVisits": "Визитов",
+    "statsVisits": "Посетителей",
     "statsOnline": "Онлайн",
-    "statsVisitsHint": "Сколько раз открывали сайт (уникально за вкладку)",
+    "statsVisitsHint": "Уникальные браузеры (повторное открытие с того же ПК не считается)",
     "statsOnlineHint": "Сколько человек сейчас на сайте",
     "statsNeedConfig": "Счётчик: добавь Firebase ключи в .env.local"
   },

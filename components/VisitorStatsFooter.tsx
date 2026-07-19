@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Eye, Users } from 'lucide-react'
 import {
-  getOrCreateSessionId,
+  cleanupStalePresence,
+  getOrCreatePresenceId,
   heartbeatPresence,
   isFirebaseConfigured,
   leavePresence,
   PRESENCE_HEARTBEAT_MS,
-  recordVisitOnce,
+  recordUniqueVisitorOnce,
   subscribeVisitorStats,
 } from '@/lib/firebase-visitor-stats'
 
@@ -27,35 +28,39 @@ export function VisitorStatsFooter() {
   useEffect(() => {
     if (!configured) return
 
-    const sessionId = getOrCreateSessionId()
+    const presenceId = getOrCreatePresenceId()
     let stopped = false
 
     void (async () => {
-      const v = await recordVisitOnce()
+      await cleanupStalePresence()
+      const v = await recordUniqueVisitorOnce()
       if (!stopped && v !== null) setVisits(v)
-      await heartbeatPresence(sessionId)
+      await heartbeatPresence(presenceId)
     })()
 
     const unsub = subscribeVisitorStats((stats) => {
       if (stats.visits !== null) setVisits(stats.visits)
-      if (stats.online !== null) setOnline(Math.max(1, stats.online))
+      if (stats.online !== null) setOnline(stats.online)
     })
 
     const beat = window.setInterval(() => {
-      void heartbeatPresence(sessionId)
+      void heartbeatPresence(presenceId)
+      void cleanupStalePresence()
     }, PRESENCE_HEARTBEAT_MS)
 
     const onLeave = () => {
-      void leavePresence(sessionId)
+      void leavePresence(presenceId)
     }
     window.addEventListener('pagehide', onLeave)
+    window.addEventListener('beforeunload', onLeave)
 
     return () => {
       stopped = true
       unsub()
       window.clearInterval(beat)
       window.removeEventListener('pagehide', onLeave)
-      void leavePresence(sessionId)
+      window.removeEventListener('beforeunload', onLeave)
+      void leavePresence(presenceId)
     }
   }, [configured])
 

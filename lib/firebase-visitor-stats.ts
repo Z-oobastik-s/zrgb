@@ -10,6 +10,7 @@ import {
   collection,
   query,
   where,
+  getDocs,
   deleteDoc,
   type Firestore,
 } from 'firebase/firestore'
@@ -35,11 +36,13 @@ const firebaseConfig = {
 const STATS_COLLECTION = 'site'
 const STATS_DOC_ID = 'stats'
 const PRESENCE_COLLECTION = 'presence'
-/** Consider a visitor online if heartbeat is newer than this. */
-export const ONLINE_TTL_MS = 60_000
-const HEARTBEAT_MS = 25_000
-const VISIT_SESSION_KEY = 'zrgb-visit-counted'
-const SESSION_ID_KEY = 'zrgb-presence-id'
+/** Online if heartbeat newer than this. */
+export const ONLINE_TTL_MS = 45_000
+const HEARTBEAT_MS = 20_000
+/** Once per browser (survives close/reopen). */
+const VISIT_DONE_KEY = 'zrgb-unique-visitor-done'
+/** Stable presence id for this browser — one tab-spam ≠ many online. */
+const PRESENCE_ID_KEY = 'zrgb-presence-id'
 
 let app: FirebaseApp | null = null
 let db: Firestore | null = null
@@ -65,68 +68,72 @@ function randomId(): string {
   return `s-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
 }
 
-export function getOrCreateSessionId(): string {
+/** Same browser always reuses one presence document. */
+export function getOrCreatePresenceId(): string {
   try {
-    const existing = sessionStorage.getItem(SESSION_ID_KEY)
+    const existing = localStorage.getItem(PRESENCE_ID_KEY)
     if (existing) return existing
     const id = randomId()
-    sessionStorage.setItem(SESSION_ID_KEY, id)
+    localStorage.setItem(PRESENCE_ID_KEY, id)
     return id
   } catch {
     return randomId()
   }
 }
 
-/** Increment total visits once per browser tab session. */
-export async function recordVisitOnce(): Promise<number | null> {
+/** Count unique browser once — closing/reopening does NOT add another visit. */
+export async function recordUniqueVisitorOnce(): Promise<number | null> {
   const firestore = getDb()
   if (!firestore) return null
 
   try {
-    const already = sessionStorage.getItem(VISIT_SESSION_KEY)
     const ref = doc(firestore, STATS_COLLECTION, STATS_DOC_ID)
+    const already = localStorage.getItem(VISIT_DONE_KEY)
+
     if (!already) {
       const snap = await getDoc(ref)
       if (!snap.exists()) {
         await setDoc(ref, { visits: 1 })
       } else {
-        await updateDoc(ref, {
-          visits: increment(1),
-        })
+        await updateDoc(ref, { visits: increment(1) })
       }
-      sessionStorage.setItem(VISIT_SESSION_KEY, '1')
+      localStorage.setItem(VISIT_DONE_KEY, '1')
     }
+
     const after = await getDoc(ref)
     const visits = after.data()?.visits
     return typeof visits === 'number' ? visits : null
   } catch (err) {
-    console.warn('[visitor-stats] recordVisitOnce failed', err)
+    console.warn('[visitor-stats] recordUniqueVisitorOnce failed', err)
     return null
   }
 }
 
-export async function readVisits(): Promise<number | null> {
+/** Remove ghost sessions left after crash / closed tab without pagehide. */
+export async function cleanupStalePresence(): Promise<void> {
   const firestore = getDb()
-  if (!firestore) return null
+  if (!firestore) return
   try {
-    const snap = await getDoc(doc(firestore, STATS_COLLECTION, STATS_DOC_ID))
-    const visits = snap.data()?.visits
-    return typeof visits === 'number' ? visits : 0
-  } catch {
-    return null
+    const stale = await getDocs(
+      query(
+        collection(firestore, PRESENCE_COLLECTION),
+        where('lastSeen', '<', Date.now() - ONLINE_TTL_MS)
+      )
+    )
+    await Promise.all(stale.docs.map((d) => deleteDoc(d.ref)))
+  } catch (err) {
+    console.warn('[visitor-stats] cleanup failed', err)
   }
 }
 
-/** Heartbeat: mark this session as online. */
-export async function heartbeatPresence(sessionId: string): Promise<void> {
+/** Heartbeat: mark this browser as online. */
+export async function heartbeatPresence(presenceId: string): Promise<void> {
   const firestore = getDb()
   if (!firestore) return
   try {
     await setDoc(
-      doc(firestore, PRESENCE_COLLECTION, sessionId),
-      {
-        lastSeen: Date.now(),
-      },
+      doc(firestore, PRESENCE_COLLECTION, presenceId),
+      { lastSeen: Date.now() },
       { merge: true }
     )
   } catch (err) {
@@ -134,11 +141,11 @@ export async function heartbeatPresence(sessionId: string): Promise<void> {
   }
 }
 
-export async function leavePresence(sessionId: string): Promise<void> {
+export async function leavePresence(presenceId: string): Promise<void> {
   const firestore = getDb()
   if (!firestore) return
   try {
-    await deleteDoc(doc(firestore, PRESENCE_COLLECTION, sessionId))
+    await deleteDoc(doc(firestore, PRESENCE_COLLECTION, presenceId))
   } catch {
     /* ignore */
   }
@@ -149,10 +156,6 @@ export type VisitorStatsSnapshot = {
   online: number | null
 }
 
-/**
- * Subscribe to visits + online count.
- * Online = presence docs with lastSeen within ONLINE_TTL_MS.
- */
 export function subscribeVisitorStats(
   onChange: (stats: VisitorStatsSnapshot) => void
 ): () => void {
