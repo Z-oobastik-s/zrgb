@@ -136,12 +136,12 @@
     "copy": "Copy",
     "copied": "Copied!",
     "categories": {
-      "highlight": "Highlight",
+      "highlight": "Waves",
       "glow": "Glow",
-      "build": "Build / erase",
-      "fx": "Effects",
+      "build": "Build",
+      "fx": "FX",
       "color": "Color",
-      "motion": "Motion"
+      "motion": "Move"
     },
     "modeCount": "{count} modes"
   },

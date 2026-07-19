@@ -136,10 +136,10 @@
     "copy": "Скопіювати",
     "copied": "Скопійовано!",
     "categories": {
-      "highlight": "Підсвітка",
+      "highlight": "Хвилі",
       "glow": "Glow",
-      "build": "Набір / стирання",
-      "fx": "Ефекти",
+      "build": "Набір",
+      "fx": "FX",
       "color": "Колір",
       "motion": "Рух"
     },

@@ -9,6 +9,7 @@ import {
   generateTabFrames,
   generateTabYaml,
   parseTabFramePreview,
+  type TabAnimCategoryId,
   type TabAnimMode,
   type TabGeneratorOptions,
 } from '@/lib/tab-animation'
@@ -21,6 +22,14 @@ import {
 const DEFAULT_A: RGBColor = { r: 251, g: 154, b: 39 }
 const DEFAULT_B: RGBColor = { r: 204, g: 253, b: 65 }
 const DEFAULT_H: RGBColor = { r: 255, g: 155, b: 38 }
+
+const MODE_TOTAL = TAB_ANIM_CATEGORIES.reduce((n, c) => n + c.modes.length, 0)
+
+function categoryForMode(mode: TabAnimMode): TabAnimCategoryId {
+  return (
+    TAB_ANIM_CATEGORIES.find((c) => c.modes.includes(mode))?.id ?? 'highlight'
+  )
+}
 
 function ColorField({
   label,
@@ -64,6 +73,8 @@ export function TabGeneratorView() {
   const [keyName, setKeyName] = useState('balance')
   const [text, setText] = useState('Баланс⋗')
   const [mode, setMode] = useState<TabAnimMode>('wave')
+  const [modeCategory, setModeCategory] =
+    useState<TabAnimCategoryId>('highlight')
   const [colorA, setColorA] = useState<RGBColor>(DEFAULT_A)
   const [colorB, setColorB] = useState<RGBColor>(DEFAULT_B)
   const [colorHighlight, setColorHighlight] = useState<RGBColor>(DEFAULT_H)
@@ -93,6 +104,7 @@ export function TabGeneratorView() {
     setKeyName(tpl.keyName)
     setText(tpl.text)
     setMode(tpl.mode)
+    setModeCategory(categoryForMode(tpl.mode))
     setColorA(tpl.colorA)
     setColorB(tpl.colorB)
     setColorHighlight(tpl.colorHighlight)
@@ -100,6 +112,21 @@ export function TabGeneratorView() {
     setBold(tpl.bold)
     setEmptyLines(0)
   }, [])
+
+  const selectMode = useCallback(
+    (m: TabAnimMode) => {
+      clearTemplate()
+      setMode(m)
+      setModeCategory(categoryForMode(m))
+    },
+    [clearTemplate]
+  )
+
+  const categoryModes = useMemo(
+    () =>
+      TAB_ANIM_CATEGORIES.find((c) => c.id === modeCategory)?.modes ?? [],
+    [modeCategory]
+  )
 
   const opts: TabGeneratorOptions = useMemo(
     () => ({
@@ -253,41 +280,45 @@ export function TabGeneratorView() {
             />
           </label>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-[10px] font-medium uppercase tracking-wide text-muted">
                 {t('mode')}
               </span>
               <span className="text-[10px] tabular-nums text-muted">
-                {t('modeCount', { count: TAB_ANIM_CATEGORIES.reduce((n, c) => n + c.modes.length, 0) })}
+                {t('modeCount', { count: MODE_TOTAL })}
               </span>
             </div>
-            <div className="flex max-h-[14rem] flex-col gap-2 overflow-y-auto pr-0.5 sm:max-h-[16rem]">
+            <div className="flex flex-wrap gap-0.5 rounded-lg border border-edge-strong bg-muted-fill/50 p-0.5">
               {TAB_ANIM_CATEGORIES.map((cat) => (
-                <div key={cat.id} className="flex flex-col gap-1">
-                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/80">
-                    {t(`categories.${cat.id}`)}
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {cat.modes.map((m) => (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => {
-                          clearTemplate()
-                          setMode(m)
-                        }}
-                        className={`rounded-md border px-2 py-1 text-[10px] transition ${
-                          !templateLocked && mode === m
-                            ? 'border-sky-500/50 bg-accent-soft text-accent'
-                            : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
-                        }`}
-                      >
-                        {t(`modes.${m}`)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setModeCategory(cat.id)}
+                  className={`rounded-md px-1.5 py-1 text-[9px] font-medium uppercase tracking-wide transition sm:px-2 sm:text-[10px] ${
+                    modeCategory === cat.id
+                      ? 'bg-panel text-fg shadow-sm'
+                      : 'text-muted hover:text-fg'
+                  }`}
+                >
+                  {t(`categories.${cat.id}`)}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {categoryModes.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => selectMode(m)}
+                  className={`rounded-md border px-2 py-0.5 text-[10px] transition ${
+                    !templateLocked && mode === m
+                      ? 'border-sky-500/50 bg-accent-soft text-accent'
+                      : 'border-edge-strong bg-muted-fill text-muted hover:bg-muted-hover hover:text-fg'
+                  }`}
+                >
+                  {t(`modes.${m}`)}
+                </button>
               ))}
             </div>
             {!templateLocked && (
