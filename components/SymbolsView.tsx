@@ -32,15 +32,9 @@ function symbolKey(sym: string, index: number): string {
   return `${index}-${cps}`
 }
 
-/** Horizontal chip/row scroll: wheel, trackpad, drag — no visible scrollbar. */
+/** Horizontal chip/row scroll via wheel/trackpad — no visible scrollbar. */
 function useHiddenHorizontalScroll<T extends HTMLElement>() {
   const ref = useRef<T | null>(null)
-  const dragRef = useRef<{
-    active: boolean
-    startX: number
-    startScroll: number
-    moved: boolean
-  }>({ active: false, startX: 0, startScroll: 0, moved: false })
 
   useEffect(() => {
     const el = ref.current
@@ -53,74 +47,17 @@ function useHiddenHorizontalScroll<T extends HTMLElement>() {
       if (delta === 0) return
 
       const max = el.scrollWidth - el.clientWidth
-      const next = Math.min(max, Math.max(0, el.scrollLeft + delta))
       const canScroll =
         (delta > 0 && el.scrollLeft < max - 0.5) ||
         (delta < 0 && el.scrollLeft > 0.5)
       if (!canScroll) return
 
       e.preventDefault()
-      el.scrollLeft = next
-    }
-
-    const onPointerDown = (e: PointerEvent) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return
-      // Don't start drag from interactive controls in a broken way —
-      // still allow drag on the row; click still fires if not moved.
-      dragRef.current = {
-        active: true,
-        startX: e.clientX,
-        startScroll: el.scrollLeft,
-        moved: false,
-      }
-      el.setPointerCapture?.(e.pointerId)
-    }
-
-    const onPointerMove = (e: PointerEvent) => {
-      const d = dragRef.current
-      if (!d.active) return
-      const dx = e.clientX - d.startX
-      if (!d.moved && Math.abs(dx) > 4) d.moved = true
-      if (d.moved) {
-        el.scrollLeft = d.startScroll - dx
-        e.preventDefault()
-      }
-    }
-
-    const endDrag = (e: PointerEvent) => {
-      const d = dragRef.current
-      if (!d.active) return
-      d.active = false
-      try {
-        el.releasePointerCapture?.(e.pointerId)
-      } catch {
-        /* ignore */
-      }
-    }
-
-    const onClickCapture = (e: MouseEvent) => {
-      if (dragRef.current.moved) {
-        e.preventDefault()
-        e.stopPropagation()
-        dragRef.current.moved = false
-      }
+      el.scrollLeft = Math.min(max, Math.max(0, el.scrollLeft + delta))
     }
 
     el.addEventListener('wheel', onWheel, { passive: false })
-    el.addEventListener('pointerdown', onPointerDown)
-    el.addEventListener('pointermove', onPointerMove)
-    el.addEventListener('pointerup', endDrag)
-    el.addEventListener('pointercancel', endDrag)
-    el.addEventListener('click', onClickCapture, true)
-
-    return () => {
-      el.removeEventListener('wheel', onWheel)
-      el.removeEventListener('pointerdown', onPointerDown)
-      el.removeEventListener('pointermove', onPointerMove)
-      el.removeEventListener('pointerup', endDrag)
-      el.removeEventListener('pointercancel', endDrag)
-      el.removeEventListener('click', onClickCapture, true)
-    }
+    return () => el.removeEventListener('wheel', onWheel)
   }, [])
 
   return ref
@@ -261,7 +198,7 @@ export function SymbolsView() {
       <div className="flex shrink-0 items-center gap-2">
         <div
           ref={chipsScrollRef}
-          className="flex min-w-0 flex-1 cursor-grab gap-1.5 overflow-x-auto overscroll-x-contain pb-0.5 active:cursor-grabbing [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto overscroll-x-contain pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <button
             type="button"
