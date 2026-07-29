@@ -173,6 +173,7 @@
     "cat": {
       "all": "All",
       "popular": "Popular",
+      "frames": "Frames",
       "arrows": "Arrows",
       "stars": "Stars",
       "hearts": "Hearts & cards",
@@ -196,7 +197,9 @@
       "ancient": "Ancient",
       "cjk": "Asia",
       "other": "Other"
-    }
+    },
+    "popularHint": "Frequently copied symbols rise here automatically. Until you copy something, a starter set is shown.",
+    "framesHint": "Click a frame to copy the whole block (multi-line)."
   },
   "generator": {
     "inputPlaceholder": "Enter text...",

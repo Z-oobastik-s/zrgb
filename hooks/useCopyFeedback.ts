@@ -33,13 +33,14 @@ export function useCopyFeedback(duration = 1400) {
           /* ignore */
         }
       }
-      if (!ok) return
+      if (!ok) return false
       setCopiedId(text)
       if (timerRef.current) clearTimeout(timerRef.current)
       timerRef.current = setTimeout(() => {
         setCopiedId(null)
         timerRef.current = null
       }, duration)
+      return true
     },
     [duration]
   )

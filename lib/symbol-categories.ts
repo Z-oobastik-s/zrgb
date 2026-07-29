@@ -2,6 +2,7 @@ import { MINECRAFT_SYMBOLS } from '@/lib/minecraft-symbols'
 
 export const SYMBOL_CATEGORY_IDS = [
   'popular',
+  'frames',
   'arrows',
   'stars',
   'hearts',
@@ -34,8 +35,12 @@ export type SymbolCategoryGroup = {
   symbols: string[]
 }
 
-/** Curated head of the list — common picks for Minecraft nicks / MOTD. */
-const POPULAR_COUNT = 48
+/** Curated seed for Popular when the user has no copy history yet. */
+export const POPULAR_COUNT = 48
+export const DEFAULT_POPULAR_SYMBOLS: string[] = MINECRAFT_SYMBOLS.slice(
+  0,
+  POPULAR_COUNT
+)
 
 function cp(sym: string): number {
   return sym.codePointAt(0) ?? 0
@@ -243,30 +248,31 @@ export function categoryForSymbol(sym: string): SymbolCategoryId {
 }
 
 function buildGroups(): SymbolCategoryGroup[] {
-  const popular = MINECRAFT_SYMBOLS.slice(0, POPULAR_COUNT)
-  const popularSet = new Set(popular)
-  const buckets = new Map<Exclude<SymbolCategoryId, 'popular'>, string[]>()
+  // Popular + frames are assembled in the UI (recents / frame templates).
+  const skip = new Set<SymbolCategoryId>(['popular', 'frames'])
+  const buckets = new Map<Exclude<SymbolCategoryId, 'popular' | 'frames'>, string[]>()
 
   for (const id of SYMBOL_CATEGORY_IDS) {
-    if (id === 'popular') continue
-    buckets.set(id, [])
+    if (skip.has(id)) continue
+    buckets.set(id as Exclude<SymbolCategoryId, 'popular' | 'frames'>, [])
   }
 
   for (const sym of MINECRAFT_SYMBOLS) {
-    if (popularSet.has(sym)) continue
     const id = categoryForSymbol(sym)
-    buckets.get(id === 'popular' ? 'other' : id)!.push(sym)
+    const bucketId = id === 'popular' || id === 'frames' ? 'other' : id
+    buckets.get(bucketId)!.push(sym)
   }
 
-  const groups: SymbolCategoryGroup[] = [{ id: 'popular', symbols: popular }]
+  const groups: SymbolCategoryGroup[] = []
   for (const id of SYMBOL_CATEGORY_IDS) {
-    if (id === 'popular') continue
-    const symbols = buckets.get(id) ?? []
+    if (skip.has(id)) continue
+    const symbols = buckets.get(id as Exclude<SymbolCategoryId, 'popular' | 'frames'>) ?? []
     if (symbols.length) groups.push({ id, symbols })
   }
   return groups
 }
 
+/** Symbol groups excluding Popular and Frames (those are dynamic / special). */
 export const SYMBOL_GROUPS: SymbolCategoryGroup[] = buildGroups()
 
 export const ALL_SYMBOLS_COUNT = MINECRAFT_SYMBOLS.length
