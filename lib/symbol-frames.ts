@@ -168,6 +168,75 @@ export const SYMBOL_FRAMES: SymbolFrame[] = [
     id: 'pill-ends',
     text: '◖──────────────◗\n◖──────────────◗',
   },
+
+  // Floral / ornament bars
+  { id: 'floral-bar-1', text: '──❁•❁•❁──' },
+  { id: 'floral-bar-2', text: '──✿•✿•✿──' },
+  { id: 'floral-bar-3', text: '───✿◦✿◦✿───' },
+  { id: 'floral-bar-4', text: '───❀•❀•❀───' },
+  { id: 'floral-bar-5', text: '────❁ • ❁ • ❁────' },
+  { id: 'floral-bar-6', text: '───❃•❃•❃───' },
+  { id: 'floral-bar-7', text: '───❀◦❀◦❀───' },
+  { id: 'floral-bar-8', text: '───•❀•───' },
+  { id: 'floral-bar-9', text: '───«•❁•»───' },
+  { id: 'floral-bar-10', text: '───── »◦✿◦« ─────' },
+
+  // Floral boxed
+  {
+    id: 'floral-box-1',
+    text: '┌───── »◦❀◦« ─────┐\n└───── »◦❀◦« ─────┘',
+  },
+  {
+    id: 'floral-box-2',
+    text: '┎─────«•✿•»─────┒\n┖─────«•✿•»─────┚',
+  },
+  {
+    id: 'floral-box-3',
+    text: '┎─────« • ❁ • »─────┒\n┖─────« • ❁ • »─────┚',
+  },
+  {
+    id: 'floral-box-daisy',
+    text: '╔═.🌼.══════╗\n╚══════.🌼.═╝',
+  },
+  {
+    id: 'floral-box-4',
+    text: '┌─────❀◦❀◦❀─────┐\n└─────❀◦❀◦❀─────┘',
+  },
+
+  // Split / mirrored ornaments
+  {
+    id: 'split-flower-1',
+    text: '──────────❀◦∘\n∘◦❀──────────',
+  },
+  {
+    id: 'split-flower-2',
+    text: '•──────────•❁•\n•❁•──────────•',
+  },
+  {
+    id: 'split-flower-3',
+    text: '✿ -------------------- ✿\n----------------------- ✿',
+  },
+  {
+    id: 'split-flower-4',
+    text: '──────────❁◦•\n•◦❁──────────',
+  },
+
+  // Fancy dividers
+  { id: 'divider-lotus', text: '• ────── ✾ ────── •' },
+  { id: 'divider-eq-flower', text: '════ ∘◦❁◦∘ ════' },
+  { id: 'divider-sparkle-flower', text: '❈──────•°•°•❀•°°•──────❈' },
+  { id: 'divider-snow-flower', text: '≫──────°❅•❀•❅°──────≪' },
+  { id: 'divider-stars-eq', text: '═══════ ≪ •❈• ≫ ═══════' },
+  { id: 'divider-wave-flowers', text: '❀~✿ ❀~✿ ❀~✿ ❀~✿' },
+  {
+    id: 'divider-dot-flowers',
+    text: '❀.•° ✿.•° ❀.•° ✿.•°•.✿ °•.❀ °•.✿ °•.❀',
+  },
+  { id: 'divider-daisy-eq', text: '═════════.🌼.════════' },
+  { id: 'divider-heart-lace', text: '°.♡┈┈∘*┈୨୧┈*∘┈┈♡.°' },
+  { id: 'divider-heart-soft', text: '━━━━━━━ ∙ʚ♡ɞ∙ ━━━━━━━' },
+  { id: 'divider-heart-plain', text: '•───────♡───────•' },
+  { id: 'divider-daisy-dots', text: '┈┈┈┈┈┈┈🌼┈┈┈┈┈┈┈' },
 ]
 
 export const SYMBOL_FRAMES_COUNT = SYMBOL_FRAMES.length
