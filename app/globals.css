@@ -228,6 +228,14 @@ html.light .minecraft-pixel-preview {
   text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.65), 1px 1px 0 rgba(0, 0, 0, 0.25);
 }
 
+/* Symbol frames: readable monospace, no chunky pixel shadow clipping edges */
+.symbol-frame-preview {
+  font-family: ui-monospace, 'Cascadia Mono', 'Consolas', 'Courier New', monospace;
+  font-variant-ligatures: none;
+  text-shadow: none;
+  -webkit-font-smoothing: antialiased;
+}
+
 .mc-obfuscated {
   filter: blur(2px);
   user-select: none;

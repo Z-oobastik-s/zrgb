@@ -1,6 +1,13 @@
-'use client'
+﻿'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslations } from 'next-intl'
 import {
   ALL_SYMBOLS_COUNT,
@@ -23,6 +30,69 @@ function symbolKey(sym: string, index: number): string {
     .map((c) => c.codePointAt(0)!.toString(16))
     .join('-')
   return `${index}-${cps}`
+}
+
+function FrameCard({
+  text,
+  active,
+  copiedLabel,
+  copyLabel,
+  onCopy,
+}: {
+  text: string
+  active: boolean
+  copiedLabel: string
+  copyLabel: string
+  onCopy: () => void
+}) {
+  const shellRef = useRef<HTMLDivElement>(null)
+  const preRef = useRef<HTMLPreElement>(null)
+  const [scale, setScale] = useState(1)
+
+  useLayoutEffect(() => {
+    const shell = shellRef.current
+    const pre = preRef.current
+    if (!shell || !pre) return
+
+    const fit = () => {
+      pre.style.transform = 'scale(1)'
+      const pad = 8
+      const avail = Math.max(0, shell.clientWidth - pad)
+      const need = pre.scrollWidth
+      setScale(need > avail && avail > 0 ? avail / need : 1)
+    }
+
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(shell)
+    return () => ro.disconnect()
+  }, [text])
+
+  return (
+    <button
+      type="button"
+      title={active ? copiedLabel : copyLabel}
+      onClick={onCopy}
+      className={`flex min-h-[4.25rem] min-w-0 flex-col justify-center overflow-hidden rounded-lg border px-3 py-2.5 transition-colors ${
+        active
+          ? 'border-emerald-500/50 bg-emerald-500/20 ring-1 ring-emerald-400/40'
+          : 'border-edge bg-muted-fill hover:border-sky-500/40 hover:bg-sky-500/10'
+      }`}
+    >
+      <div
+        ref={shellRef}
+        className="flex w-full min-w-0 items-center justify-center overflow-hidden"
+      >
+        <pre
+          ref={preRef}
+          className="symbol-frame-preview m-0 max-w-none origin-center whitespace-pre text-center text-[11px] leading-[1.55] text-fg-soft sm:text-[12px]"
+          style={{ transform: `scale(${scale})` }}
+        >
+          {text}
+        </pre>
+      </div>
+    </button>
+  )
 }
 
 type FilterId = 'all' | SymbolCategoryId
@@ -66,8 +136,7 @@ export function SymbolsView() {
     return SYMBOL_GROUPS.filter((g) => g.id === filter)
   }, [filter, popularSymbols])
 
-  const showFrames =
-    filter === 'frames' || filter === 'all'
+  const showFrames = filter === 'frames' || filter === 'all'
 
   const shownCount = useMemo(() => {
     let n = visibleGroups.reduce((sum, g) => sum + g.symbols.length, 0)
@@ -221,27 +290,17 @@ export function SymbolsView() {
                       {t('framesHint')}
                     </p>
                   )}
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {SYMBOL_FRAMES.map((frame) => {
-                      const active = copiedId === frame.text
-                      return (
-                        <button
-                          key={frame.id}
-                          type="button"
-                          title={active ? t('copied') : t('copyHint')}
-                          onClick={() => void copy(frame.text)}
-                          className={`rounded-lg border px-2.5 py-2 text-left transition-colors ${
-                            active
-                              ? 'border-emerald-500/50 bg-emerald-500/20 ring-1 ring-emerald-400/40'
-                              : 'border-edge bg-muted-fill hover:border-sky-500/40 hover:bg-sky-500/10'
-                          }`}
-                        >
-                          <pre className="minecraft-pixel-preview overflow-x-auto whitespace-pre text-center text-[11px] leading-relaxed text-fg-soft sm:text-[12px]">
-                            {frame.text}
-                          </pre>
-                        </button>
-                      )
-                    })}
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    {SYMBOL_FRAMES.map((frame) => (
+                      <FrameCard
+                        key={frame.id}
+                        text={frame.text}
+                        active={copiedId === frame.text}
+                        copiedLabel={t('copied')}
+                        copyLabel={t('copyHint')}
+                        onCopy={() => void copy(frame.text)}
+                      />
+                    ))}
                   </div>
                 </section>
               ) : null}
