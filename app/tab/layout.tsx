@@ -1,34 +1,28 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { ogImages } from '@/components/SeoCrawlBlock'
+import { TAB_KEYWORDS } from '@/lib/seo-keywords'
 import { absoluteUrl } from '@/lib/site-url'
 
 const desc =
-  'TAB plugin animation generator: wave, typewriter, blink — YAML texts + change-interval. | Генератор анимаций для плагина TAB (YAML). | Генератор анімацій для плагіна TAB.'
+  'Генератор анимаций для плагина TAB: волна, glow, typewriter, радуга, YAML texts + change-interval. Готовые шаблоны. | TAB animation generator for Minecraft (YAML). | Генератор анімацій TAB (YAML).'
 
 export const metadata: Metadata = {
-  title: 'TAB animation generator',
+  title: 'Генератор анимаций TAB Minecraft',
   description: desc,
-  keywords: [
-    'TAB plugin',
-    'TAB animation',
-    'Minecraft TAB',
-    'TAB texts generator',
-    'change-interval',
-    'TAB YAML',
-    'генератор TAB',
-    'анимация TAB',
-    'плагин TAB',
-  ],
+  keywords: TAB_KEYWORDS,
   alternates: { canonical: absoluteUrl('/tab') },
   openGraph: {
-    title: 'TAB animation generator | RGB Minecraft',
+    title: 'Генератор анимаций TAB Minecraft | RGB Minecraft',
     description: desc,
     url: absoluteUrl('/tab'),
+    images: ogImages(),
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TAB animation generator | RGB Minecraft',
+    title: 'Генератор анимаций TAB Minecraft | RGB Minecraft',
     description: desc,
+    images: [absoluteUrl('/og.png')],
   },
 }
 

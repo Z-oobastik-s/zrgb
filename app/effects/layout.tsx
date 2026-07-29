@@ -1,25 +1,28 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { ogImages } from '@/components/SeoCrawlBlock'
 import { EFFECTS_KEYWORDS } from '@/lib/seo-keywords'
 import { absoluteUrl } from '@/lib/site-url'
 
 const desc =
-  'Minecraft status effect IDs for commands. Click to copy. | ID эффектов для команд. | ID ефектів для команд.'
+  'ID эффектов Minecraft для effect give и плагинов — клик копирует. | Minecraft status effect IDs for commands. | ID ефектів Minecraft для команд.'
 
 export const metadata: Metadata = {
-  title: 'Minecraft effect IDs',
+  title: 'ID эффектов Minecraft — список',
   description: desc,
   keywords: EFFECTS_KEYWORDS,
   alternates: { canonical: absoluteUrl('/effects') },
   openGraph: {
-    title: 'Minecraft effect IDs | RGB Minecraft',
+    title: 'ID эффектов Minecraft | RGB Minecraft',
     description: desc,
     url: absoluteUrl('/effects'),
+    images: ogImages(),
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Minecraft effect IDs | RGB Minecraft',
+    title: 'ID эффектов Minecraft | RGB Minecraft',
     description: desc,
+    images: [absoluteUrl('/og.png')],
   },
 }
 

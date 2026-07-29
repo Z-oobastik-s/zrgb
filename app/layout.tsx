@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Press_Start_2P } from 'next/font/google'
 import { SiteProviders } from '@/components/SiteProviders'
+import { ogImages } from '@/components/SeoCrawlBlock'
 import { SITE_KEYWORDS } from '@/lib/seo-keywords'
 import { websiteJsonLd } from '@/lib/seo-jsonld'
 import { absoluteUrl } from '@/lib/site-url'
@@ -18,52 +19,61 @@ const mcPixel = Press_Start_2P({
   variable: '--font-pixel',
 })
 
-// GitHub Pages: BASE_PATH=/repo — без префикса /icon.png уходит на github.io/icon.png (404).
 const basePath = process.env.BASE_PATH ?? ''
 const faviconUrl = `${basePath}/icon.png`
 
 const rootDescription =
-  'RGB Minecraft: gradient and solid RGB text for chat and configs (MiniMessage, & and § codes, JSON, BBCode), YAML or JSON string editor, enchantment and effect ID lists. EN / RU / UA. | Генератор RGB текста для Minecraft, редактор YAML/JSON, ID зачарований и эффектов. | Генератор RGB тексту Minecraft, YAML/JSON, ID зачарувань та ефектів.'
+  'Генератор RGB и градиента Minecraft: MiniMessage, коды &/§, JSON, MOTD, ники, lore. TAB-анимации, символы, ID зачарований и эффектов, настройки сервера. Бесплатно, EN/RU/UA. | Free Minecraft RGB gradient text generator, TAB YAML animations, Unicode symbols, enchant/effect IDs. | Генератор RGB/градієнта Minecraft, TAB, символи, ID зачарувань і ефектів.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl('/')),
   title: {
-    default: 'RGB Minecraft - Text Generator',
+    default: 'RGB Minecraft — генератор градиента и цветного текста',
     template: '%s | RGB Minecraft',
   },
   description: rootDescription,
   keywords: SITE_KEYWORDS,
   authors: [{ name: 'Zoobastiks' }],
   creator: 'Zoobastiks',
+  category: 'games',
   icons: {
-    icon: [{ url: faviconUrl, sizes: '64x64', type: 'image/png' }],
+    icon: [{ url: faviconUrl, sizes: 'any', type: 'image/png' }],
   },
   alternates: {
     canonical: absoluteUrl('/'),
     languages: {
-      'ru-RU': absoluteUrl('/'),
-      'en-US': absoluteUrl('/'),
-      'uk-UA': absoluteUrl('/'),
       'x-default': absoluteUrl('/'),
+      ru: absoluteUrl('/'),
+      en: absoluteUrl('/'),
+      uk: absoluteUrl('/'),
     },
   },
   openGraph: {
-    title: 'RGB Minecraft - Text Generator',
+    title: 'RGB Minecraft — генератор градиента и цветного текста',
     description: rootDescription,
     url: absoluteUrl('/'),
     siteName: 'RGB Minecraft',
     locale: 'ru_RU',
     alternateLocale: ['en_US', 'uk_UA'],
     type: 'website',
+    images: ogImages(),
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RGB Minecraft - Text Generator',
+    title: 'RGB Minecraft — генератор градиента и цветного текста',
     description: rootDescription,
+    images: [absoluteUrl('/og.png')],
   },
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
 }
 
@@ -90,6 +100,32 @@ export default function RootLayout({
             __html: JSON.stringify(websiteJsonLd()),
           }}
         />
+        <noscript>
+          <div>
+            <h1>RGB Minecraft — Zoobastiks</h1>
+            <p>{rootDescription}</p>
+            <ul>
+              <li>
+                <a href={absoluteUrl('/')}>Генератор RGB</a>
+              </li>
+              <li>
+                <a href={absoluteUrl('/tab')}>TAB анимации</a>
+              </li>
+              <li>
+                <a href={absoluteUrl('/enchant')}>Зачарования</a>
+              </li>
+              <li>
+                <a href={absoluteUrl('/effects')}>Эффекты</a>
+              </li>
+              <li>
+                <a href={absoluteUrl('/symbols')}>Символы</a>
+              </li>
+              <li>
+                <a href={absoluteUrl('/server')}>Сервер</a>
+              </li>
+            </ul>
+          </div>
+        </noscript>
         <SiteProviders>{children}</SiteProviders>
       </body>
     </html>
