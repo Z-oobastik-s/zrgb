@@ -19,8 +19,14 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'ru',
     icons: [
       {
-        src: `${prefix}/og.png`,
-        sizes: '1200x630',
+        src: `${prefix}/icon.png`,
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: `${prefix}/apple-touch-icon.png`,
+        sizes: '180x180',
         type: 'image/png',
         purpose: 'any',
       },

@@ -21,6 +21,7 @@ const mcPixel = Press_Start_2P({
 
 const basePath = process.env.BASE_PATH ?? ''
 const faviconUrl = `${basePath}/icon.png`
+const appleIconUrl = `${basePath}/apple-touch-icon.png`
 
 const rootDescription =
   'Генератор RGB и градиента Minecraft: MiniMessage, коды &/§, JSON, MOTD, ники, lore. TAB-анимации, символы, ID зачарований и эффектов, настройки сервера. Бесплатно, EN/RU/UA. | Free Minecraft RGB gradient text generator, TAB YAML animations, Unicode symbols, enchant/effect IDs. | Генератор RGB/градієнта Minecraft, TAB, символи, ID зачарувань і ефектів.'
@@ -37,7 +38,11 @@ export const metadata: Metadata = {
   creator: 'Zoobastiks',
   category: 'games',
   icons: {
-    icon: [{ url: faviconUrl, sizes: 'any', type: 'image/png' }],
+    icon: [
+      { url: faviconUrl, sizes: '192x192', type: 'image/png' },
+      { url: faviconUrl, sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: appleIconUrl, sizes: '180x180', type: 'image/png' }],
   },
   alternates: {
     canonical: absoluteUrl('/'),
